@@ -1,0 +1,14 @@
+name: jlink
+root: ./
+pre_window: 
+startup_window: jlink
+
+windows:
+  - jlink:
+      layout: even-vertical
+      panes:
+        - jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1
+  - service:
+      layout: even-vertical
+      panes:
+        - tmux detach && tmux kill-window -t service

@@ -1,0 +1,1626 @@
+ARM GAS  /tmp/ccvCCBem.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"modem_interface.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.verify_payload,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv4-sp-d16
+  24              	verify_payload:
+  25              	.LFB129:
+  26              		.file 1 "../../shields/Murata/src/modem_interface.c"
+   1:../../shields/Murata/src/modem_interface.c **** #include <string.h>
+   2:../../shields/Murata/src/modem_interface.c **** 
+   3:../../shields/Murata/src/modem_interface.c **** //#include "hwuart.h"
+   4:../../shields/Murata/src/modem_interface.c **** 
+   5:../../shields/Murata/src/modem_interface.c **** //#include "framework_defs.h"
+   6:../../shields/Murata/src/modem_interface.c **** //#include "platform_defs.h"
+   7:../../shields/Murata/src/modem_interface.c **** #include "fifo.h"
+   8:../../shields/Murata/src/modem_interface.c **** //#include "scheduler.h"
+   9:../../shields/Murata/src/modem_interface.c **** #include "modem_interface.h"
+  10:../../shields/Murata/src/modem_interface.c **** //#include "hal_defs.h"
+  11:../../shields/Murata/src/modem_interface.c **** //#include "debug.h"
+  12:../../shields/Murata/src/modem_interface.c **** #include "errors.h"
+  13:../../shields/Murata/src/modem_interface.c **** //#include "platform_defs.h"
+  14:../../shields/Murata/src/modem_interface.c **** 
+  15:../../shields/Murata/src/modem_interface.c **** //#include "hwsystem.h"
+  16:../../shields/Murata/src/modem_interface.c **** //#include "hwatomic.h"
+  17:../../shields/Murata/src/modem_interface.c **** #include "crc.h"
+  18:../../shields/Murata/src/modem_interface.c **** 
+  19:../../shields/Murata/src/modem_interface.c **** //#include "ng.h"
+  20:../../shields/Murata/src/modem_interface.c **** #include "crc.h"
+  21:../../shields/Murata/src/modem_interface.c **** 
+  22:../../shields/Murata/src/modem_interface.c **** //#include "log.h"
+  23:../../shields/Murata/src/modem_interface.c **** #include "stm32l4xx_hal.h"
+  24:../../shields/Murata/src/modem_interface.c **** 
+  25:../../shields/Murata/src/modem_interface.c **** 
+  26:../../shields/Murata/src/modem_interface.c **** #define RX_BUFFER_SIZE 256
+  27:../../shields/Murata/src/modem_interface.c **** 
+  28:../../shields/Murata/src/modem_interface.c **** #define TX_FIFO_FLUSH_CHUNK_SIZE 10 // at a baudrate of 115200 this ensures completion within 1 ms
+  29:../../shields/Murata/src/modem_interface.c ****                                     // TODO baudrate dependent
+  30:../../shields/Murata/src/modem_interface.c **** #define PLATFORM_USE_MODEM_INTERRUPT_LINES 0
+  31:../../shields/Murata/src/modem_interface.c **** #define HAL_UART_USE_DMA_TX 1
+  32:../../shields/Murata/src/modem_interface.c **** //static uart_handle_t* uart;
+ARM GAS  /tmp/ccvCCBem.s 			page 2
+
+
+  33:../../shields/Murata/src/modem_interface.c **** UART_HandleTypeDef* uart_handle;
+  34:../../shields/Murata/src/modem_interface.c **** 
+  35:../../shields/Murata/src/modem_interface.c **** static uint8_t rx_buffer[RX_BUFFER_SIZE];
+  36:../../shields/Murata/src/modem_interface.c **** uint8_t rxData[1];
+  37:../../shields/Murata/src/modem_interface.c **** fifo_t rx_fifo;
+  38:../../shields/Murata/src/modem_interface.c **** 
+  39:../../shields/Murata/src/modem_interface.c **** #if defined(FRAMEWORK_LOG_ENABLED) && defined(FRAMEWORK_MODEM_INTERFACE_LOG_ENABLED)
+  40:../../shields/Murata/src/modem_interface.c ****   #define DPRINT(...) log_print_string(__VA_ARGS__)
+  41:../../shields/Murata/src/modem_interface.c ****   #define DPRINT_DATA(...) log_print_data(__VA_ARGS__)
+  42:../../shields/Murata/src/modem_interface.c **** #else
+  43:../../shields/Murata/src/modem_interface.c ****   #define DPRINT(...)
+  44:../../shields/Murata/src/modem_interface.c ****   #define DPRINT_DATA(...)
+  45:../../shields/Murata/src/modem_interface.c **** #endif
+  46:../../shields/Murata/src/modem_interface.c **** 
+  47:../../shields/Murata/src/modem_interface.c **** 
+  48:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_SYNC_BYTE 0xC0
+  49:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_VERSION   0x00
+  50:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_HEADER_SIZE 7
+  51:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_SIZE 4
+  52:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_COUNTER 2
+  53:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_TYPE 3
+  54:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_CRC1   5
+  55:../../shields/Murata/src/modem_interface.c **** #define SERIAL_FRAME_CRC2   6
+  56:../../shields/Murata/src/modem_interface.c **** 
+  57:../../shields/Murata/src/modem_interface.c **** #define MODEM_INTERFACE_TX_FIFO_SIZE 255
+  58:../../shields/Murata/src/modem_interface.c **** static uint8_t modem_interface_tx_buffer[MODEM_INTERFACE_TX_FIFO_SIZE];
+  59:../../shields/Murata/src/modem_interface.c **** static fifo_t modem_interface_tx_fifo;
+  60:../../shields/Murata/src/modem_interface.c **** static bool request_pending = false;
+  61:../../shields/Murata/src/modem_interface.c **** 
+  62:../../shields/Murata/src/modem_interface.c **** uint8_t header[SERIAL_FRAME_HEADER_SIZE];
+  63:../../shields/Murata/src/modem_interface.c **** static uint8_t payload_len = 0;
+  64:../../shields/Murata/src/modem_interface.c **** static uint8_t packet_up_counter = 0;
+  65:../../shields/Murata/src/modem_interface.c **** static uint8_t packet_down_counter = 0;
+  66:../../shields/Murata/src/modem_interface.c **** //static pin_id_t uart_state_pin;
+  67:../../shields/Murata/src/modem_interface.c **** //static pin_id_t target_uart_state_pin;
+  68:../../shields/Murata/src/modem_interface.c **** 
+  69:../../shields/Murata/src/modem_interface.c **** static bool modem_listen_uart_inited = false;
+  70:../../shields/Murata/src/modem_interface.c **** static bool parsed_header = false;
+  71:../../shields/Murata/src/modem_interface.c **** 
+  72:../../shields/Murata/src/modem_interface.c **** static cmd_handler_t alp_handler;
+  73:../../shields/Murata/src/modem_interface.c **** static cmd_handler_t ping_response_handler;
+  74:../../shields/Murata/src/modem_interface.c **** static cmd_handler_t logging_handler;
+  75:../../shields/Murata/src/modem_interface.c **** static target_rebooted_callback_t target_rebooted_cb;
+  76:../../shields/Murata/src/modem_interface.c **** 
+  77:../../shields/Murata/src/modem_interface.c **** typedef enum {
+  78:../../shields/Murata/src/modem_interface.c ****   STATE_IDLE,
+  79:../../shields/Murata/src/modem_interface.c ****   STATE_REQ_START,
+  80:../../shields/Murata/src/modem_interface.c ****   STATE_REQ_WAIT,
+  81:../../shields/Murata/src/modem_interface.c ****   STATE_REQ_BUSY,
+  82:../../shields/Murata/src/modem_interface.c ****   STATE_RESP,
+  83:../../shields/Murata/src/modem_interface.c ****   STATE_RESP_PENDING_REQ
+  84:../../shields/Murata/src/modem_interface.c **** } state_t;
+  85:../../shields/Murata/src/modem_interface.c **** 
+  86:../../shields/Murata/src/modem_interface.c **** static state_t state = STATE_IDLE;
+  87:../../shields/Murata/src/modem_interface.c **** 
+  88:../../shields/Murata/src/modem_interface.c **** #define SWITCH_STATE(s) do { \
+  89:../../shields/Murata/src/modem_interface.c ****   state = s; \
+ARM GAS  /tmp/ccvCCBem.s 			page 3
+
+
+  90:../../shields/Murata/src/modem_interface.c ****   DPRINT("switch to %s\n", #s); \
+  91:../../shields/Murata/src/modem_interface.c **** } while(0)
+  92:../../shields/Murata/src/modem_interface.c **** 
+  93:../../shields/Murata/src/modem_interface.c **** bool process_rx_fifo(void);
+  94:../../shields/Murata/src/modem_interface.c **** void execute_state_machine(void);
+  95:../../shields/Murata/src/modem_interface.c **** 
+  96:../../shields/Murata/src/modem_interface.c **** 
+  97:../../shields/Murata/src/modem_interface.c **** /** @Brief Enable UART interface and UART interrupt
+  98:../../shields/Murata/src/modem_interface.c ****  *  @return void
+  99:../../shields/Murata/src/modem_interface.c ****  */
+ 100:../../shields/Murata/src/modem_interface.c **** static void modem_interface_enable(void) 
+ 101:../../shields/Murata/src/modem_interface.c **** {
+ 102:../../shields/Murata/src/modem_interface.c ****   DPRINT("uart enabled @ %i",timer_get_counter_value());
+ 103:../../shields/Murata/src/modem_interface.c ****   //assert(uart_enable(uart));
+ 104:../../shields/Murata/src/modem_interface.c ****   //uart_rx_interrupt_enable(uart);
+ 105:../../shields/Murata/src/modem_interface.c ****   modem_listen_uart_inited = true;
+ 106:../../shields/Murata/src/modem_interface.c **** }
+ 107:../../shields/Murata/src/modem_interface.c **** 
+ 108:../../shields/Murata/src/modem_interface.c **** /** @Brief disables UART interface
+ 109:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 110:../../shields/Murata/src/modem_interface.c ****  */
+ 111:../../shields/Murata/src/modem_interface.c **** static void modem_interface_disable(void) 
+ 112:../../shields/Murata/src/modem_interface.c **** {
+ 113:../../shields/Murata/src/modem_interface.c ****   modem_listen_uart_inited = false;
+ 114:../../shields/Murata/src/modem_interface.c ****   //assert(uart_disable(uart));
+ 115:../../shields/Murata/src/modem_interface.c ****   DPRINT("uart disabled @ %i",timer_get_counter_value());
+ 116:../../shields/Murata/src/modem_interface.c **** }
+ 117:../../shields/Murata/src/modem_interface.c **** 
+ 118:../../shields/Murata/src/modem_interface.c **** /** @brief Lets receiver know that 
+ 119:../../shields/Murata/src/modem_interface.c ****  *  all the data has been transfered
+ 120:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 121:../../shields/Murata/src/modem_interface.c ****  */
+ 122:../../shields/Murata/src/modem_interface.c **** static void release_receiver()
+ 123:../../shields/Murata/src/modem_interface.c **** {
+ 124:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 125:../../shields/Murata/src/modem_interface.c ****   DPRINT("release receiver\n");
+ 126:../../shields/Murata/src/modem_interface.c ****   modem_interface_disable();
+ 127:../../shields/Murata/src/modem_interface.c ****   //hw_gpio_clr(uart_state_pin);
+ 128:../../shields/Murata/src/modem_interface.c ****   modem_release();
+ 129:../../shields/Murata/src/modem_interface.c **** #endif
+ 130:../../shields/Murata/src/modem_interface.c **** }
+ 131:../../shields/Murata/src/modem_interface.c **** 
+ 132:../../shields/Murata/src/modem_interface.c **** /** @brief transmit data in fifo to UART
+ 133:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 134:../../shields/Murata/src/modem_interface.c ****  */
+ 135:../../shields/Murata/src/modem_interface.c **** static void flush_modem_interface_tx_fifo(void *arg) 
+ 136:../../shields/Murata/src/modem_interface.c **** {
+ 137:../../shields/Murata/src/modem_interface.c ****   uint8_t len = fifo_get_size(&modem_interface_tx_fifo);
+ 138:../../shields/Murata/src/modem_interface.c **** 
+ 139:../../shields/Murata/src/modem_interface.c **** #ifdef HAL_UART_USE_DMA_TX
+ 140:../../shields/Murata/src/modem_interface.c ****   // when using DMA we transmit the whole FIFO at once
+ 141:../../shields/Murata/src/modem_interface.c ****   uint8_t buffer[MODEM_INTERFACE_TX_FIFO_SIZE];
+ 142:../../shields/Murata/src/modem_interface.c ****   fifo_pop(&modem_interface_tx_fifo, buffer, len);
+ 143:../../shields/Murata/src/modem_interface.c ****   //uart_send_bytes(uart, buffer, len);
+ 144:../../shields/Murata/src/modem_interface.c ****   HAL_UART_Transmit(uart_handle, buffer, len, 1000);
+ 145:../../shields/Murata/src/modem_interface.c **** #else
+ 146:../../shields/Murata/src/modem_interface.c ****   // only send small chunks over uart each invocation, to make sure
+ARM GAS  /tmp/ccvCCBem.s 			page 4
+
+
+ 147:../../shields/Murata/src/modem_interface.c ****   // we don't interfer with critical stack timings.
+ 148:../../shields/Murata/src/modem_interface.c ****   // When there is still data left in the fifo this will be rescheduled
+ 149:../../shields/Murata/src/modem_interface.c ****   // with lowest prio
+ 150:../../shields/Murata/src/modem_interface.c ****   uint8_t chunk[TX_FIFO_FLUSH_CHUNK_SIZE];
+ 151:../../shields/Murata/src/modem_interface.c ****   if(len <= TX_FIFO_FLUSH_CHUNK_SIZE)
+ 152:../../shields/Murata/src/modem_interface.c ****   {
+ 153:../../shields/Murata/src/modem_interface.c ****     fifo_pop(&modem_interface_tx_fifo, chunk, len);
+ 154:../../shields/Murata/src/modem_interface.c ****     //uart_send_bytes(uart, chunk, len);
+ 155:../../shields/Murata/src/modem_interface.c ****     HAL_UART_Transmit(uart_handle, chunk, len, 1000);
+ 156:../../shields/Murata/src/modem_interface.c ****     request_pending = false;
+ 157:../../shields/Murata/src/modem_interface.c ****     release_receiver();
+ 158:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 159:../../shields/Murata/src/modem_interface.c ****     //sched_post_task(&execute_state_machine);
+ 160:../../shields/Murata/src/modem_interface.c ****     execute_state_machine();
+ 161:../../shields/Murata/src/modem_interface.c **** #endif
+ 162:../../shields/Murata/src/modem_interface.c ****   } 
+ 163:../../shields/Murata/src/modem_interface.c ****   else 
+ 164:../../shields/Murata/src/modem_interface.c ****   {
+ 165:../../shields/Murata/src/modem_interface.c ****     fifo_pop(&modem_interface_tx_fifo, chunk, TX_FIFO_FLUSH_CHUNK_SIZE);
+ 166:../../shields/Murata/src/modem_interface.c ****     //uart_send_bytes(uart, chunk, TX_FIFO_FLUSH_CHUNK_SIZE);
+ 167:../../shields/Murata/src/modem_interface.c ****       HAL_UART_Transmit(uart_handle, chunk, TX_FIFO_FLUSH_CHUNK_SIZE, 1000);
+ 168:../../shields/Murata/src/modem_interface.c ****     //sched_post_task_prio(&flush_modem_interface_tx_fifo, MIN_PRIORITY, NULL);
+ 169:../../shields/Murata/src/modem_interface.c ****     flush_modem_interface_tx_fifo(NULL);
+ 170:../../shields/Murata/src/modem_interface.c ****   }
+ 171:../../shields/Murata/src/modem_interface.c **** #endif
+ 172:../../shields/Murata/src/modem_interface.c **** }
+ 173:../../shields/Murata/src/modem_interface.c **** 
+ 174:../../shields/Murata/src/modem_interface.c **** /** @Brief Keeps µC awake while receiving UART data
+ 175:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 176:../../shields/Murata/src/modem_interface.c ****  */
+ 177:../../shields/Murata/src/modem_interface.c **** static void modem_listen(void* arg)
+ 178:../../shields/Murata/src/modem_interface.c **** {
+ 179:../../shields/Murata/src/modem_interface.c ****   if(!modem_listen_uart_inited)
+ 180:../../shields/Murata/src/modem_interface.c ****   {
+ 181:../../shields/Murata/src/modem_interface.c ****     modem_interface_enable();
+ 182:../../shields/Murata/src/modem_interface.c ****     //hw_gpio_set(uart_state_pin); //set interrupt gpio to indicate ready for data
+ 183:../../shields/Murata/src/modem_interface.c ****     modem_wakeup();
+ 184:../../shields/Murata/src/modem_interface.c **** 
+ 185:../../shields/Murata/src/modem_interface.c ****     DPRINT("MODEM_ENABLE")
+ 186:../../shields/Murata/src/modem_interface.c ****   }
+ 187:../../shields/Murata/src/modem_interface.c ****   // prevent the MCU to go back to stop mode by scheduling ourself again until pin goes low,
+ 188:../../shields/Murata/src/modem_interface.c ****   // to keep UART RX enabled
+ 189:../../shields/Murata/src/modem_interface.c ****   //sched_post_task_prio(&modem_listen, MIN_PRIORITY, NULL);
+ 190:../../shields/Murata/src/modem_interface.c ****   while(HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_5));
+ 191:../../shields/Murata/src/modem_interface.c **** }
+ 192:../../shields/Murata/src/modem_interface.c **** 
+ 193:../../shields/Murata/src/modem_interface.c **** 
+ 194:../../shields/Murata/src/modem_interface.c **** /** @Brief Schedules flush tx fifo when receiver is ready
+ 195:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 196:../../shields/Murata/src/modem_interface.c ****  */
+ 197:../../shields/Murata/src/modem_interface.c **** void execute_state_machine(void)
+ 198:../../shields/Murata/src/modem_interface.c **** {
+ 199:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 200:../../shields/Murata/src/modem_interface.c ****   switch(state) {
+ 201:../../shields/Murata/src/modem_interface.c ****     case STATE_RESP:
+ 202:../../shields/Murata/src/modem_interface.c ****       // response period completed, process the request
+ 203:../../shields/Murata/src/modem_interface.c ****       //assert(!hw_gpio_get_in(target_uart_state_pin));
+ARM GAS  /tmp/ccvCCBem.s 			page 5
+
+
+ 204:../../shields/Murata/src/modem_interface.c ****       //sched_post_task(&process_rx_fifo);
+ 205:../../shields/Murata/src/modem_interface.c ****       process_rx_fifo();
+ 206:../../shields/Murata/src/modem_interface.c ****       if(request_pending) {
+ 207:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_RESP_PENDING_REQ);
+ 208:../../shields/Murata/src/modem_interface.c ****         //sched_post_task(&execute_state_machine);
+ 209:../../shields/Murata/src/modem_interface.c ****         execute_state_machine();
+ 210:../../shields/Murata/src/modem_interface.c ****       } else {
+ 211:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_IDLE);
+ 212:../../shields/Murata/src/modem_interface.c ****         //hw_gpio_clr(uart_state_pin);
+ 213:../../shields/Murata/src/modem_interface.c ****         modem_release();
+ 214:../../shields/Murata/src/modem_interface.c ****         //sched_cancel_task(&modem_listen);??
+ 215:../../shields/Murata/src/modem_interface.c ****         modem_interface_disable();
+ 216:../../shields/Murata/src/modem_interface.c ****       }
+ 217:../../shields/Murata/src/modem_interface.c ****       break;
+ 218:../../shields/Murata/src/modem_interface.c ****     case STATE_IDLE:
+ 219:../../shields/Murata/src/modem_interface.c ****       //if(hw_gpio_get_in(target_uart_state_pin)) {
+ 220:../../shields/Murata/src/modem_interface.c ****       if(HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_5)){
+ 221:../../shields/Murata/src/modem_interface.c ****         // wake-up requested
+ 222:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_RESP);
+ 223:../../shields/Murata/src/modem_interface.c ****         modem_listen(NULL);
+ 224:../../shields/Murata/src/modem_interface.c **** 
+ 225:../../shields/Murata/src/modem_interface.c ****         execute_state_machine();
+ 226:../../shields/Murata/src/modem_interface.c **** 
+ 227:../../shields/Murata/src/modem_interface.c ****         break;
+ 228:../../shields/Murata/src/modem_interface.c ****       } else if(request_pending) { //check if we are really requesting a start
+ 229:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_REQ_START);
+ 230:../../shields/Murata/src/modem_interface.c ****         // fall-through to STATE_REQ_START!
+ 231:../../shields/Murata/src/modem_interface.c ****       } else
+ 232:../../shields/Murata/src/modem_interface.c ****       {
+ 233:../../shields/Murata/src/modem_interface.c ****         break;
+ 234:../../shields/Murata/src/modem_interface.c ****       }
+ 235:../../shields/Murata/src/modem_interface.c ****     case STATE_REQ_START:
+ 236:../../shields/Murata/src/modem_interface.c ****       // TODO timeout
+ 237:../../shields/Murata/src/modem_interface.c ****       //sched_cancel_task(&modem_listen);
+ 238:../../shields/Murata/src/modem_interface.c ****       SWITCH_STATE(STATE_REQ_WAIT);
+ 239:../../shields/Murata/src/modem_interface.c ****       //hw_gpio_set(uart_state_pin); // wake-up receiver
+ 240:../../shields/Murata/src/modem_interface.c ****       modem_wakeup();
+ 241:../../shields/Murata/src/modem_interface.c ****       DPRINT("wake-up receiver\n");
+ 242:../../shields/Murata/src/modem_interface.c ****       //sched_post_task(&execute_state_machine); // reschedule again to prevent sleeoping
+ 243:../../shields/Murata/src/modem_interface.c ****       execute_state_machine();
+ 244:../../shields/Murata/src/modem_interface.c ****       // in principle we could go to sleep but this will cause pin to float, this can be improved l
+ 245:../../shields/Murata/src/modem_interface.c ****       break;
+ 246:../../shields/Murata/src/modem_interface.c ****     case STATE_REQ_WAIT:
+ 247:../../shields/Murata/src/modem_interface.c ****       //if(hw_gpio_get_in(target_uart_state_pin)) {
+ 248:../../shields/Murata/src/modem_interface.c ****       if(HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_5)){
+ 249:../../shields/Murata/src/modem_interface.c ****         // receiver active
+ 250:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_REQ_BUSY);
+ 251:../../shields/Murata/src/modem_interface.c ****         //execute_state_machine();
+ 252:../../shields/Murata/src/modem_interface.c ****         // fall-through to STATE_REQ_BUSY!
+ 253:../../shields/Murata/src/modem_interface.c ****       } else {
+ 254:../../shields/Murata/src/modem_interface.c ****         // TODO timeout
+ 255:../../shields/Murata/src/modem_interface.c ****         //sched_post_task(&execute_state_machine); // reschedule again to prevent sleeoping
+ 256:../../shields/Murata/src/modem_interface.c ****         execute_state_machine();
+ 257:../../shields/Murata/src/modem_interface.c ****         // in principle we could go to sleep but this will cause pin to float, this can be improved
+ 258:../../shields/Murata/src/modem_interface.c ****         //SWITCH_STATE(STATE_REQ_BUSY);
+ 259:../../shields/Murata/src/modem_interface.c ****         break;
+ 260:../../shields/Murata/src/modem_interface.c ****       }
+ARM GAS  /tmp/ccvCCBem.s 			page 6
+
+
+ 261:../../shields/Murata/src/modem_interface.c ****     case STATE_REQ_BUSY:
+ 262:../../shields/Murata/src/modem_interface.c ****       if(request_pending) {
+ 263:../../shields/Murata/src/modem_interface.c ****         modem_interface_enable();
+ 264:../../shields/Murata/src/modem_interface.c ****         //sched_post_task_prio(&flush_modem_interface_tx_fifo, MIN_PRIORITY, NULL);
+ 265:../../shields/Murata/src/modem_interface.c ****         flush_modem_interface_tx_fifo(NULL);
+ 266:../../shields/Murata/src/modem_interface.c ****       //} else if (!hw_gpio_get_in(target_uart_state_pin)){
+ 267:../../shields/Murata/src/modem_interface.c ****       }else if (!HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_5)){
+ 268:../../shields/Murata/src/modem_interface.c ****         SWITCH_STATE(STATE_IDLE);
+ 269:../../shields/Murata/src/modem_interface.c ****       } else{
+ 270:../../shields/Murata/src/modem_interface.c ****         //sched_post_task(&execute_state_machine); 
+ 271:../../shields/Murata/src/modem_interface.c ****         execute_state_machine();
+ 272:../../shields/Murata/src/modem_interface.c ****         //keep active until target reacts
+ 273:../../shields/Murata/src/modem_interface.c ****       }
+ 274:../../shields/Murata/src/modem_interface.c ****       break;
+ 275:../../shields/Murata/src/modem_interface.c ****     case STATE_RESP_PENDING_REQ:
+ 276:../../shields/Murata/src/modem_interface.c ****       //assert(request_pending);
+ 277:../../shields/Murata/src/modem_interface.c ****       // response period completed, initiate pending request by switching to REQ_START
+ 278:../../shields/Murata/src/modem_interface.c ****       //assert(!hw_gpio_get_in(target_uart_state_pin));
+ 279:../../shields/Murata/src/modem_interface.c ****       //hw_gpio_clr(uart_state_pin);
+ 280:../../shields/Murata/src/modem_interface.c ****       modem_release();
+ 281:../../shields/Murata/src/modem_interface.c ****       SWITCH_STATE(STATE_REQ_START);
+ 282:../../shields/Murata/src/modem_interface.c ****       //sched_post_task(&execute_state_machine);
+ 283:../../shields/Murata/src/modem_interface.c ****       execute_state_machine();
+ 284:../../shields/Murata/src/modem_interface.c ****       break;
+ 285:../../shields/Murata/src/modem_interface.c ****     default:
+ 286:../../shields/Murata/src/modem_interface.c ****       DPRINT("unexpected state %i\n", state);
+ 287:../../shields/Murata/src/modem_interface.c ****       //assert(false);
+ 288:../../shields/Murata/src/modem_interface.c ****   }
+ 289:../../shields/Murata/src/modem_interface.c **** #endif
+ 290:../../shields/Murata/src/modem_interface.c **** }
+ 291:../../shields/Murata/src/modem_interface.c **** 
+ 292:../../shields/Murata/src/modem_interface.c **** /** @Brief Check package counter and crc
+ 293:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 294:../../shields/Murata/src/modem_interface.c ****  */
+ 295:../../shields/Murata/src/modem_interface.c **** static bool verify_payload(fifo_t* bytes, uint8_t* header)
+ 296:../../shields/Murata/src/modem_interface.c **** {
+  27              		.loc 1 296 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 B0B5     		push	{r4, r5, r7, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 16
+  35              		.cfi_offset 4, -16
+  36              		.cfi_offset 5, -12
+  37              		.cfi_offset 7, -8
+  38              		.cfi_offset 14, -4
+  39 0002 00AF     		add	r7, sp, #0
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_register 7
+  42 0004 0C46     		mov	r4, r1
+ 297:../../shields/Murata/src/modem_interface.c ****   uint8_t payload[header[SERIAL_FRAME_SIZE]];
+  43              		.loc 1 297 0
+  44 0006 0B79     		ldrb	r3, [r1, #4]	@ zero_extendqisi2
+  45              	.LVL1:
+  46 0008 DA1D     		adds	r2, r3, #7
+ARM GAS  /tmp/ccvCCBem.s 			page 7
+
+
+  47 000a 22F00702 		bic	r2, r2, #7
+  48 000e ADEB020D 		sub	sp, sp, r2
+  49 0012 6D46     		mov	r5, sp
+  50              	.LVL2:
+ 298:../../shields/Murata/src/modem_interface.c ****   fifo_peek(bytes, (uint8_t*) &payload, 0, header[SERIAL_FRAME_SIZE]);
+  51              		.loc 1 298 0
+  52 0014 0022     		movs	r2, #0
+  53 0016 6946     		mov	r1, sp
+  54              	.LVL3:
+  55 0018 FFF7FEFF 		bl	fifo_peek
+  56              	.LVL4:
+ 299:../../shields/Murata/src/modem_interface.c **** 
+ 300:../../shields/Murata/src/modem_interface.c ****   //check for missing packages
+ 301:../../shields/Murata/src/modem_interface.c ****   packet_down_counter++;
+  57              		.loc 1 301 0
+  58 001c 0E4A     		ldr	r2, .L8
+  59 001e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  60 0020 0133     		adds	r3, r3, #1
+  61 0022 DBB2     		uxtb	r3, r3
+  62 0024 1370     		strb	r3, [r2]
+ 302:../../shields/Murata/src/modem_interface.c ****   if(header[SERIAL_FRAME_COUNTER]!=packet_down_counter)
+  63              		.loc 1 302 0
+  64 0026 A278     		ldrb	r2, [r4, #2]	@ zero_extendqisi2
+  65 0028 9342     		cmp	r3, r2
+  66 002a 01D0     		beq	.L2
+ 303:../../shields/Murata/src/modem_interface.c ****   {
+ 304:../../shields/Murata/src/modem_interface.c ****     //TODO consequence? (save total missing packages?)
+ 305:../../shields/Murata/src/modem_interface.c ****     //log_print_string("!!! missed packages: %i",(header[SERIAL_FRAME_COUNTER]-packet_down_counter)
+ 306:../../shields/Murata/src/modem_interface.c ****     packet_down_counter=header[SERIAL_FRAME_COUNTER]; //reset package counter
+  67              		.loc 1 306 0
+  68 002c 0A4B     		ldr	r3, .L8
+  69 002e 1A70     		strb	r2, [r3]
+  70              	.L2:
+ 307:../../shields/Murata/src/modem_interface.c ****   }
+ 308:../../shields/Murata/src/modem_interface.c **** 
+ 309:../../shields/Murata/src/modem_interface.c ****   DPRINT("RX HEADER: ");
+ 310:../../shields/Murata/src/modem_interface.c ****   DPRINT_DATA(header, SERIAL_FRAME_HEADER_SIZE);
+ 311:../../shields/Murata/src/modem_interface.c ****   DPRINT("RX PAYLOAD: ");
+ 312:../../shields/Murata/src/modem_interface.c ****   DPRINT_DATA(payload, header[SERIAL_FRAME_SIZE]);
+ 313:../../shields/Murata/src/modem_interface.c **** 
+ 314:../../shields/Murata/src/modem_interface.c ****   uint16_t calculated_crc = crc_calculate(payload, header[SERIAL_FRAME_SIZE]);
+  71              		.loc 1 314 0
+  72 0030 2179     		ldrb	r1, [r4, #4]	@ zero_extendqisi2
+  73 0032 2846     		mov	r0, r5
+  74 0034 FFF7FEFF 		bl	crc_calculate
+  75              	.LVL5:
+ 315:../../shields/Murata/src/modem_interface.c ****  
+ 316:../../shields/Murata/src/modem_interface.c ****   if(header[SERIAL_FRAME_CRC1]!=((calculated_crc >> 8) & 0x00FF) || header[SERIAL_FRAME_CRC2]!=(cal
+  76              		.loc 1 316 0
+  77 0038 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+  78 003a C0F30F23 		ubfx	r3, r0, #8, #16
+  79 003e 9A42     		cmp	r2, r3
+  80 0040 02D0     		beq	.L7
+ 317:../../shields/Murata/src/modem_interface.c ****   {
+ 318:../../shields/Murata/src/modem_interface.c ****     //TODO consequence? (request repeat?)
+ 319:../../shields/Murata/src/modem_interface.c ****     //log_print_string("CRC incorrect!");
+ 320:../../shields/Murata/src/modem_interface.c ****     return false;
+ARM GAS  /tmp/ccvCCBem.s 			page 8
+
+
+  81              		.loc 1 320 0
+  82 0042 0020     		movs	r0, #0
+  83              	.LVL6:
+  84              	.L3:
+ 321:../../shields/Murata/src/modem_interface.c ****   }
+ 322:../../shields/Murata/src/modem_interface.c ****   else
+ 323:../../shields/Murata/src/modem_interface.c ****     return true;
+ 324:../../shields/Murata/src/modem_interface.c **** }
+  85              		.loc 1 324 0
+  86 0044 BD46     		mov	sp, r7
+  87              	.LCFI2:
+  88              		.cfi_remember_state
+  89              		.cfi_def_cfa_register 13
+  90              		@ sp needed
+  91 0046 B0BD     		pop	{r4, r5, r7, pc}
+  92              	.LVL7:
+  93              	.L7:
+  94              	.LCFI3:
+  95              		.cfi_restore_state
+ 316:../../shields/Murata/src/modem_interface.c ****   {
+  96              		.loc 1 316 0 discriminator 1
+  97 0048 A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
+  98 004a C0B2     		uxtb	r0, r0
+  99              	.LVL8:
+ 100 004c 8342     		cmp	r3, r0
+ 101 004e 01D0     		beq	.L5
+ 320:../../shields/Murata/src/modem_interface.c ****   }
+ 102              		.loc 1 320 0
+ 103 0050 0020     		movs	r0, #0
+ 104 0052 F7E7     		b	.L3
+ 105              	.L5:
+ 323:../../shields/Murata/src/modem_interface.c **** }
+ 106              		.loc 1 323 0
+ 107 0054 0120     		movs	r0, #1
+ 108 0056 F5E7     		b	.L3
+ 109              	.L9:
+ 110              		.align	2
+ 111              	.L8:
+ 112 0058 00000000 		.word	.LANCHOR0
+ 113              		.cfi_endproc
+ 114              	.LFE129:
+ 116              		.section	.text.flush_modem_interface_tx_fifo,"ax",%progbits
+ 117              		.align	1
+ 118              		.syntax unified
+ 119              		.thumb
+ 120              		.thumb_func
+ 121              		.fpu fpv4-sp-d16
+ 123              	flush_modem_interface_tx_fifo:
+ 124              	.LFB126:
+ 136:../../shields/Murata/src/modem_interface.c ****   uint8_t len = fifo_get_size(&modem_interface_tx_fifo);
+ 125              		.loc 1 136 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 256
+ 128              		@ frame_needed = 0, uses_anonymous_args = 0
+ 129              	.LVL9:
+ 130 0000 30B5     		push	{r4, r5, lr}
+ 131              	.LCFI4:
+ARM GAS  /tmp/ccvCCBem.s 			page 9
+
+
+ 132              		.cfi_def_cfa_offset 12
+ 133              		.cfi_offset 4, -12
+ 134              		.cfi_offset 5, -8
+ 135              		.cfi_offset 14, -4
+ 136 0002 C1B0     		sub	sp, sp, #260
+ 137              	.LCFI5:
+ 138              		.cfi_def_cfa_offset 272
+ 137:../../shields/Murata/src/modem_interface.c **** 
+ 139              		.loc 1 137 0
+ 140 0004 094D     		ldr	r5, .L12
+ 141 0006 2846     		mov	r0, r5
+ 142              	.LVL10:
+ 143 0008 FFF7FEFF 		bl	fifo_get_size
+ 144              	.LVL11:
+ 145 000c C4B2     		uxtb	r4, r0
+ 142:../../shields/Murata/src/modem_interface.c ****   //uart_send_bytes(uart, buffer, len);
+ 146              		.loc 1 142 0
+ 147 000e 2246     		mov	r2, r4
+ 148 0010 6946     		mov	r1, sp
+ 149 0012 2846     		mov	r0, r5
+ 150              	.LVL12:
+ 151 0014 FFF7FEFF 		bl	fifo_pop
+ 152              	.LVL13:
+ 144:../../shields/Murata/src/modem_interface.c **** #else
+ 153              		.loc 1 144 0
+ 154 0018 4FF47A73 		mov	r3, #1000
+ 155 001c 2246     		mov	r2, r4
+ 156 001e 6946     		mov	r1, sp
+ 157 0020 0348     		ldr	r0, .L12+4
+ 158 0022 0068     		ldr	r0, [r0]
+ 159 0024 FFF7FEFF 		bl	HAL_UART_Transmit
+ 160              	.LVL14:
+ 172:../../shields/Murata/src/modem_interface.c **** 
+ 161              		.loc 1 172 0
+ 162 0028 41B0     		add	sp, sp, #260
+ 163              	.LCFI6:
+ 164              		.cfi_def_cfa_offset 12
+ 165              		@ sp needed
+ 166 002a 30BD     		pop	{r4, r5, pc}
+ 167              	.LVL15:
+ 168              	.L13:
+ 169              		.align	2
+ 170              	.L12:
+ 171 002c 00000000 		.word	.LANCHOR1
+ 172 0030 00000000 		.word	uart_handle
+ 173              		.cfi_endproc
+ 174              	.LFE126:
+ 176              		.section	.text.execute_state_machine,"ax",%progbits
+ 177              		.align	1
+ 178              		.global	execute_state_machine
+ 179              		.syntax unified
+ 180              		.thumb
+ 181              		.thumb_func
+ 182              		.fpu fpv4-sp-d16
+ 184              	execute_state_machine:
+ 185              	.LFB128:
+ 198:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ARM GAS  /tmp/ccvCCBem.s 			page 10
+
+
+ 186              		.loc 1 198 0
+ 187              		.cfi_startproc
+ 188              		@ args = 0, pretend = 0, frame = 0
+ 189              		@ frame_needed = 0, uses_anonymous_args = 0
+ 190              		@ link register save eliminated.
+ 191 0000 7047     		bx	lr
+ 192              		.cfi_endproc
+ 193              	.LFE128:
+ 195              		.section	.text.modem_interface_uart_rx_cb,"ax",%progbits
+ 196              		.align	1
+ 197              		.global	modem_interface_uart_rx_cb
+ 198              		.syntax unified
+ 199              		.thumb
+ 200              		.thumb_func
+ 201              		.fpu fpv4-sp-d16
+ 203              	modem_interface_uart_rx_cb:
+ 204              	.LFB132:
+ 325:../../shields/Murata/src/modem_interface.c **** 
+ 326:../../shields/Murata/src/modem_interface.c **** /** @Brief Processes received uart data
+ 327:../../shields/Murata/src/modem_interface.c ****  * 1) Search for sync bytes (always)
+ 328:../../shields/Murata/src/modem_interface.c ****  * 2) get header size and parse header
+ 329:../../shields/Murata/src/modem_interface.c ****  * 3) Wait for correct # of bytes (length present in header)
+ 330:../../shields/Murata/src/modem_interface.c ****  * 4) Execute crc check and check message counter
+ 331:../../shields/Murata/src/modem_interface.c ****  * 5) send to corresponding service (alp, ping service, log service)
+ 332:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 333:../../shields/Murata/src/modem_interface.c ****  */
+ 334:../../shields/Murata/src/modem_interface.c **** bool process_rx_fifo(void) 
+ 335:../../shields/Murata/src/modem_interface.c **** {
+ 336:../../shields/Murata/src/modem_interface.c ****   if(!parsed_header) 
+ 337:../../shields/Murata/src/modem_interface.c ****   {
+ 338:../../shields/Murata/src/modem_interface.c ****     if(fifo_get_size(&rx_fifo) > SERIAL_FRAME_HEADER_SIZE) 
+ 339:../../shields/Murata/src/modem_interface.c ****     {
+ 340:../../shields/Murata/src/modem_interface.c ****         fifo_peek(&rx_fifo, header, 0, SERIAL_FRAME_HEADER_SIZE);
+ 341:../../shields/Murata/src/modem_interface.c **** 
+ 342:../../shields/Murata/src/modem_interface.c ****         if(header[0] != SERIAL_FRAME_SYNC_BYTE || header[1] != SERIAL_FRAME_VERSION) 
+ 343:../../shields/Murata/src/modem_interface.c ****         {
+ 344:../../shields/Murata/src/modem_interface.c ****           fifo_skip(&rx_fifo, 1);
+ 345:../../shields/Murata/src/modem_interface.c ****           DPRINT("skip");
+ 346:../../shields/Murata/src/modem_interface.c ****           parsed_header = false;
+ 347:../../shields/Murata/src/modem_interface.c ****           payload_len = 0;
+ 348:../../shields/Murata/src/modem_interface.c ****           if(fifo_get_size(&rx_fifo) > SERIAL_FRAME_HEADER_SIZE)
+ 349:../../shields/Murata/src/modem_interface.c ****             //process_rx_fifo();
+ 350:../../shields/Murata/src/modem_interface.c ****             //sched_post_task(&process_rx_fifo);
+ 351:../../shields/Murata/src/modem_interface.c ****           return false;
+ 352:../../shields/Murata/src/modem_interface.c ****         }
+ 353:../../shields/Murata/src/modem_interface.c ****         parsed_header = true;
+ 354:../../shields/Murata/src/modem_interface.c ****         fifo_skip(&rx_fifo, SERIAL_FRAME_HEADER_SIZE);
+ 355:../../shields/Murata/src/modem_interface.c ****         payload_len = header[SERIAL_FRAME_SIZE];
+ 356:../../shields/Murata/src/modem_interface.c ****         DPRINT("UART RX, payload size = %i", payload_len);
+ 357:../../shields/Murata/src/modem_interface.c ****         //sched_post_task(&process_rx_fifo);
+ 358:../../shields/Murata/src/modem_interface.c ****         //process_rx_fifo();
+ 359:../../shields/Murata/src/modem_interface.c ****     }
+ 360:../../shields/Murata/src/modem_interface.c ****   }
+ 361:../../shields/Murata/src/modem_interface.c ****   else 
+ 362:../../shields/Murata/src/modem_interface.c ****   {
+ 363:../../shields/Murata/src/modem_interface.c ****     if(fifo_get_size(&rx_fifo) < payload_len) {
+ 364:../../shields/Murata/src/modem_interface.c ****       //process_rx_fifo();
+ARM GAS  /tmp/ccvCCBem.s 			page 11
+
+
+ 365:../../shields/Murata/src/modem_interface.c ****       return false;
+ 366:../../shields/Murata/src/modem_interface.c ****     }
+ 367:../../shields/Murata/src/modem_interface.c ****     // payload complete, start parsing
+ 368:../../shields/Murata/src/modem_interface.c ****     // rx_fifo can be bigger than the current serial packet, init a subview fifo
+ 369:../../shields/Murata/src/modem_interface.c ****     // which is restricted to payload_len so we can't parse past this packet.
+ 370:../../shields/Murata/src/modem_interface.c ****     fifo_t payload_fifo;
+ 371:../../shields/Murata/src/modem_interface.c ****     fifo_init_subview(&payload_fifo, &rx_fifo, 0, payload_len);
+ 372:../../shields/Murata/src/modem_interface.c ****   
+ 373:../../shields/Murata/src/modem_interface.c ****     if(verify_payload(&payload_fifo,(uint8_t *)&header))
+ 374:../../shields/Murata/src/modem_interface.c ****     {
+ 375:../../shields/Murata/src/modem_interface.c ****       if(header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_ALP_DATA && alp_handler != NULL)
+ 376:../../shields/Murata/src/modem_interface.c ****         alp_handler(&payload_fifo);
+ 377:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_PING_RESPONSE  && ping_response_handl
+ 378:../../shields/Murata/src/modem_interface.c ****         ping_response_handler(&payload_fifo);
+ 379:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_LOGGING && logging_handler != NULL)
+ 380:../../shields/Murata/src/modem_interface.c ****         logging_handler(&payload_fifo);
+ 381:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_PING_REQUEST)
+ 382:../../shields/Murata/src/modem_interface.c ****       {
+ 383:../../shields/Murata/src/modem_interface.c ****         uint8_t ping_reply[1]={0x02};
+ 384:../../shields/Murata/src/modem_interface.c ****         fifo_skip(&payload_fifo,1);
+ 385:../../shields/Murata/src/modem_interface.c ****         modem_interface_transfer_bytes((uint8_t*) &ping_reply,1,SERIAL_MESSAGE_TYPE_PING_RESPONSE);
+ 386:../../shields/Murata/src/modem_interface.c ****       }
+ 387:../../shields/Murata/src/modem_interface.c ****       else if(header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_REBOOTED)
+ 388:../../shields/Murata/src/modem_interface.c ****       {
+ 389:../../shields/Murata/src/modem_interface.c ****         uint8_t reboot_reason;
+ 390:../../shields/Murata/src/modem_interface.c ****         fifo_pop(&payload_fifo, &reboot_reason, 1);
+ 391:../../shields/Murata/src/modem_interface.c ****         printf("target rebooted, reason=%i\n", reboot_reason);
+ 392:../../shields/Murata/src/modem_interface.c ****         if(target_rebooted_cb)
+ 393:../../shields/Murata/src/modem_interface.c ****           target_rebooted_cb(reboot_reason);
+ 394:../../shields/Murata/src/modem_interface.c ****       }
+ 395:../../shields/Murata/src/modem_interface.c ****       else
+ 396:../../shields/Murata/src/modem_interface.c ****       {
+ 397:../../shields/Murata/src/modem_interface.c ****         fifo_skip(&payload_fifo, payload_len);
+ 398:../../shields/Murata/src/modem_interface.c ****         DPRINT("!!!FRAME TYPE NOT IMPLEMENTED");
+ 399:../../shields/Murata/src/modem_interface.c ****       }
+ 400:../../shields/Murata/src/modem_interface.c ****       fifo_skip(&rx_fifo, payload_len - fifo_get_size(&payload_fifo)); // pop parsed bytes from ori
+ 401:../../shields/Murata/src/modem_interface.c ****     }
+ 402:../../shields/Murata/src/modem_interface.c ****     else
+ 403:../../shields/Murata/src/modem_interface.c ****       DPRINT("!!!PAYLOAD DATA INCORRECT");
+ 404:../../shields/Murata/src/modem_interface.c ****     payload_len = 0;
+ 405:../../shields/Murata/src/modem_interface.c ****     parsed_header = false;
+ 406:../../shields/Murata/src/modem_interface.c ****     if(fifo_get_size(&rx_fifo) > SERIAL_FRAME_HEADER_SIZE)
+ 407:../../shields/Murata/src/modem_interface.c ****         //process_rx_fifo();
+ 408:../../shields/Murata/src/modem_interface.c ****       //sched_post_task(&process_rx_fifo);
+ 409:../../shields/Murata/src/modem_interface.c ****     return true;
+ 410:../../shields/Murata/src/modem_interface.c ****   }
+ 411:../../shields/Murata/src/modem_interface.c ****   return false;
+ 412:../../shields/Murata/src/modem_interface.c **** }
+ 413:../../shields/Murata/src/modem_interface.c **** /** @Brief put received UART data in fifo
+ 414:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 415:../../shields/Murata/src/modem_interface.c ****  */
+ 416:../../shields/Murata/src/modem_interface.c **** static void uart_rx_cb(uint8_t data)
+ 417:../../shields/Murata/src/modem_interface.c **** {
+ 418:../../shields/Murata/src/modem_interface.c ****     error_t err;
+ 419:../../shields/Murata/src/modem_interface.c ****     //start_atomic();
+ 420:../../shields/Murata/src/modem_interface.c ****         err = fifo_put(&rx_fifo, &data, 1); assert(err == SUCCESS);
+ 421:../../shields/Murata/src/modem_interface.c ****     //end_atomic();
+ARM GAS  /tmp/ccvCCBem.s 			page 12
+
+
+ 422:../../shields/Murata/src/modem_interface.c **** 
+ 423:../../shields/Murata/src/modem_interface.c **** #ifndef PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 424:../../shields/Murata/src/modem_interface.c ****     //sched_post_task(&process_rx_fifo);
+ 425:../../shields/Murata/src/modem_interface.c ****     process_rx_fifo();
+ 426:../../shields/Murata/src/modem_interface.c **** #endif
+ 427:../../shields/Murata/src/modem_interface.c **** }
+ 428:../../shields/Murata/src/modem_interface.c **** 
+ 429:../../shields/Murata/src/modem_interface.c **** void modem_interface_uart_rx_cb()
+ 430:../../shields/Murata/src/modem_interface.c **** {
+ 205              		.loc 1 430 0
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209              		.loc 1 430 0
+ 210 0000 10B5     		push	{r4, lr}
+ 211              	.LCFI7:
+ 212              		.cfi_def_cfa_offset 8
+ 213              		.cfi_offset 4, -8
+ 214              		.cfi_offset 14, -4
+ 431:../../shields/Murata/src/modem_interface.c ****     HAL_UART_Receive_IT(uart_handle, rxData, 1);
+ 215              		.loc 1 431 0
+ 216 0002 064C     		ldr	r4, .L17
+ 217 0004 0122     		movs	r2, #1
+ 218 0006 2146     		mov	r1, r4
+ 219 0008 054B     		ldr	r3, .L17+4
+ 220 000a 1868     		ldr	r0, [r3]
+ 221 000c FFF7FEFF 		bl	HAL_UART_Receive_IT
+ 222              	.LVL16:
+ 432:../../shields/Murata/src/modem_interface.c ****     error_t err;
+ 433:../../shields/Murata/src/modem_interface.c ****     //start_atomic();
+ 434:../../shields/Murata/src/modem_interface.c ****         err = fifo_put(&rx_fifo, rxData, 1); //assert(err == SUCCESS);
+ 223              		.loc 1 434 0
+ 224 0010 0122     		movs	r2, #1
+ 225 0012 2146     		mov	r1, r4
+ 226 0014 0348     		ldr	r0, .L17+8
+ 227 0016 FFF7FEFF 		bl	fifo_put
+ 228              	.LVL17:
+ 229 001a 10BD     		pop	{r4, pc}
+ 230              	.L18:
+ 231              		.align	2
+ 232              	.L17:
+ 233 001c 00000000 		.word	rxData
+ 234 0020 00000000 		.word	uart_handle
+ 235 0024 00000000 		.word	rx_fifo
+ 236              		.cfi_endproc
+ 237              	.LFE132:
+ 239              		.section	.text.modem_interface_transfer_bytes,"ax",%progbits
+ 240              		.align	1
+ 241              		.global	modem_interface_transfer_bytes
+ 242              		.syntax unified
+ 243              		.thumb
+ 244              		.thumb_func
+ 245              		.fpu fpv4-sp-d16
+ 247              	modem_interface_transfer_bytes:
+ 248              	.LFB134:
+ 435:../../shields/Murata/src/modem_interface.c ****     //end_atomic();
+ 436:../../shields/Murata/src/modem_interface.c ****     
+ARM GAS  /tmp/ccvCCBem.s 			page 13
+
+
+ 437:../../shields/Murata/src/modem_interface.c **** #ifndef PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 438:../../shields/Murata/src/modem_interface.c ****     //sched_post_task(&process_rx_fifo);
+ 439:../../shields/Murata/src/modem_interface.c ****     process_rx_fifo();
+ 440:../../shields/Murata/src/modem_interface.c **** #endif
+ 441:../../shields/Murata/src/modem_interface.c **** }
+ 442:../../shields/Murata/src/modem_interface.c **** 
+ 443:../../shields/Murata/src/modem_interface.c **** /** @Brief Processes events on UART interrupt line
+ 444:../../shields/Murata/src/modem_interface.c ****  *  @return void
+ 445:../../shields/Murata/src/modem_interface.c ****  */
+ 446:../../shields/Murata/src/modem_interface.c **** // static void uart_int_cb(pin_id_t pin_id, uint8_t event_mask)
+ 447:../../shields/Murata/src/modem_interface.c **** // {
+ 448:../../shields/Murata/src/modem_interface.c **** //   // do not read GPIO level here in interrupt context (GPIO clock might not be enabled yet), exe
+ 449:../../shields/Murata/src/modem_interface.c **** //   //sched_post_task(&execute_state_machine);
+ 450:../../shields/Murata/src/modem_interface.c **** // }
+ 451:../../shields/Murata/src/modem_interface.c **** 
+ 452:../../shields/Murata/src/modem_interface.c **** // static void modem_interface_set_rx_interrupt_callback(uart_rx_inthandler_t uart_rx_cb) {
+ 453:../../shields/Murata/src/modem_interface.c **** // #ifdef PLATFORM_USE_USB_CDC
+ 454:../../shields/Murata/src/modem_interface.c **** // 	cdc_set_rx_interrupt_callback(uart_rx_cb);
+ 455:../../shields/Murata/src/modem_interface.c **** // #else
+ 456:../../shields/Murata/src/modem_interface.c **** //   uart_set_rx_interrupt_callback(uart, uart_rx_cb);
+ 457:../../shields/Murata/src/modem_interface.c **** // #endif
+ 458:../../shields/Murata/src/modem_interface.c **** // }
+ 459:../../shields/Murata/src/modem_interface.c **** 
+ 460:../../shields/Murata/src/modem_interface.c **** //void modem_interface_init(uint8_t idx, uint32_t baudrate, pin_id_t uart_state_int_pin, pin_id_t t
+ 461:../../shields/Murata/src/modem_interface.c **** void modem_interface_init(UART_HandleTypeDef* uart)
+ 462:../../shields/Murata/src/modem_interface.c **** {
+ 463:../../shields/Murata/src/modem_interface.c ****   uart_handle = uart;
+ 464:../../shields/Murata/src/modem_interface.c ****   fifo_init(&modem_interface_tx_fifo, modem_interface_tx_buffer, MODEM_INTERFACE_TX_FIFO_SIZE);
+ 465:../../shields/Murata/src/modem_interface.c ****   //sched_register_task(&flush_modem_interface_tx_fifo);
+ 466:../../shields/Murata/src/modem_interface.c ****   flush_modem_interface_tx_fifo(NULL);
+ 467:../../shields/Murata/src/modem_interface.c ****   //sched_register_task(&execute_state_machine);
+ 468:../../shields/Murata/src/modem_interface.c ****   execute_state_machine();
+ 469:../../shields/Murata/src/modem_interface.c ****   //sched_register_task(&process_rx_fifo);
+ 470:../../shields/Murata/src/modem_interface.c ****   process_rx_fifo();
+ 471:../../shields/Murata/src/modem_interface.c ****   state = STATE_IDLE;
+ 472:../../shields/Murata/src/modem_interface.c ****   //uart_state_pin=uart_state_int_pin;
+ 473:../../shields/Murata/src/modem_interface.c ****   //target_uart_state_pin=target_uart_state_int_pin;
+ 474:../../shields/Murata/src/modem_interface.c **** 
+ 475:../../shields/Murata/src/modem_interface.c ****   //uart = uart_init(idx, baudrate,0);
+ 476:../../shields/Murata/src/modem_interface.c ****   
+ 477:../../shields/Murata/src/modem_interface.c ****   
+ 478:../../shields/Murata/src/modem_interface.c ****   fifo_init(&rx_fifo, rx_buffer, sizeof(rx_buffer));
+ 479:../../shields/Murata/src/modem_interface.c ****   //modem_interface_set_rx_interrupt_callback(&uart_rx_cb);
+ 480:../../shields/Murata/src/modem_interface.c **** 
+ 481:../../shields/Murata/src/modem_interface.c ****   HAL_UART_Receive_IT(uart_handle, rxData, 1);
+ 482:../../shields/Murata/src/modem_interface.c **** 
+ 483:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 484:../../shields/Murata/src/modem_interface.c ****   //assert(sched_register_task(&modem_listen) == SUCCESS);
+ 485:../../shields/Murata/src/modem_interface.c ****   DPRINT("using interrupt lines");
+ 486:../../shields/Murata/src/modem_interface.c ****   //assert(hw_gpio_configure_interrupt(target_uart_state_pin, &uart_int_cb, GPIO_RISING_EDGE | GPIO
+ 487:../../shields/Murata/src/modem_interface.c ****   //assert(hw_gpio_enable_interrupt(target_uart_state_pin) == SUCCESS);
+ 488:../../shields/Murata/src/modem_interface.c ****   //if(hw_gpio_get_in(target_uart_state_pin))
+ 489:../../shields/Murata/src/modem_interface.c ****   if(HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_5))
+ 490:../../shields/Murata/src/modem_interface.c ****   {
+ 491:../../shields/Murata/src/modem_interface.c ****     //sched_post_task(&modem_listen);
+ 492:../../shields/Murata/src/modem_interface.c ****     modem_listen(NULL);
+ 493:../../shields/Murata/src/modem_interface.c ****     DPRINT("Ready to receive (boot)");// @ %i",timer_get_counter_value());
+ARM GAS  /tmp/ccvCCBem.s 			page 14
+
+
+ 494:../../shields/Murata/src/modem_interface.c ****   }
+ 495:../../shields/Murata/src/modem_interface.c **** #endif
+ 496:../../shields/Murata/src/modem_interface.c **** 
+ 497:../../shields/Murata/src/modem_interface.c **** // When not using interrupt lines we keep uart enabled so we can use RX IRQ.
+ 498:../../shields/Murata/src/modem_interface.c **** // If the platform has interrupt lines the UART should be re-enabled when handling the modem interr
+ 499:../../shields/Murata/src/modem_interface.c **** #ifndef PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 500:../../shields/Murata/src/modem_interface.c ****   modem_interface_enable();
+ 501:../../shields/Murata/src/modem_interface.c **** #endif
+ 502:../../shields/Murata/src/modem_interface.c **** 
+ 503:../../shields/Murata/src/modem_interface.c ****   //uint8_t reboot_reason = (uint8_t)hw_system_reboot_reason();
+ 504:../../shields/Murata/src/modem_interface.c ****   //modem_interface_transfer_bytes(&reboot_reason, 1, SERIAL_MESSAGE_TYPE_REBOOTED);
+ 505:../../shields/Murata/src/modem_interface.c **** }
+ 506:../../shields/Murata/src/modem_interface.c **** 
+ 507:../../shields/Murata/src/modem_interface.c **** void modem_interface_transfer_bytes(uint8_t* bytes, uint8_t length, serial_message_type_t type) 
+ 508:../../shields/Murata/src/modem_interface.c **** {
+ 249              		.loc 1 508 0
+ 250              		.cfi_startproc
+ 251              		@ args = 0, pretend = 0, frame = 8
+ 252              		@ frame_needed = 0, uses_anonymous_args = 0
+ 253              	.LVL18:
+ 254 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 255              	.LCFI8:
+ 256              		.cfi_def_cfa_offset 20
+ 257              		.cfi_offset 4, -20
+ 258              		.cfi_offset 5, -16
+ 259              		.cfi_offset 6, -12
+ 260              		.cfi_offset 7, -8
+ 261              		.cfi_offset 14, -4
+ 262 0002 83B0     		sub	sp, sp, #12
+ 263              	.LCFI9:
+ 264              		.cfi_def_cfa_offset 32
+ 265 0004 0746     		mov	r7, r0
+ 266 0006 0E46     		mov	r6, r1
+ 267 0008 1546     		mov	r5, r2
+ 509:../../shields/Murata/src/modem_interface.c ****   uint8_t header[SERIAL_FRAME_HEADER_SIZE];
+ 510:../../shields/Murata/src/modem_interface.c ****   uint16_t crc=crc_calculate(bytes,length);
+ 268              		.loc 1 510 0
+ 269 000a FFF7FEFF 		bl	crc_calculate
+ 270              	.LVL19:
+ 511:../../shields/Murata/src/modem_interface.c **** 
+ 512:../../shields/Murata/src/modem_interface.c ****   packet_up_counter++;
+ 271              		.loc 1 512 0
+ 272 000e 134A     		ldr	r2, .L21
+ 273 0010 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 274 0012 0133     		adds	r3, r3, #1
+ 275 0014 DBB2     		uxtb	r3, r3
+ 276 0016 1370     		strb	r3, [r2]
+ 513:../../shields/Murata/src/modem_interface.c ****   header[0] = SERIAL_FRAME_SYNC_BYTE;
+ 277              		.loc 1 513 0
+ 278 0018 C022     		movs	r2, #192
+ 279 001a 8DF80020 		strb	r2, [sp]
+ 514:../../shields/Murata/src/modem_interface.c ****   header[1] = SERIAL_FRAME_VERSION;
+ 280              		.loc 1 514 0
+ 281 001e 0024     		movs	r4, #0
+ 282 0020 8DF80140 		strb	r4, [sp, #1]
+ 515:../../shields/Murata/src/modem_interface.c **** 
+ 516:../../shields/Murata/src/modem_interface.c ****   header[SERIAL_FRAME_COUNTER] = packet_up_counter;
+ARM GAS  /tmp/ccvCCBem.s 			page 15
+
+
+ 283              		.loc 1 516 0
+ 284 0024 8DF80230 		strb	r3, [sp, #2]
+ 517:../../shields/Murata/src/modem_interface.c ****   header[SERIAL_FRAME_TYPE] = type;
+ 285              		.loc 1 517 0
+ 286 0028 8DF80350 		strb	r5, [sp, #3]
+ 518:../../shields/Murata/src/modem_interface.c ****   header[SERIAL_FRAME_SIZE] = length;
+ 287              		.loc 1 518 0
+ 288 002c 8DF80460 		strb	r6, [sp, #4]
+ 519:../../shields/Murata/src/modem_interface.c ****   header[SERIAL_FRAME_CRC1] = (crc >> 8) & 0x00FF;
+ 289              		.loc 1 519 0
+ 290 0030 030A     		lsrs	r3, r0, #8
+ 291 0032 8DF80530 		strb	r3, [sp, #5]
+ 520:../../shields/Murata/src/modem_interface.c ****   header[SERIAL_FRAME_CRC2] = crc & 0x00FF;
+ 292              		.loc 1 520 0
+ 293 0036 8DF80600 		strb	r0, [sp, #6]
+ 521:../../shields/Murata/src/modem_interface.c **** 
+ 522:../../shields/Murata/src/modem_interface.c ****   DPRINT("TX HEADER:");
+ 523:../../shields/Murata/src/modem_interface.c ****   DPRINT_DATA(header, SERIAL_FRAME_HEADER_SIZE);
+ 524:../../shields/Murata/src/modem_interface.c ****   DPRINT("TX PAYLOAD:");
+ 525:../../shields/Murata/src/modem_interface.c ****   DPRINT_DATA(bytes, length);
+ 526:../../shields/Murata/src/modem_interface.c ****    
+ 527:../../shields/Murata/src/modem_interface.c **** //  start_atomic();
+ 528:../../shields/Murata/src/modem_interface.c ****   request_pending = true;
+ 529:../../shields/Murata/src/modem_interface.c ****   fifo_put(&modem_interface_tx_fifo, (uint8_t*) &header, SERIAL_FRAME_HEADER_SIZE);
+ 294              		.loc 1 529 0
+ 295 003a 094D     		ldr	r5, .L21+4
+ 296 003c 0722     		movs	r2, #7
+ 297 003e 6946     		mov	r1, sp
+ 298 0040 2846     		mov	r0, r5
+ 299              	.LVL20:
+ 300 0042 FFF7FEFF 		bl	fifo_put
+ 301              	.LVL21:
+ 530:../../shields/Murata/src/modem_interface.c ****   fifo_put(&modem_interface_tx_fifo, bytes, length);
+ 302              		.loc 1 530 0
+ 303 0046 3246     		mov	r2, r6
+ 304 0048 3946     		mov	r1, r7
+ 305 004a 2846     		mov	r0, r5
+ 306 004c FFF7FEFF 		bl	fifo_put
+ 307              	.LVL22:
+ 531:../../shields/Murata/src/modem_interface.c ****  // end_atomic();
+ 532:../../shields/Murata/src/modem_interface.c **** 
+ 533:../../shields/Murata/src/modem_interface.c **** #if PLATFORM_USE_MODEM_INTERRUPT_LINES
+ 534:../../shields/Murata/src/modem_interface.c ****   //sched_post_task_prio(&execute_state_machine, MIN_PRIORITY, NULL);
+ 535:../../shields/Murata/src/modem_interface.c ****     execute_state_machine();
+ 536:../../shields/Murata/src/modem_interface.c **** #else
+ 537:../../shields/Murata/src/modem_interface.c ****   //sched_post_task_prio(&flush_modem_interface_tx_fifo, MIN_PRIORITY, NULL); // state machine is n
+ 538:../../shields/Murata/src/modem_interface.c ****     flush_modem_interface_tx_fifo(NULL);
+ 308              		.loc 1 538 0
+ 309 0050 2046     		mov	r0, r4
+ 310 0052 FFF7FEFF 		bl	flush_modem_interface_tx_fifo
+ 311              	.LVL23:
+ 539:../../shields/Murata/src/modem_interface.c **** #endif  
+ 540:../../shields/Murata/src/modem_interface.c **** }
+ 312              		.loc 1 540 0
+ 313 0056 03B0     		add	sp, sp, #12
+ 314              	.LCFI10:
+ 315              		.cfi_def_cfa_offset 20
+ARM GAS  /tmp/ccvCCBem.s 			page 16
+
+
+ 316              		@ sp needed
+ 317 0058 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 318              	.LVL24:
+ 319              	.L22:
+ 320 005a 00BF     		.align	2
+ 321              	.L21:
+ 322 005c 00000000 		.word	.LANCHOR2
+ 323 0060 00000000 		.word	.LANCHOR1
+ 324              		.cfi_endproc
+ 325              	.LFE134:
+ 327              		.section	.text.process_rx_fifo,"ax",%progbits
+ 328              		.align	1
+ 329              		.global	process_rx_fifo
+ 330              		.syntax unified
+ 331              		.thumb
+ 332              		.thumb_func
+ 333              		.fpu fpv4-sp-d16
+ 335              	process_rx_fifo:
+ 336              	.LFB130:
+ 335:../../shields/Murata/src/modem_interface.c ****   if(!parsed_header) 
+ 337              		.loc 1 335 0
+ 338              		.cfi_startproc
+ 339              		@ args = 0, pretend = 0, frame = 24
+ 340              		@ frame_needed = 0, uses_anonymous_args = 0
+ 341 0000 30B5     		push	{r4, r5, lr}
+ 342              	.LCFI11:
+ 343              		.cfi_def_cfa_offset 12
+ 344              		.cfi_offset 4, -12
+ 345              		.cfi_offset 5, -8
+ 346              		.cfi_offset 14, -4
+ 347 0002 87B0     		sub	sp, sp, #28
+ 348              	.LCFI12:
+ 349              		.cfi_def_cfa_offset 40
+ 336:../../shields/Murata/src/modem_interface.c ****   {
+ 350              		.loc 1 336 0
+ 351 0004 4F4B     		ldr	r3, .L46
+ 352 0006 1C78     		ldrb	r4, [r3]	@ zero_extendqisi2
+ 353 0008 6CBB     		cbnz	r4, .L24
+ 338:../../shields/Murata/src/modem_interface.c ****     {
+ 354              		.loc 1 338 0
+ 355 000a 4F48     		ldr	r0, .L46+4
+ 356 000c FFF7FEFF 		bl	fifo_get_size
+ 357              	.LVL25:
+ 358 0010 0728     		cmp	r0, #7
+ 359 0012 30D9     		bls	.L25
+ 340:../../shields/Murata/src/modem_interface.c **** 
+ 360              		.loc 1 340 0
+ 361 0014 4D4D     		ldr	r5, .L46+8
+ 362 0016 0723     		movs	r3, #7
+ 363 0018 0022     		movs	r2, #0
+ 364 001a 2946     		mov	r1, r5
+ 365 001c 4A48     		ldr	r0, .L46+4
+ 366 001e FFF7FEFF 		bl	fifo_peek
+ 367              	.LVL26:
+ 342:../../shields/Murata/src/modem_interface.c ****         {
+ 368              		.loc 1 342 0
+ 369 0022 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ARM GAS  /tmp/ccvCCBem.s 			page 17
+
+
+ 370 0024 C02B     		cmp	r3, #192
+ 371 0026 1AD0     		beq	.L39
+ 372              	.L26:
+ 344:../../shields/Murata/src/modem_interface.c ****           DPRINT("skip");
+ 373              		.loc 1 344 0
+ 374 0028 474D     		ldr	r5, .L46+4
+ 375 002a 0121     		movs	r1, #1
+ 376 002c 2846     		mov	r0, r5
+ 377 002e FFF7FEFF 		bl	fifo_skip
+ 378              	.LVL27:
+ 346:../../shields/Murata/src/modem_interface.c ****           payload_len = 0;
+ 379              		.loc 1 346 0
+ 380 0032 0023     		movs	r3, #0
+ 381 0034 434A     		ldr	r2, .L46
+ 382 0036 1370     		strb	r3, [r2]
+ 347:../../shields/Murata/src/modem_interface.c ****           if(fifo_get_size(&rx_fifo) > SERIAL_FRAME_HEADER_SIZE)
+ 383              		.loc 1 347 0
+ 384 0038 454A     		ldr	r2, .L46+12
+ 385 003a 1370     		strb	r3, [r2]
+ 348:../../shields/Murata/src/modem_interface.c ****             //process_rx_fifo();
+ 386              		.loc 1 348 0
+ 387 003c 2846     		mov	r0, r5
+ 388 003e FFF7FEFF 		bl	fifo_get_size
+ 389              	.LVL28:
+ 390 0042 0728     		cmp	r0, #7
+ 391 0044 17D8     		bhi	.L25
+ 392              	.L27:
+ 353:../../shields/Murata/src/modem_interface.c ****         fifo_skip(&rx_fifo, SERIAL_FRAME_HEADER_SIZE);
+ 393              		.loc 1 353 0
+ 394 0046 0122     		movs	r2, #1
+ 395 0048 3E4B     		ldr	r3, .L46
+ 396 004a 1A70     		strb	r2, [r3]
+ 354:../../shields/Murata/src/modem_interface.c ****         payload_len = header[SERIAL_FRAME_SIZE];
+ 397              		.loc 1 354 0
+ 398 004c 0721     		movs	r1, #7
+ 399 004e 3E48     		ldr	r0, .L46+4
+ 400 0050 FFF7FEFF 		bl	fifo_skip
+ 401              	.LVL29:
+ 355:../../shields/Murata/src/modem_interface.c ****         DPRINT("UART RX, payload size = %i", payload_len);
+ 402              		.loc 1 355 0
+ 403 0054 3D4B     		ldr	r3, .L46+8
+ 404 0056 1A79     		ldrb	r2, [r3, #4]	@ zero_extendqisi2
+ 405 0058 3D4B     		ldr	r3, .L46+12
+ 406 005a 1A70     		strb	r2, [r3]
+ 407 005c 0BE0     		b	.L25
+ 408              	.L39:
+ 342:../../shields/Murata/src/modem_interface.c ****         {
+ 409              		.loc 1 342 0 discriminator 1
+ 410 005e 6B78     		ldrb	r3, [r5, #1]	@ zero_extendqisi2
+ 411 0060 002B     		cmp	r3, #0
+ 412 0062 E1D1     		bne	.L26
+ 413 0064 EFE7     		b	.L27
+ 414              	.L24:
+ 415              	.LBB2:
+ 363:../../shields/Murata/src/modem_interface.c ****       //process_rx_fifo();
+ 416              		.loc 1 363 0
+ 417 0066 3848     		ldr	r0, .L46+4
+ARM GAS  /tmp/ccvCCBem.s 			page 18
+
+
+ 418 0068 FFF7FEFF 		bl	fifo_get_size
+ 419              	.LVL30:
+ 420 006c 384B     		ldr	r3, .L46+12
+ 421 006e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 422 0070 9842     		cmp	r0, r3
+ 423 0072 03D2     		bcs	.L40
+ 365:../../shields/Murata/src/modem_interface.c ****     }
+ 424              		.loc 1 365 0
+ 425 0074 0024     		movs	r4, #0
+ 426              	.L25:
+ 427              	.LBE2:
+ 412:../../shields/Murata/src/modem_interface.c **** /** @Brief put received UART data in fifo
+ 428              		.loc 1 412 0
+ 429 0076 2046     		mov	r0, r4
+ 430 0078 07B0     		add	sp, sp, #28
+ 431              	.LCFI13:
+ 432              		.cfi_remember_state
+ 433              		.cfi_def_cfa_offset 12
+ 434              		@ sp needed
+ 435 007a 30BD     		pop	{r4, r5, pc}
+ 436              	.L40:
+ 437              	.LCFI14:
+ 438              		.cfi_restore_state
+ 439              	.LBB5:
+ 371:../../shields/Murata/src/modem_interface.c ****   
+ 440              		.loc 1 371 0
+ 441 007c 0022     		movs	r2, #0
+ 442 007e 3249     		ldr	r1, .L46+4
+ 443 0080 02A8     		add	r0, sp, #8
+ 444 0082 FFF7FEFF 		bl	fifo_init_subview
+ 445              	.LVL31:
+ 373:../../shields/Murata/src/modem_interface.c ****     {
+ 446              		.loc 1 373 0
+ 447 0086 3149     		ldr	r1, .L46+8
+ 448 0088 02A8     		add	r0, sp, #8
+ 449 008a FFF7FEFF 		bl	verify_payload
+ 450              	.LVL32:
+ 451 008e D0B1     		cbz	r0, .L29
+ 375:../../shields/Murata/src/modem_interface.c ****         alp_handler(&payload_fifo);
+ 452              		.loc 1 375 0
+ 453 0090 2E4B     		ldr	r3, .L46+8
+ 454 0092 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 455 0094 012B     		cmp	r3, #1
+ 456 0096 22D0     		beq	.L41
+ 457              	.L30:
+ 377:../../shields/Murata/src/modem_interface.c ****         ping_response_handler(&payload_fifo);
+ 458              		.loc 1 377 0
+ 459 0098 032B     		cmp	r3, #3
+ 460 009a 27D0     		beq	.L42
+ 461              	.L32:
+ 379:../../shields/Murata/src/modem_interface.c ****         logging_handler(&payload_fifo);
+ 462              		.loc 1 379 0
+ 463 009c 042B     		cmp	r3, #4
+ 464 009e 2CD0     		beq	.L43
+ 465              	.L33:
+ 381:../../shields/Murata/src/modem_interface.c ****       {
+ 466              		.loc 1 381 0
+ARM GAS  /tmp/ccvCCBem.s 			page 19
+
+
+ 467 00a0 022B     		cmp	r3, #2
+ 468 00a2 31D0     		beq	.L44
+ 387:../../shields/Murata/src/modem_interface.c ****       {
+ 469              		.loc 1 387 0
+ 470 00a4 052B     		cmp	r3, #5
+ 471 00a6 3BD0     		beq	.L45
+ 397:../../shields/Murata/src/modem_interface.c ****         DPRINT("!!!FRAME TYPE NOT IMPLEMENTED");
+ 472              		.loc 1 397 0
+ 473 00a8 294B     		ldr	r3, .L46+12
+ 474 00aa 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 475 00ac 02A8     		add	r0, sp, #8
+ 476 00ae FFF7FEFF 		bl	fifo_skip
+ 477              	.LVL33:
+ 478              	.L31:
+ 400:../../shields/Murata/src/modem_interface.c ****     }
+ 479              		.loc 1 400 0
+ 480 00b2 274B     		ldr	r3, .L46+12
+ 481 00b4 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+ 482 00b6 02A8     		add	r0, sp, #8
+ 483 00b8 FFF7FEFF 		bl	fifo_get_size
+ 484              	.LVL34:
+ 485 00bc 291A     		subs	r1, r5, r0
+ 486 00be 89B2     		uxth	r1, r1
+ 487 00c0 2148     		ldr	r0, .L46+4
+ 488 00c2 FFF7FEFF 		bl	fifo_skip
+ 489              	.LVL35:
+ 490              	.L29:
+ 404:../../shields/Murata/src/modem_interface.c ****     parsed_header = false;
+ 491              		.loc 1 404 0
+ 492 00c6 0023     		movs	r3, #0
+ 493 00c8 214A     		ldr	r2, .L46+12
+ 494 00ca 1370     		strb	r3, [r2]
+ 405:../../shields/Murata/src/modem_interface.c ****     if(fifo_get_size(&rx_fifo) > SERIAL_FRAME_HEADER_SIZE)
+ 495              		.loc 1 405 0
+ 496 00cc 1D4A     		ldr	r2, .L46
+ 497 00ce 1370     		strb	r3, [r2]
+ 406:../../shields/Murata/src/modem_interface.c ****         //process_rx_fifo();
+ 498              		.loc 1 406 0
+ 499 00d0 1D48     		ldr	r0, .L46+4
+ 500 00d2 FFF7FEFF 		bl	fifo_get_size
+ 501              	.LVL36:
+ 502 00d6 0728     		cmp	r0, #7
+ 503 00d8 CDD8     		bhi	.L25
+ 504              	.LBE5:
+ 411:../../shields/Murata/src/modem_interface.c **** }
+ 505              		.loc 1 411 0
+ 506 00da 0024     		movs	r4, #0
+ 507              	.LBB6:
+ 508 00dc CBE7     		b	.L25
+ 509              	.L41:
+ 375:../../shields/Murata/src/modem_interface.c ****         alp_handler(&payload_fifo);
+ 510              		.loc 1 375 0 discriminator 1
+ 511 00de 1D4A     		ldr	r2, .L46+16
+ 512 00e0 1268     		ldr	r2, [r2]
+ 513 00e2 002A     		cmp	r2, #0
+ 514 00e4 D8D0     		beq	.L30
+ 376:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_PING_RESPONSE  && ping_response_handl
+ARM GAS  /tmp/ccvCCBem.s 			page 20
+
+
+ 515              		.loc 1 376 0
+ 516 00e6 02A8     		add	r0, sp, #8
+ 517 00e8 9047     		blx	r2
+ 518              	.LVL37:
+ 519 00ea E2E7     		b	.L31
+ 520              	.L42:
+ 377:../../shields/Murata/src/modem_interface.c ****         ping_response_handler(&payload_fifo);
+ 521              		.loc 1 377 0 discriminator 1
+ 522 00ec 1A4A     		ldr	r2, .L46+20
+ 523 00ee 1268     		ldr	r2, [r2]
+ 524 00f0 002A     		cmp	r2, #0
+ 525 00f2 D3D0     		beq	.L32
+ 378:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_LOGGING && logging_handler != NULL)
+ 526              		.loc 1 378 0
+ 527 00f4 02A8     		add	r0, sp, #8
+ 528 00f6 9047     		blx	r2
+ 529              	.LVL38:
+ 530 00f8 DBE7     		b	.L31
+ 531              	.L43:
+ 379:../../shields/Murata/src/modem_interface.c ****         logging_handler(&payload_fifo);
+ 532              		.loc 1 379 0 discriminator 1
+ 533 00fa 184A     		ldr	r2, .L46+24
+ 534 00fc 1268     		ldr	r2, [r2]
+ 535 00fe 002A     		cmp	r2, #0
+ 536 0100 CED0     		beq	.L33
+ 380:../../shields/Murata/src/modem_interface.c ****       else if (header[SERIAL_FRAME_TYPE]==SERIAL_MESSAGE_TYPE_PING_REQUEST)
+ 537              		.loc 1 380 0
+ 538 0102 02A8     		add	r0, sp, #8
+ 539 0104 9047     		blx	r2
+ 540              	.LVL39:
+ 541 0106 D4E7     		b	.L31
+ 542              	.L44:
+ 543              	.LBB3:
+ 383:../../shields/Murata/src/modem_interface.c ****         fifo_skip(&payload_fifo,1);
+ 544              		.loc 1 383 0
+ 545 0108 8DF80430 		strb	r3, [sp, #4]
+ 384:../../shields/Murata/src/modem_interface.c ****         modem_interface_transfer_bytes((uint8_t*) &ping_reply,1,SERIAL_MESSAGE_TYPE_PING_RESPONSE);
+ 546              		.loc 1 384 0
+ 547 010c 0121     		movs	r1, #1
+ 548 010e 02A8     		add	r0, sp, #8
+ 549 0110 FFF7FEFF 		bl	fifo_skip
+ 550              	.LVL40:
+ 385:../../shields/Murata/src/modem_interface.c ****       }
+ 551              		.loc 1 385 0
+ 552 0114 0322     		movs	r2, #3
+ 553 0116 0121     		movs	r1, #1
+ 554 0118 01A8     		add	r0, sp, #4
+ 555 011a FFF7FEFF 		bl	modem_interface_transfer_bytes
+ 556              	.LVL41:
+ 557              	.LBE3:
+ 558 011e C8E7     		b	.L31
+ 559              	.L45:
+ 560              	.LBB4:
+ 390:../../shields/Murata/src/modem_interface.c ****         printf("target rebooted, reason=%i\n", reboot_reason);
+ 561              		.loc 1 390 0
+ 562 0120 0122     		movs	r2, #1
+ 563 0122 01A9     		add	r1, sp, #4
+ARM GAS  /tmp/ccvCCBem.s 			page 21
+
+
+ 564 0124 02A8     		add	r0, sp, #8
+ 565 0126 FFF7FEFF 		bl	fifo_pop
+ 566              	.LVL42:
+ 391:../../shields/Murata/src/modem_interface.c ****         if(target_rebooted_cb)
+ 567              		.loc 1 391 0
+ 568 012a 9DF80410 		ldrb	r1, [sp, #4]	@ zero_extendqisi2
+ 569 012e 0C48     		ldr	r0, .L46+28
+ 570 0130 FFF7FEFF 		bl	printf
+ 571              	.LVL43:
+ 392:../../shields/Murata/src/modem_interface.c ****           target_rebooted_cb(reboot_reason);
+ 572              		.loc 1 392 0
+ 573 0134 0B4B     		ldr	r3, .L46+32
+ 574 0136 1B68     		ldr	r3, [r3]
+ 575 0138 002B     		cmp	r3, #0
+ 576 013a BAD0     		beq	.L31
+ 393:../../shields/Murata/src/modem_interface.c ****       }
+ 577              		.loc 1 393 0
+ 578 013c 9DF80400 		ldrb	r0, [sp, #4]	@ zero_extendqisi2
+ 579 0140 9847     		blx	r3
+ 580              	.LVL44:
+ 581 0142 B6E7     		b	.L31
+ 582              	.L47:
+ 583              		.align	2
+ 584              	.L46:
+ 585 0144 00000000 		.word	.LANCHOR3
+ 586 0148 00000000 		.word	rx_fifo
+ 587 014c 00000000 		.word	header
+ 588 0150 00000000 		.word	.LANCHOR4
+ 589 0154 00000000 		.word	.LANCHOR5
+ 590 0158 00000000 		.word	.LANCHOR6
+ 591 015c 00000000 		.word	.LANCHOR7
+ 592 0160 00000000 		.word	.LC0
+ 593 0164 00000000 		.word	.LANCHOR8
+ 594              	.LBE4:
+ 595              	.LBE6:
+ 596              		.cfi_endproc
+ 597              	.LFE130:
+ 599              		.section	.text.modem_interface_init,"ax",%progbits
+ 600              		.align	1
+ 601              		.global	modem_interface_init
+ 602              		.syntax unified
+ 603              		.thumb
+ 604              		.thumb_func
+ 605              		.fpu fpv4-sp-d16
+ 607              	modem_interface_init:
+ 608              	.LFB133:
+ 462:../../shields/Murata/src/modem_interface.c ****   uart_handle = uart;
+ 609              		.loc 1 462 0
+ 610              		.cfi_startproc
+ 611              		@ args = 0, pretend = 0, frame = 0
+ 612              		@ frame_needed = 0, uses_anonymous_args = 0
+ 613              	.LVL45:
+ 614 0000 10B5     		push	{r4, lr}
+ 615              	.LCFI15:
+ 616              		.cfi_def_cfa_offset 8
+ 617              		.cfi_offset 4, -8
+ 618              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccvCCBem.s 			page 22
+
+
+ 463:../../shields/Murata/src/modem_interface.c ****   fifo_init(&modem_interface_tx_fifo, modem_interface_tx_buffer, MODEM_INTERFACE_TX_FIFO_SIZE);
+ 619              		.loc 1 463 0
+ 620 0002 0C4C     		ldr	r4, .L50
+ 621 0004 2060     		str	r0, [r4]
+ 464:../../shields/Murata/src/modem_interface.c ****   //sched_register_task(&flush_modem_interface_tx_fifo);
+ 622              		.loc 1 464 0
+ 623 0006 FF22     		movs	r2, #255
+ 624 0008 0B49     		ldr	r1, .L50+4
+ 625 000a 0C48     		ldr	r0, .L50+8
+ 626              	.LVL46:
+ 627 000c FFF7FEFF 		bl	fifo_init
+ 628              	.LVL47:
+ 466:../../shields/Murata/src/modem_interface.c ****   //sched_register_task(&execute_state_machine);
+ 629              		.loc 1 466 0
+ 630 0010 0020     		movs	r0, #0
+ 631 0012 FFF7FEFF 		bl	flush_modem_interface_tx_fifo
+ 632              	.LVL48:
+ 470:../../shields/Murata/src/modem_interface.c ****   state = STATE_IDLE;
+ 633              		.loc 1 470 0
+ 634 0016 FFF7FEFF 		bl	process_rx_fifo
+ 635              	.LVL49:
+ 478:../../shields/Murata/src/modem_interface.c ****   //modem_interface_set_rx_interrupt_callback(&uart_rx_cb);
+ 636              		.loc 1 478 0
+ 637 001a 4FF48072 		mov	r2, #256
+ 638 001e 0849     		ldr	r1, .L50+12
+ 639 0020 0848     		ldr	r0, .L50+16
+ 640 0022 FFF7FEFF 		bl	fifo_init
+ 641              	.LVL50:
+ 481:../../shields/Murata/src/modem_interface.c **** 
+ 642              		.loc 1 481 0
+ 643 0026 0122     		movs	r2, #1
+ 644 0028 0749     		ldr	r1, .L50+20
+ 645 002a 2068     		ldr	r0, [r4]
+ 646 002c FFF7FEFF 		bl	HAL_UART_Receive_IT
+ 647              	.LVL51:
+ 648 0030 10BD     		pop	{r4, pc}
+ 649              	.L51:
+ 650 0032 00BF     		.align	2
+ 651              	.L50:
+ 652 0034 00000000 		.word	uart_handle
+ 653 0038 00000000 		.word	.LANCHOR9
+ 654 003c 00000000 		.word	.LANCHOR1
+ 655 0040 00000000 		.word	.LANCHOR10
+ 656 0044 00000000 		.word	rx_fifo
+ 657 0048 00000000 		.word	rxData
+ 658              		.cfi_endproc
+ 659              	.LFE133:
+ 661              		.section	.text.modem_interface_transfer,"ax",%progbits
+ 662              		.align	1
+ 663              		.global	modem_interface_transfer
+ 664              		.syntax unified
+ 665              		.thumb
+ 666              		.thumb_func
+ 667              		.fpu fpv4-sp-d16
+ 669              	modem_interface_transfer:
+ 670              	.LFB135:
+ 541:../../shields/Murata/src/modem_interface.c **** 
+ARM GAS  /tmp/ccvCCBem.s 			page 23
+
+
+ 542:../../shields/Murata/src/modem_interface.c **** void modem_interface_transfer(char* string) {
+ 671              		.loc 1 542 0
+ 672              		.cfi_startproc
+ 673              		@ args = 0, pretend = 0, frame = 0
+ 674              		@ frame_needed = 0, uses_anonymous_args = 0
+ 675              	.LVL52:
+ 676 0000 10B5     		push	{r4, lr}
+ 677              	.LCFI16:
+ 678              		.cfi_def_cfa_offset 8
+ 679              		.cfi_offset 4, -8
+ 680              		.cfi_offset 14, -4
+ 681 0002 0446     		mov	r4, r0
+ 543:../../shields/Murata/src/modem_interface.c ****   modem_interface_transfer_bytes((uint8_t*) string, strnlen(string, 100), SERIAL_MESSAGE_TYPE_LOGGI
+ 682              		.loc 1 543 0
+ 683 0004 6421     		movs	r1, #100
+ 684 0006 FFF7FEFF 		bl	strnlen
+ 685              	.LVL53:
+ 686 000a 0422     		movs	r2, #4
+ 687 000c C1B2     		uxtb	r1, r0
+ 688 000e 2046     		mov	r0, r4
+ 689 0010 FFF7FEFF 		bl	modem_interface_transfer_bytes
+ 690              	.LVL54:
+ 691 0014 10BD     		pop	{r4, pc}
+ 692              		.cfi_endproc
+ 693              	.LFE135:
+ 695              		.section	.text.modem_interface_register_handler,"ax",%progbits
+ 696              		.align	1
+ 697              		.global	modem_interface_register_handler
+ 698              		.syntax unified
+ 699              		.thumb
+ 700              		.thumb_func
+ 701              		.fpu fpv4-sp-d16
+ 703              	modem_interface_register_handler:
+ 704              	.LFB136:
+ 544:../../shields/Murata/src/modem_interface.c **** }
+ 545:../../shields/Murata/src/modem_interface.c **** 
+ 546:../../shields/Murata/src/modem_interface.c **** 
+ 547:../../shields/Murata/src/modem_interface.c **** void modem_interface_register_handler(cmd_handler_t cmd_handler, serial_message_type_t type)
+ 548:../../shields/Murata/src/modem_interface.c **** {
+ 705              		.loc 1 548 0
+ 706              		.cfi_startproc
+ 707              		@ args = 0, pretend = 0, frame = 0
+ 708              		@ frame_needed = 0, uses_anonymous_args = 0
+ 709              		@ link register save eliminated.
+ 710              	.LVL55:
+ 549:../../shields/Murata/src/modem_interface.c ****   if(type == SERIAL_MESSAGE_TYPE_ALP_DATA) 
+ 711              		.loc 1 549 0
+ 712 0000 0129     		cmp	r1, #1
+ 713 0002 04D0     		beq	.L58
+ 550:../../shields/Murata/src/modem_interface.c ****     alp_handler=cmd_handler;
+ 551:../../shields/Murata/src/modem_interface.c ****   else if(type == SERIAL_MESSAGE_TYPE_PING_RESPONSE) 
+ 714              		.loc 1 551 0
+ 715 0004 0329     		cmp	r1, #3
+ 716 0006 05D0     		beq	.L59
+ 552:../../shields/Murata/src/modem_interface.c ****     ping_response_handler=cmd_handler;
+ 553:../../shields/Murata/src/modem_interface.c ****   else if(type == SERIAL_MESSAGE_TYPE_LOGGING) 
+ 717              		.loc 1 553 0
+ARM GAS  /tmp/ccvCCBem.s 			page 24
+
+
+ 718 0008 0429     		cmp	r1, #4
+ 719 000a 06D0     		beq	.L60
+ 720              	.L54:
+ 721 000c 7047     		bx	lr
+ 722              	.L58:
+ 550:../../shields/Murata/src/modem_interface.c ****     alp_handler=cmd_handler;
+ 723              		.loc 1 550 0
+ 724 000e 044B     		ldr	r3, .L61
+ 725 0010 1860     		str	r0, [r3]
+ 726 0012 7047     		bx	lr
+ 727              	.L59:
+ 552:../../shields/Murata/src/modem_interface.c ****     ping_response_handler=cmd_handler;
+ 728              		.loc 1 552 0
+ 729 0014 034B     		ldr	r3, .L61+4
+ 730 0016 1860     		str	r0, [r3]
+ 731 0018 7047     		bx	lr
+ 732              	.L60:
+ 554:../../shields/Murata/src/modem_interface.c ****     logging_handler=cmd_handler;
+ 733              		.loc 1 554 0
+ 734 001a 034B     		ldr	r3, .L61+8
+ 735 001c 1860     		str	r0, [r3]
+ 555:../../shields/Murata/src/modem_interface.c ****   else
+ 556:../../shields/Murata/src/modem_interface.c ****     DPRINT("Modem interface callback not implemented");
+ 557:../../shields/Murata/src/modem_interface.c **** }
+ 736              		.loc 1 557 0
+ 737 001e F5E7     		b	.L54
+ 738              	.L62:
+ 739              		.align	2
+ 740              	.L61:
+ 741 0020 00000000 		.word	.LANCHOR5
+ 742 0024 00000000 		.word	.LANCHOR6
+ 743 0028 00000000 		.word	.LANCHOR7
+ 744              		.cfi_endproc
+ 745              	.LFE136:
+ 747              		.section	.text.modem_interface_set_target_rebooted_callback,"ax",%progbits
+ 748              		.align	1
+ 749              		.global	modem_interface_set_target_rebooted_callback
+ 750              		.syntax unified
+ 751              		.thumb
+ 752              		.thumb_func
+ 753              		.fpu fpv4-sp-d16
+ 755              	modem_interface_set_target_rebooted_callback:
+ 756              	.LFB137:
+ 558:../../shields/Murata/src/modem_interface.c **** 
+ 559:../../shields/Murata/src/modem_interface.c **** void modem_interface_set_target_rebooted_callback(target_rebooted_callback_t cb)
+ 560:../../shields/Murata/src/modem_interface.c **** {
+ 757              		.loc 1 560 0
+ 758              		.cfi_startproc
+ 759              		@ args = 0, pretend = 0, frame = 0
+ 760              		@ frame_needed = 0, uses_anonymous_args = 0
+ 761              		@ link register save eliminated.
+ 762              	.LVL56:
+ 561:../../shields/Murata/src/modem_interface.c ****   target_rebooted_cb = cb;
+ 763              		.loc 1 561 0
+ 764 0000 014B     		ldr	r3, .L64
+ 765 0002 1860     		str	r0, [r3]
+ 766 0004 7047     		bx	lr
+ARM GAS  /tmp/ccvCCBem.s 			page 25
+
+
+ 767              	.L65:
+ 768 0006 00BF     		.align	2
+ 769              	.L64:
+ 770 0008 00000000 		.word	.LANCHOR8
+ 771              		.cfi_endproc
+ 772              	.LFE137:
+ 774              		.comm	header,7,4
+ 775              		.comm	rx_fifo,16,4
+ 776              		.comm	rxData,1,4
+ 777              		.comm	uart_handle,4,4
+ 778              		.section	.bss.alp_handler,"aw",%nobits
+ 779              		.align	2
+ 780              		.set	.LANCHOR5,. + 0
+ 783              	alp_handler:
+ 784 0000 00000000 		.space	4
+ 785              		.section	.bss.logging_handler,"aw",%nobits
+ 786              		.align	2
+ 787              		.set	.LANCHOR7,. + 0
+ 790              	logging_handler:
+ 791 0000 00000000 		.space	4
+ 792              		.section	.bss.modem_interface_tx_buffer,"aw",%nobits
+ 793              		.align	2
+ 794              		.set	.LANCHOR9,. + 0
+ 797              	modem_interface_tx_buffer:
+ 798 0000 00000000 		.space	255
+ 798      00000000 
+ 798      00000000 
+ 798      00000000 
+ 798      00000000 
+ 799              		.section	.bss.modem_interface_tx_fifo,"aw",%nobits
+ 800              		.align	2
+ 801              		.set	.LANCHOR1,. + 0
+ 804              	modem_interface_tx_fifo:
+ 805 0000 00000000 		.space	16
+ 805      00000000 
+ 805      00000000 
+ 805      00000000 
+ 806              		.section	.bss.packet_down_counter,"aw",%nobits
+ 807              		.set	.LANCHOR0,. + 0
+ 810              	packet_down_counter:
+ 811 0000 00       		.space	1
+ 812              		.section	.bss.packet_up_counter,"aw",%nobits
+ 813              		.set	.LANCHOR2,. + 0
+ 816              	packet_up_counter:
+ 817 0000 00       		.space	1
+ 818              		.section	.bss.parsed_header,"aw",%nobits
+ 819              		.set	.LANCHOR3,. + 0
+ 822              	parsed_header:
+ 823 0000 00       		.space	1
+ 824              		.section	.bss.payload_len,"aw",%nobits
+ 825              		.set	.LANCHOR4,. + 0
+ 828              	payload_len:
+ 829 0000 00       		.space	1
+ 830              		.section	.bss.ping_response_handler,"aw",%nobits
+ 831              		.align	2
+ 832              		.set	.LANCHOR6,. + 0
+ 835              	ping_response_handler:
+ARM GAS  /tmp/ccvCCBem.s 			page 26
+
+
+ 836 0000 00000000 		.space	4
+ 837              		.section	.bss.rx_buffer,"aw",%nobits
+ 838              		.align	2
+ 839              		.set	.LANCHOR10,. + 0
+ 842              	rx_buffer:
+ 843 0000 00000000 		.space	256
+ 843      00000000 
+ 843      00000000 
+ 843      00000000 
+ 843      00000000 
+ 844              		.section	.bss.target_rebooted_cb,"aw",%nobits
+ 845              		.align	2
+ 846              		.set	.LANCHOR8,. + 0
+ 849              	target_rebooted_cb:
+ 850 0000 00000000 		.space	4
+ 851              		.section	.rodata.process_rx_fifo.str1.4,"aMS",%progbits,1
+ 852              		.align	2
+ 853              	.LC0:
+ 854 0000 74617267 		.ascii	"target rebooted, reason=%i\012\000"
+ 854      65742072 
+ 854      65626F6F 
+ 854      7465642C 
+ 854      20726561 
+ 855              		.text
+ 856              	.Letext0:
+ 857              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 858              		.file 3 "/usr/include/newlib/sys/lock.h"
+ 859              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 860              		.file 5 "/usr/lib/gcc/arm-none-eabi/6.3.1/include/stddef.h"
+ 861              		.file 6 "/usr/include/newlib/sys/reent.h"
+ 862              		.file 7 "/usr/include/newlib/sys/_stdint.h"
+ 863              		.file 8 "../../shields/Murata/inc/types.h"
+ 864              		.file 9 "../../shields/Murata/inc/fifo.h"
+ 865              		.file 10 "../../core/ST/CMSIS/Include/core_cm4.h"
+ 866              		.file 11 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h"
+ 867              		.file 12 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 868              		.file 13 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h"
+ 869              		.file 14 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h"
+ 870              		.file 15 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h"
+ 871              		.file 16 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h"
+ 872              		.file 17 "../../shields/Murata/inc/modem_interface.h"
+ 873              		.file 18 "/usr/include/newlib/sys/errno.h"
+ 874              		.file 19 "/usr/include/newlib/string.h"
+ 875              		.file 20 "../../shields/Murata/inc/crc.h"
+ 876              		.file 21 "<built-in>"
+ARM GAS  /tmp/ccvCCBem.s 			page 27
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 modem_interface.c
+     /tmp/ccvCCBem.s:18     .text.verify_payload:0000000000000000 $t
+     /tmp/ccvCCBem.s:24     .text.verify_payload:0000000000000000 verify_payload
+     /tmp/ccvCCBem.s:112    .text.verify_payload:0000000000000058 $d
+     /tmp/ccvCCBem.s:117    .text.flush_modem_interface_tx_fifo:0000000000000000 $t
+     /tmp/ccvCCBem.s:123    .text.flush_modem_interface_tx_fifo:0000000000000000 flush_modem_interface_tx_fifo
+     /tmp/ccvCCBem.s:171    .text.flush_modem_interface_tx_fifo:000000000000002c $d
+                            *COM*:0000000000000004 uart_handle
+     /tmp/ccvCCBem.s:177    .text.execute_state_machine:0000000000000000 $t
+     /tmp/ccvCCBem.s:184    .text.execute_state_machine:0000000000000000 execute_state_machine
+     /tmp/ccvCCBem.s:196    .text.modem_interface_uart_rx_cb:0000000000000000 $t
+     /tmp/ccvCCBem.s:203    .text.modem_interface_uart_rx_cb:0000000000000000 modem_interface_uart_rx_cb
+     /tmp/ccvCCBem.s:233    .text.modem_interface_uart_rx_cb:000000000000001c $d
+                            *COM*:0000000000000001 rxData
+                            *COM*:0000000000000010 rx_fifo
+     /tmp/ccvCCBem.s:240    .text.modem_interface_transfer_bytes:0000000000000000 $t
+     /tmp/ccvCCBem.s:247    .text.modem_interface_transfer_bytes:0000000000000000 modem_interface_transfer_bytes
+     /tmp/ccvCCBem.s:322    .text.modem_interface_transfer_bytes:000000000000005c $d
+     /tmp/ccvCCBem.s:328    .text.process_rx_fifo:0000000000000000 $t
+     /tmp/ccvCCBem.s:335    .text.process_rx_fifo:0000000000000000 process_rx_fifo
+     /tmp/ccvCCBem.s:585    .text.process_rx_fifo:0000000000000144 $d
+                            *COM*:0000000000000007 header
+     /tmp/ccvCCBem.s:600    .text.modem_interface_init:0000000000000000 $t
+     /tmp/ccvCCBem.s:607    .text.modem_interface_init:0000000000000000 modem_interface_init
+     /tmp/ccvCCBem.s:652    .text.modem_interface_init:0000000000000034 $d
+     /tmp/ccvCCBem.s:662    .text.modem_interface_transfer:0000000000000000 $t
+     /tmp/ccvCCBem.s:669    .text.modem_interface_transfer:0000000000000000 modem_interface_transfer
+     /tmp/ccvCCBem.s:696    .text.modem_interface_register_handler:0000000000000000 $t
+     /tmp/ccvCCBem.s:703    .text.modem_interface_register_handler:0000000000000000 modem_interface_register_handler
+     /tmp/ccvCCBem.s:741    .text.modem_interface_register_handler:0000000000000020 $d
+     /tmp/ccvCCBem.s:748    .text.modem_interface_set_target_rebooted_callback:0000000000000000 $t
+     /tmp/ccvCCBem.s:755    .text.modem_interface_set_target_rebooted_callback:0000000000000000 modem_interface_set_target_rebooted_callback
+     /tmp/ccvCCBem.s:770    .text.modem_interface_set_target_rebooted_callback:0000000000000008 $d
+     /tmp/ccvCCBem.s:779    .bss.alp_handler:0000000000000000 $d
+     /tmp/ccvCCBem.s:783    .bss.alp_handler:0000000000000000 alp_handler
+     /tmp/ccvCCBem.s:786    .bss.logging_handler:0000000000000000 $d
+     /tmp/ccvCCBem.s:790    .bss.logging_handler:0000000000000000 logging_handler
+     /tmp/ccvCCBem.s:793    .bss.modem_interface_tx_buffer:0000000000000000 $d
+     /tmp/ccvCCBem.s:797    .bss.modem_interface_tx_buffer:0000000000000000 modem_interface_tx_buffer
+     /tmp/ccvCCBem.s:800    .bss.modem_interface_tx_fifo:0000000000000000 $d
+     /tmp/ccvCCBem.s:804    .bss.modem_interface_tx_fifo:0000000000000000 modem_interface_tx_fifo
+     /tmp/ccvCCBem.s:810    .bss.packet_down_counter:0000000000000000 packet_down_counter
+     /tmp/ccvCCBem.s:811    .bss.packet_down_counter:0000000000000000 $d
+     /tmp/ccvCCBem.s:816    .bss.packet_up_counter:0000000000000000 packet_up_counter
+     /tmp/ccvCCBem.s:817    .bss.packet_up_counter:0000000000000000 $d
+     /tmp/ccvCCBem.s:822    .bss.parsed_header:0000000000000000 parsed_header
+     /tmp/ccvCCBem.s:823    .bss.parsed_header:0000000000000000 $d
+     /tmp/ccvCCBem.s:828    .bss.payload_len:0000000000000000 payload_len
+     /tmp/ccvCCBem.s:829    .bss.payload_len:0000000000000000 $d
+     /tmp/ccvCCBem.s:831    .bss.ping_response_handler:0000000000000000 $d
+     /tmp/ccvCCBem.s:835    .bss.ping_response_handler:0000000000000000 ping_response_handler
+     /tmp/ccvCCBem.s:838    .bss.rx_buffer:0000000000000000 $d
+     /tmp/ccvCCBem.s:842    .bss.rx_buffer:0000000000000000 rx_buffer
+     /tmp/ccvCCBem.s:845    .bss.target_rebooted_cb:0000000000000000 $d
+     /tmp/ccvCCBem.s:849    .bss.target_rebooted_cb:0000000000000000 target_rebooted_cb
+     /tmp/ccvCCBem.s:852    .rodata.process_rx_fifo.str1.4:0000000000000000 $d
+ARM GAS  /tmp/ccvCCBem.s 			page 28
+
+
+                     .debug_frame:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+fifo_peek
+crc_calculate
+fifo_get_size
+fifo_pop
+HAL_UART_Transmit
+HAL_UART_Receive_IT
+fifo_put
+fifo_skip
+fifo_init_subview
+printf
+fifo_init
+strnlen
