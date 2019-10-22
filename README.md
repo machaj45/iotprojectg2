@@ -5,7 +5,7 @@ This is repo for iotprojecet under supervision of university of antwerpen
 # Start clone IT!
 
 ```
-git clone git@github.com:machaj45/iotproject.git
+git clone git@github.com:machaj45/iotprojectg2.git
 ```
 
 ## This project is configured for working with klaxalk setup.
