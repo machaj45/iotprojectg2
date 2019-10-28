@@ -1,0 +1,98 @@
+<h3>Introduction</h3>
+<p>STM32CubeMonitor-Power is a graphical tool :</p>
+<ul>
+<li>Allowing end user to display on PC power data coming from PowerShield HW Board (connected on ST or competitors eval boards):</li>
+<ul>
+<li>With high accuracy power data values (from 100 nA to 10 mA)</li>
+<li>At high sampling rate (up to 100 kHz)</li>
+</ul>
+<li>Bringing advanced features to analyze data (zoom, measurements reports, etc.).</li>
+</ul>
+<p>
+Another important feature of STM32CubeMonitor-Power is to perform ULPBench tests and compute an ULPMark score estimation.<br /><br />
+</p>
+<h3>Installing and running STM32CubeMonitor-Power</h3>
+<h4>Supported operating systems and architectures</h4>
+<ul>
+<li>Windows&#x00AE 7 or newer: 32-bit (x86), 64-bit (x64)</li>
+<li>Linux&#x00AE (tested on RedHat, Fedora and Ubuntu, 32 and 64 bits)</li>
+<li>macOS&#x00AE: minimum version OS X&#x00AE Yosemite or newer<br></li>
+</ul>
+<h4>Software requirements</h4>
+<p>The <B>Java Run Time Environment 1.8</B> (version 1.8.121 or newer) by Oracle&#x00AE must be installed.</p>
+<p>WARNING:</p>
+<ul>
+    <li>Java OpenJDK is not supported.</li>
+    <li>Java&#x2122 SE Run Time Environment 9 by Oracle&#x00AE is not supported.</li>
+</ul>
+<h4>Installing STM32 USB Virtual COM Port Driver STSW-STM32102</h4>
+<p>STSW-STM32102 driver must be installed to allow STM32CubeMonitor-Power to connect to X-NUCLEO-LPM01A.</p>
+<p>STSW-STM32102 driver can be downloaded from <a href="http://www.st.com/en/development-tools/stsw-stm32102.html">here</a>.</p>
+<p>To install STSW-STM32102 driver, launch the executable in the zip file corresponding to the Windows&#x00AE version and the CPU architecture (32-bit (x86) or 64-bit (x64)).</p>
+<h4>Installing STM32CubeMonitor-Power</h4>
+<p>If another version of STM32CubeMonitor-Power is already installed, the existing version should be uninstalled before installing the new version (see <B>Uninstalling STM32CubeMonitor-Power</B> to uninstall the current version).</p>
+<p>To install STM32CubeMonitor-power, follow the steps below:</p>
+<p>Extract (unzip) the whole content of the the latest STM32CubeMonitor-Power installation package from http://www.st.com into the same directory.</p>
+<ul>
+<li>On Windows</li>
+<ul>
+<li>Make sure you have administrators rights</li>
+<li>Double click on the SetupSTM32CubeMonitor-Power-X.Y.Z.exe file</li>
+</ul></ul>
+<ul>
+<li>On Linux</li>
+<ul>
+<li>Make sure you have access rights to the target installation directory</li>
+<li>Double click on the SetupSTM32CubeMonitor-Power-X.Y.Z.jar file</li>
+<li>Or launch manually the installation with java -jar &lt;install path&gt;/SetupSTM32CubeMonitor-Power-X.Y.Z.jar</li>
+</ul></ul>
+<ul>
+<li>On MacOS</li>
+<ul>
+<li>Make sure you have access rights to the target installation directory</li>
+<li>Double click on the SetupSTM32CubeMonitor-Power-X.Y.Z.dmg file</li>
+<li>Open the STM32CubeMonitor-Power new disk</li>
+<li>Drag and drop STM32CubeMonitor-Power shortcut to the Applications shortcut</li>
+</ul></ul>
+<p>Note: X.Y.Z represents STM32CubeMonitor-Power SW version.</p>
+<p>After the installation you can safely remove the content of the zip from your disk.</p>
+<p>Please refer to the STM32CubeMonitor-Power user manual for more details on System requirements or other possible installations.</p>
+<h4>Running STM32CubeMonitor-Power</h4>
+<ul>
+<li>On Windows</li>
+<ul>
+<li>Select STM32CubeMonitor-Power from Program Files &gt; ST Microelectronics &gt; STM32CubeMonitor-Power (or from the path selected during installation).</li>
+<li>Or double-click STM32CubeMonitor-Power icon on your desktop</li>
+</ul></ul>
+<ul>
+<li>On Linux</li>
+<ul>
+<li>Launch the STM32CubeMonitor-Power executable from the STM32CubeMonitor-Power installation directory</li>
+<li>Or double-click STM32CubeMonitor-Power icon on your desktop</li>
+</ul></ul>
+<ul>
+<li>On MacOS</li>
+<ul>
+<li>Launch the STM32CubeMonitor-Power executable from the MacOS Applications directory</li>
+<li>Or double-click STM32CubeMonitor-Power icon from MacOS Applications shortcut on your desktop</li>
+</ul></ul>
+<h4>Uninstalling STM32CubeMonitor-Power</h4>
+<p>To uninstall STM32CubeMonitor-Power, follow the steps below:</p>
+<ul>
+<li>On Windows</li>
+<ul>
+<li>Open the Windows Control panel.</li>
+<li>Select Programs and Features to display the list of programs installed on your computer.</li>
+<li>Right click on STM32CubeMonitor-Power and select the uninstall function</li>
+</ul></ul>
+<ul>
+<li>On Linux</li>
+<ul>
+<li>Launch uninstaller.jar in the STM32CubeMonitor-Power &gt; Uninstaller directory</li>
+<li>Tick "Force the deletion" and press Uninstall button</li>
+</ul></ul>
+<ul>
+<li>On MacOS</li>
+<ul>
+<li>Directly move the STM32CubeMonitor-Power application in the recycle bin</li>
+</ul></ul>
