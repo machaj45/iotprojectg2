@@ -22,4 +22,7 @@ Then read readme.md for how to install the setup
 bindsym $mod2+h exec tmux send-keys -t jlink "h" ENTER
 bindsym $mod2+g exec tmux send-keys -t jlink "g" ENTER
 bindsym $mod2+f exec ~/iotprojectg2/device/applications/iotproject/tmux/flash.sh
+
+
+Hanna was here
 ```
