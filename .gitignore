@@ -1,4 +1,5 @@
-applications/*/build/*
+.device/applications/*/build/*
+device/applications/iotproject/build/*
 *.swp
 .vscode/*
 shields/Murata/inc/keys.h
