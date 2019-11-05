@@ -8,7 +8,7 @@
 #define GSP30ACCSENSOR_H_
 
 #define GSP30_I2C_ADDRESS 0x58
-
+uint8_t addr;
 /* command and constants for reading the serial ID */
 #define SGP30_CMD_GET_SERIAL_ID 0x3682
 #define SGP30_CMD_GET_SERIAL_ID_DURATION_US 500
@@ -67,6 +67,7 @@ I2C_HandleTypeDef *GSP30_hi2c;
 void              GSP30_setI2CInterface(I2C_HandleTypeDef *hi2c);
 HAL_StatusTypeDef GSP30_readRegister(uint16_t GSP30_reg, uint8_t GSP30_data, uint32_t Timeout);
 HAL_StatusTypeDef GSP30_writeRegister(uint16_t GSP30_reg, uint8_t GSP30_data, uint32_t Timeout);
+HAL_StatusTypeDef GSP30_writeRegister8(uint8_t GSP30_reg, uint8_t GSP30_data, uint32_t Timeout);
 void              GSP30_init();
 void              GSP30_reset();
 void              GSP30_readData();

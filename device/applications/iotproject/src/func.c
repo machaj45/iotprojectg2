@@ -9,11 +9,13 @@ void StartDefaultTask(void const *argument) {
   while (1) {
     if(acc_int==1){
       acc_int=2;
-      temp_hum_measurement();
-      LoRaWAN_send(NULL);
+      //temp_hum_measurement();
+      //LoRaWAN_send(NULL);
     }
     IWDG_feed(NULL);
-    osDelay(1);
+    osDelay(15000);
+    //temp_hum_measurement();
+    //LoRaWAN_send(NULL);
   }
 }
 void EXTI15_10_IRQHandler(void){
@@ -38,7 +40,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber){
   printf("PIN13 Int \r\n");
   }
   if(GPIO_PIN_0==gpioPinNumber){
-    acc_int=0;
+    acc_int=2;
   //printf("PIN0 Int \r\n");
   printf("Rearmed \r\n");
   }
@@ -149,6 +151,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void Initialize_Sensors(void){
   LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
+  GSP30_setI2CInterface(&P1_I2C);
   LSM303AGR_ACC_reset();
   acc_int=0;
   LSM303AGR_MAG_reset();
@@ -158,7 +161,7 @@ void Initialize_Sensors(void){
   SHT31_begin();
 }
 void measure(){
-GSP30_measure();
+  GSP30_measure();
 }
 void Initialize_OS(void){
 

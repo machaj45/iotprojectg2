@@ -4,3 +4,4 @@ device/applications/iotproject/build/*
 .vscode/*
 shields/Murata/inc/keys.h
 shields/NB-IoT/inc/SARAN21X_Params.h
+tags
