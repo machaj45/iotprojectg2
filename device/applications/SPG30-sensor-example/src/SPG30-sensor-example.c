@@ -196,7 +196,7 @@ int main(void)
 			}
 
 			// set green LED LD2
-			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_RESET);
 
 			/* Print the current baseline values every 10 minutes */
       if (measurement_counter % 600 == 0)
@@ -222,7 +222,7 @@ int main(void)
 			/* The IAQ measurement must be triggered nearly once per second (SGP30) to get accurate values.*/
 			HAL_Delay(147); // 200 - code execution time
 			// set green LED LD2
-			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_SET);
 			HAL_Delay(800);
     }
   }
