@@ -14,12 +14,12 @@ handler = ttn.HandlerClient(app_id, access_key)
 mqtt_client = handler.data()
 mqtt_client.set_uplink_callback(uplink_callback)
 mqtt_client.connect()
-mqtt_client.send(dev_id="exploreremachygreen",  pay= "AQ==", port=1, conf=True, sched="replace") # send 0x01
+mqtt_client.send(dev_id="octa",  pay= "AQ==", port=1, conf=True, sched="replace") # send 0x01
 time.sleep(10)
 mqtt_client.close()
 time.sleep(1)
 mqtt_client.connect()
-mqtt_client.send(dev_id="exploreremachygreen",  pay= "AQ==", port=1, conf=True, sched="replace") # send 0x00
+mqtt_client.send(dev_id="octa",  pay= "AQ==", port=1, conf=True, sched="replace") # send 0x00
 time.sleep(10)
 mqtt_client.close()
 # using application manager client
