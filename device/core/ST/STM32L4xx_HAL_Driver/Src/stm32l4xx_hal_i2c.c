@@ -2425,7 +2425,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress
   * @param  MemAddSize Size of internal memory address
   * @param  pData Pointer to data buffer
   * @param  Size Amount of data to be sent
-  * @param  Timeout Timeout duration
+  * @param  Timeout Timeout duration units ????????
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
