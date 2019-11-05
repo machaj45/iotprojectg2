@@ -1,6 +1,3 @@
 [submodule "backend/pyda7a"]
 	path = backend/pyda7a
 	url = https://github.com/christophevg/pyd7a.git
-[submodule "backend/pyda7"]
-	path = backend/pyda7
-	url = https://github.com/christophevg/pyd7a.git
