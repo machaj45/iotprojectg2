@@ -47,7 +47,7 @@ extern I2C_HandleTypeDef *hi2c1;
 void sensirion_i2c_init()
 {
     // MX_I2C1_Init(); // already called from main
-	P1_I2C_Init();
+	P3_I2C_Init();
 }
 
 /**
@@ -62,7 +62,7 @@ void sensirion_i2c_init()
  */
 int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count)
 {
-	return HAL_I2C_Master_Receive(&P1_I2C, address<<1, data, count, 100);
+	return HAL_I2C_Master_Receive(&P3_I2C, address<<1, data, count, 100);
 }
 
 /**
@@ -78,7 +78,7 @@ int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count)
  */
 int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data, uint16_t count)
 {
-	return HAL_I2C_Master_Transmit(&P1_I2C, address<<1, data, count, 100);  // data is the start pointer of our array
+	return HAL_I2C_Master_Transmit(&P3_I2C, address<<1, data, count, 100);  // data is the start pointer of our array
 }
 
 /**

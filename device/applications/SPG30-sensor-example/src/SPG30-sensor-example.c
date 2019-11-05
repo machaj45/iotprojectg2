@@ -55,7 +55,7 @@
 #include "sgp30.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-I2C_HandleTypeDef *hi2c1;
+//I2C_HandleTypeDef *hi2c1;
 
 /* USER CODE END Includes */
 
@@ -125,7 +125,7 @@ int main(void)
 
   SPG30_Initialize();
 
-  P1_I2C_Init();
+  P3_I2C_Init();
 
   while (1)
   {
