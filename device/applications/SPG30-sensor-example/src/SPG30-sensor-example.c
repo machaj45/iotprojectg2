@@ -153,14 +153,11 @@ int main(void)
     if(err == STATUS_OK)
     {
 			// Print ethanol signal with floating point support
-      float sc = scaled_ethanol_signal / 512.0;
-			printf("Ethanol signal: lf \r\n", 2.456);
+			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
 
 			// Print H2 signal with floating point support
-      float scaled = scaled_h2_signal / 512.0;
-			printf("H2 signal: %lf \r\n", 1.456);
+			printf("H2 signal: %.2f \r\n",scaled_h2_signal / 512.0);
 
-      printf("Test %lf\r\n", 17.42);
     }
     else
     {

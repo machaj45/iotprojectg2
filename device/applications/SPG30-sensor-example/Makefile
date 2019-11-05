@@ -8,6 +8,7 @@ PLATFORM ?= octa
 BOOTLOADER ?= 0
 SHIELDS += SPG30
 SPG30_CONNECTOR = 1
+PRINT_FLOATS = 1
 
 
 # Path to the octa-stack base directory:
