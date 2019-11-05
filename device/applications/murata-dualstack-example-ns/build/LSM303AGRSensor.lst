@@ -1,0 +1,1295 @@
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"LSM303AGRSensor.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.LSM303AGR_setI2CInterface,"ax",%progbits
+  18              		.align	1
+  19              		.global	LSM303AGR_setI2CInterface
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  23              		.fpu fpv4-sp-d16
+  25              	LSM303AGR_setI2CInterface:
+  26              	.LFB123:
+  27              		.file 1 "../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c"
+   1:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** #include "LSM303AGRSensor.h"
+   2:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+   3:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+   4:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+   5:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Sets the I2C interface for the LSM303AGR
+   6:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param hi2c: the I2C interface
+   7:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+   8:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_setI2CInterface(I2C_HandleTypeDef *hi2c) {
+  28              		.loc 1 8 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+   9:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  10:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_hi2c = hi2c;
+  34              		.loc 1 10 0
+  35 0000 014B     		ldr	r3, .L2
+  36 0002 1860     		str	r0, [r3]
+  11:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+  37              		.loc 1 11 0
+  38 0004 7047     		bx	lr
+  39              	.L3:
+  40 0006 00BF     		.align	2
+  41              	.L2:
+  42 0008 00000000 		.word	LSM303AGR_hi2c
+  43              		.cfi_endproc
+  44              	.LFE123:
+  46              		.section	.text.LSM303AGR_readRegister,"ax",%progbits
+  47              		.align	1
+  48              		.global	LSM303AGR_readRegister
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 2
+
+
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  52              		.fpu fpv4-sp-d16
+  54              	LSM303AGR_readRegister:
+  55              	.LFB124:
+  12:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  13:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+  14:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Read a certain register of the LSM303AGR depending on the value of ACC_MAG:
+  15:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- if this value is 0: read out a register of the accelerometer
+  16:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- if this value is 1: read out a register of the magnetormeter
+  17:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * The standard HAL library values are used for the size of the register and time-out.
+  18:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param LSM303AGR_reg: the register that needs to be read of the LSM303AGR
+  19:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param LSM303AGR_data: a pointer where the data of the register needs to be stored
+  20:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param ACC_MAG: depending on the value a value a register of the accelerometer of magnetometer a
+  21:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @return returns the status of the I2C transfer
+  22:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+  23:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** HAL_StatusTypeDef LSM303AGR_readRegister(uint8_t LSM303AGR_reg,
+  24:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		uint8_t LSM303AGR_data, uint8_t ACC_MAG) {
+  56              		.loc 1 24 0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 8
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              	.LVL1:
+  61 0000 10B5     		push	{r4, lr}
+  62              	.LCFI0:
+  63              		.cfi_def_cfa_offset 8
+  64              		.cfi_offset 4, -8
+  65              		.cfi_offset 14, -4
+  66 0002 86B0     		sub	sp, sp, #24
+  67              	.LCFI1:
+  68              		.cfi_def_cfa_offset 32
+  69 0004 8DF81710 		strb	r1, [sp, #23]
+  25:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  26:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	if (ACC_MAG == 0) {
+  70              		.loc 1 26 0
+  71 0008 8AB1     		cbz	r2, .L8
+  27:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,
+  28:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				LSM303AGR_reg, I2C_MEMADD_SIZE_8BIT, &LSM303AGR_data,
+  29:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				sizeof(LSM303AGR_data), HAL_MAX_DELAY);
+  30:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	} else {
+  31:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_MAG_I2C_ADDRESS,
+  72              		.loc 1 31 0
+  73 000a 114B     		ldr	r3, .L9
+  74 000c 1C68     		ldr	r4, [r3]
+  75 000e 4FF0FF33 		mov	r3, #-1
+  76 0012 0293     		str	r3, [sp, #8]
+  77 0014 0123     		movs	r3, #1
+  78 0016 0193     		str	r3, [sp, #4]
+  79 0018 0DF11702 		add	r2, sp, #23
+  80              	.LVL2:
+  81 001c 0092     		str	r2, [sp]
+  82 001e 0246     		mov	r2, r0
+  83 0020 3C21     		movs	r1, #60
+  84              	.LVL3:
+  85 0022 2046     		mov	r0, r4
+  86              	.LVL4:
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 3
+
+
+  87 0024 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+  88              	.LVL5:
+  89              	.L6:
+  32:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				LSM303AGR_reg, I2C_MEMADD_SIZE_8BIT, &LSM303AGR_data,
+  33:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				sizeof(LSM303AGR_data), HAL_MAX_DELAY);
+  34:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	}
+  35:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  36:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	return HAL_OK;
+  37:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+  90              		.loc 1 37 0
+  91 0028 0020     		movs	r0, #0
+  92 002a 06B0     		add	sp, sp, #24
+  93              	.LCFI2:
+  94              		.cfi_remember_state
+  95              		.cfi_def_cfa_offset 8
+  96              		@ sp needed
+  97 002c 10BD     		pop	{r4, pc}
+  98              	.LVL6:
+  99              	.L8:
+ 100              	.LCFI3:
+ 101              		.cfi_restore_state
+  27:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,
+ 102              		.loc 1 27 0
+ 103 002e 084B     		ldr	r3, .L9
+ 104 0030 1C68     		ldr	r4, [r3]
+ 105 0032 4FF0FF33 		mov	r3, #-1
+ 106 0036 0293     		str	r3, [sp, #8]
+ 107 0038 0123     		movs	r3, #1
+ 108 003a 0193     		str	r3, [sp, #4]
+ 109 003c 0DF11702 		add	r2, sp, #23
+ 110              	.LVL7:
+ 111 0040 0092     		str	r2, [sp]
+ 112 0042 0246     		mov	r2, r0
+ 113 0044 3221     		movs	r1, #50
+ 114              	.LVL8:
+ 115 0046 2046     		mov	r0, r4
+ 116              	.LVL9:
+ 117 0048 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 118              	.LVL10:
+ 119 004c ECE7     		b	.L6
+ 120              	.L10:
+ 121 004e 00BF     		.align	2
+ 122              	.L9:
+ 123 0050 00000000 		.word	LSM303AGR_hi2c
+ 124              		.cfi_endproc
+ 125              	.LFE124:
+ 127              		.section	.text.LSM303AGR_writeRegister,"ax",%progbits
+ 128              		.align	1
+ 129              		.global	LSM303AGR_writeRegister
+ 130              		.syntax unified
+ 131              		.thumb
+ 132              		.thumb_func
+ 133              		.fpu fpv4-sp-d16
+ 135              	LSM303AGR_writeRegister:
+ 136              	.LFB125:
+  38:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  39:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 4
+
+
+  40:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Writes a cerain value to a certain register of the LSM303AGR depending on the value of ACC_MAG:
+  41:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  *   	- if this value is 0: write to a register of the accelerometer
+  42:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- if this value is 1: write to a register of the magnetormeter
+  43:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * the standard HAL library values are used for the size of the register and time-out.
+  44:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param LSM303AGR_reg: the register where data needs to be written to
+  45:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param LSM303AGR_data: a pointer to the data that needs to be written
+  46:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param ACC_MAG: depending on the value, a write is performed to the accelerometer of magnetomete
+  47:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @return returns the status of the I2C transfer
+  48:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+  49:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** HAL_StatusTypeDef LSM303AGR_writeRegister(uint8_t LSM303AGR_reg,
+  50:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		uint8_t LSM303AGR_data, uint8_t ACC_MAG) {
+ 137              		.loc 1 50 0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 8
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141              	.LVL11:
+ 142 0000 10B5     		push	{r4, lr}
+ 143              	.LCFI4:
+ 144              		.cfi_def_cfa_offset 8
+ 145              		.cfi_offset 4, -8
+ 146              		.cfi_offset 14, -4
+ 147 0002 86B0     		sub	sp, sp, #24
+ 148              	.LCFI5:
+ 149              		.cfi_def_cfa_offset 32
+ 150 0004 8DF81710 		strb	r1, [sp, #23]
+  51:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  52:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	if (ACC_MAG == 0) {
+ 151              		.loc 1 52 0
+ 152 0008 8AB1     		cbz	r2, .L15
+  53:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Write(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,
+  54:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				LSM303AGR_reg, I2C_MEMADD_SIZE_8BIT, &LSM303AGR_data,
+  55:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				sizeof(LSM303AGR_data), HAL_MAX_DELAY);
+  56:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	} else {
+  57:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Write(LSM303AGR_hi2c, LSM303AGR_MAG_I2C_ADDRESS,
+ 153              		.loc 1 57 0
+ 154 000a 114B     		ldr	r3, .L16
+ 155 000c 1C68     		ldr	r4, [r3]
+ 156 000e 4FF0FF33 		mov	r3, #-1
+ 157 0012 0293     		str	r3, [sp, #8]
+ 158 0014 0123     		movs	r3, #1
+ 159 0016 0193     		str	r3, [sp, #4]
+ 160 0018 0DF11702 		add	r2, sp, #23
+ 161              	.LVL12:
+ 162 001c 0092     		str	r2, [sp]
+ 163 001e 0246     		mov	r2, r0
+ 164 0020 3C21     		movs	r1, #60
+ 165              	.LVL13:
+ 166 0022 2046     		mov	r0, r4
+ 167              	.LVL14:
+ 168 0024 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 169              	.LVL15:
+ 170              	.L13:
+  58:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				LSM303AGR_reg, I2C_MEMADD_SIZE_8BIT, &LSM303AGR_data,
+  59:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 				sizeof(LSM303AGR_setting), HAL_MAX_DELAY);
+  60:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	}
+  61:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  62:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	return HAL_OK;
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 5
+
+
+  63:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  64:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 171              		.loc 1 64 0
+ 172 0028 0020     		movs	r0, #0
+ 173 002a 06B0     		add	sp, sp, #24
+ 174              	.LCFI6:
+ 175              		.cfi_remember_state
+ 176              		.cfi_def_cfa_offset 8
+ 177              		@ sp needed
+ 178 002c 10BD     		pop	{r4, pc}
+ 179              	.LVL16:
+ 180              	.L15:
+ 181              	.LCFI7:
+ 182              		.cfi_restore_state
+  53:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		HAL_I2C_Mem_Write(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,
+ 183              		.loc 1 53 0
+ 184 002e 084B     		ldr	r3, .L16
+ 185 0030 1C68     		ldr	r4, [r3]
+ 186 0032 4FF0FF33 		mov	r3, #-1
+ 187 0036 0293     		str	r3, [sp, #8]
+ 188 0038 0123     		movs	r3, #1
+ 189 003a 0193     		str	r3, [sp, #4]
+ 190 003c 0DF11702 		add	r2, sp, #23
+ 191              	.LVL17:
+ 192 0040 0092     		str	r2, [sp]
+ 193 0042 0246     		mov	r2, r0
+ 194 0044 3221     		movs	r1, #50
+ 195              	.LVL18:
+ 196 0046 2046     		mov	r0, r4
+ 197              	.LVL19:
+ 198 0048 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 199              	.LVL20:
+ 200 004c ECE7     		b	.L13
+ 201              	.L17:
+ 202 004e 00BF     		.align	2
+ 203              	.L16:
+ 204 0050 00000000 		.word	LSM303AGR_hi2c
+ 205              		.cfi_endproc
+ 206              	.LFE125:
+ 208              		.section	.text.LSM303AGR_init,"ax",%progbits
+ 209              		.align	1
+ 210              		.global	LSM303AGR_init
+ 211              		.syntax unified
+ 212              		.thumb
+ 213              		.thumb_func
+ 214              		.fpu fpv4-sp-d16
+ 216              	LSM303AGR_init:
+ 217              	.LFB126:
+  65:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  66:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+  67:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Initialization of the LSM303AGR accelerometer and magnetometer.
+  68:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * The accelerometer is initialized with the following values:
+  69:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Powerdown,
+  70:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- X, Y and Z-axes enabled
+  71:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- BDU enabled (output registers are not updated until the MSB and LSB have been read)
+  72:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  *
+  73:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * The magnetometer is initialized with the following values:
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 6
+
+
+  74:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Idle mode,
+  75:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Temperature compensation enabled,
+  76:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Low-power mode enabled,
+  77:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Offset cancelation enabled,
+  78:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- Low pass filter enabled,
+  79:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * 		- BDU enabled
+  80:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+  81:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_init() {
+ 218              		.loc 1 81 0
+ 219              		.cfi_startproc
+ 220              		@ args = 0, pretend = 0, frame = 0
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222 0000 10B5     		push	{r4, lr}
+ 223              	.LCFI8:
+ 224              		.cfi_def_cfa_offset 8
+ 225              		.cfi_offset 4, -8
+ 226              		.cfi_offset 14, -4
+  82:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  83:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_ODR_100Hz | LSM303AGR_ACC_X_EN
+ 227              		.loc 1 83 0
+ 228 0002 1C4C     		ldr	r4, .L20
+ 229 0004 5721     		movs	r1, #87
+ 230 0006 2170     		strb	r1, [r4]
+  84:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_ACC_Y_EN | LSM303AGR_ACC_Z_EN;
+  85:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, LSM303AGR_setting, 0);
+ 231              		.loc 1 85 0
+ 232 0008 0022     		movs	r2, #0
+ 233 000a 2020     		movs	r0, #32
+ 234 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 235              	.LVL21:
+  86:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  87:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_BDU_EN | LSM303AGR_ACC_FS_16;
+ 236              		.loc 1 87 0
+ 237 0010 B021     		movs	r1, #176
+ 238 0012 2170     		strb	r1, [r4]
+  88:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG4, LSM303AGR_setting, 0);
+ 239              		.loc 1 88 0
+ 240 0014 0022     		movs	r2, #0
+ 241 0016 2320     		movs	r0, #35
+ 242 0018 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 243              	.LVL22:
+  89:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****   
+  90:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting =0xFF; //LSB = 1/ODR = 15/100
+ 244              		.loc 1 90 0
+ 245 001c FF21     		movs	r1, #255
+ 246 001e 2170     		strb	r1, [r4]
+  91:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_DURATION_A, LSM303AGR_setting, 0); //one of them is not
+ 247              		.loc 1 91 0
+ 248 0020 0022     		movs	r2, #0
+ 249 0022 3320     		movs	r0, #51
+ 250 0024 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 251              	.LVL23:
+  92:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_setting =0x0F; //LSB = 1/ODR = 15/100
+  93:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_writeRegister(LSM303AGR_ACC_INT2_DURATION_A, LSM303AGR_setting, 0);
+  94:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  95:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_INT_X_UP_EN | LSM303AGR_ACC_INT_Y_UP_EN;
+ 252              		.loc 1 95 0
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 7
+
+
+ 253 0028 0A21     		movs	r1, #10
+ 254 002a 2170     		strb	r1, [r4]
+  96:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_CFG_A, LSM303AGR_setting, 0);
+ 255              		.loc 1 96 0
+ 256 002c 0022     		movs	r2, #0
+ 257 002e 3020     		movs	r0, #48
+ 258 0030 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 259              	.LVL24:
+  97:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+  98:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = (uint8_t)(40*0.186);//in G
+ 260              		.loc 1 98 0
+ 261 0034 0721     		movs	r1, #7
+ 262 0036 2170     		strb	r1, [r4]
+  99:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_ACT_THS_A, LSM303AGR_setting, 0);
+ 263              		.loc 1 99 0
+ 264 0038 0022     		movs	r2, #0
+ 265 003a 3E20     		movs	r0, #62
+ 266 003c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 267              	.LVL25:
+ 100:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 101:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = 0x1A;//in G
+ 268              		.loc 1 101 0
+ 269 0040 1A21     		movs	r1, #26
+ 270 0042 2170     		strb	r1, [r4]
+ 102:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(0x25, LSM303AGR_setting, 0);
+ 271              		.loc 1 102 0
+ 272 0044 0022     		movs	r2, #0
+ 273 0046 2520     		movs	r0, #37
+ 274 0048 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 275              	.LVL26:
+ 103:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** //	LSM303AGR_setting = 0x0A;
+ 104:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** //	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, LSM303AGR_setting, 0);
+ 105:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 106:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 107:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 108:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_COMP_TEMP_EN | LSM303AGR_MAG_LP_EN
+ 276              		.loc 1 108 0
+ 277 004c 9021     		movs	r1, #144
+ 278 004e 2170     		strb	r1, [r4]
+ 109:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_MAG_ODR_10HZ;
+ 110:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_A, LSM303AGR_setting, 1);
+ 279              		.loc 1 110 0
+ 280 0050 0122     		movs	r2, #1
+ 281 0052 6020     		movs	r0, #96
+ 282 0054 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 283              	.LVL27:
+ 111:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 112:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_OFF_CANC | LSM303AGR_MAG_LPF;
+ 284              		.loc 1 112 0
+ 285 0058 0321     		movs	r1, #3
+ 286 005a 2170     		strb	r1, [r4]
+ 113:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_B, LSM303AGR_setting, 1);
+ 287              		.loc 1 113 0
+ 288 005c 0122     		movs	r2, #1
+ 289 005e 6120     		movs	r0, #97
+ 290 0060 FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 291              	.LVL28:
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 8
+
+
+ 114:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 115:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_BDU;
+ 292              		.loc 1 115 0
+ 293 0064 1021     		movs	r1, #16
+ 294 0066 2170     		strb	r1, [r4]
+ 116:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_C, LSM303AGR_setting, 1);
+ 295              		.loc 1 116 0
+ 296 0068 0122     		movs	r2, #1
+ 297 006a 6220     		movs	r0, #98
+ 298 006c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 299              	.LVL29:
+ 117:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 118:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 300              		.loc 1 118 0
+ 301 0070 10BD     		pop	{r4, pc}
+ 302              	.L21:
+ 303 0072 00BF     		.align	2
+ 304              	.L20:
+ 305 0074 00000000 		.word	LSM303AGR_setting
+ 306              		.cfi_endproc
+ 307              	.LFE126:
+ 309              		.section	.text.LSM303AGR_ACC_reset,"ax",%progbits
+ 310              		.align	1
+ 311              		.global	LSM303AGR_ACC_reset
+ 312              		.syntax unified
+ 313              		.thumb
+ 314              		.thumb_func
+ 315              		.fpu fpv4-sp-d16
+ 317              	LSM303AGR_ACC_reset:
+ 318              	.LFB127:
+ 119:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 120:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 121:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Resets the LSM303AGR accelerometer
+ 122:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 123:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_ACC_reset() {
+ 319              		.loc 1 123 0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 0
+ 322              		@ frame_needed = 0, uses_anonymous_args = 0
+ 323 0000 08B5     		push	{r3, lr}
+ 324              	.LCFI9:
+ 325              		.cfi_def_cfa_offset 8
+ 326              		.cfi_offset 3, -8
+ 327              		.cfi_offset 14, -4
+ 124:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_BOOT;
+ 328              		.loc 1 124 0
+ 329 0002 8021     		movs	r1, #128
+ 330 0004 034B     		ldr	r3, .L24
+ 331 0006 1970     		strb	r1, [r3]
+ 125:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, LSM303AGR_setting, 0);
+ 332              		.loc 1 125 0
+ 333 0008 0022     		movs	r2, #0
+ 334 000a 2420     		movs	r0, #36
+ 335 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 336              	.LVL30:
+ 126:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 337              		.loc 1 126 0
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 9
+
+
+ 338 0010 08BD     		pop	{r3, pc}
+ 339              	.L25:
+ 340 0012 00BF     		.align	2
+ 341              	.L24:
+ 342 0014 00000000 		.word	LSM303AGR_setting
+ 343              		.cfi_endproc
+ 344              	.LFE127:
+ 346              		.section	.text.LSM303AGR_MAG_reset,"ax",%progbits
+ 347              		.align	1
+ 348              		.global	LSM303AGR_MAG_reset
+ 349              		.syntax unified
+ 350              		.thumb
+ 351              		.thumb_func
+ 352              		.fpu fpv4-sp-d16
+ 354              	LSM303AGR_MAG_reset:
+ 355              	.LFB128:
+ 127:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 128:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 129:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Resets the LSM303AGR magnetometer
+ 130:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 131:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_MAG_reset() {
+ 356              		.loc 1 131 0
+ 357              		.cfi_startproc
+ 358              		@ args = 0, pretend = 0, frame = 0
+ 359              		@ frame_needed = 0, uses_anonymous_args = 0
+ 360 0000 08B5     		push	{r3, lr}
+ 361              	.LCFI10:
+ 362              		.cfi_def_cfa_offset 8
+ 363              		.cfi_offset 3, -8
+ 364              		.cfi_offset 14, -4
+ 132:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 133:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_SOFT_RST;
+ 365              		.loc 1 133 0
+ 366 0002 2021     		movs	r1, #32
+ 367 0004 034B     		ldr	r3, .L28
+ 368 0006 1970     		strb	r1, [r3]
+ 134:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_A, LSM303AGR_setting, 1);
+ 369              		.loc 1 134 0
+ 370 0008 0122     		movs	r2, #1
+ 371 000a 6020     		movs	r0, #96
+ 372 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 373              	.LVL31:
+ 135:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 136:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 374              		.loc 1 136 0
+ 375 0010 08BD     		pop	{r3, pc}
+ 376              	.L29:
+ 377 0012 00BF     		.align	2
+ 378              	.L28:
+ 379 0014 00000000 		.word	LSM303AGR_setting
+ 380              		.cfi_endproc
+ 381              	.LFE128:
+ 383              		.section	.text.LSM303AGR_powerDownAccelerometer,"ax",%progbits
+ 384              		.align	1
+ 385              		.global	LSM303AGR_powerDownAccelerometer
+ 386              		.syntax unified
+ 387              		.thumb
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 10
+
+
+ 388              		.thumb_func
+ 389              		.fpu fpv4-sp-d16
+ 391              	LSM303AGR_powerDownAccelerometer:
+ 392              	.LFB129:
+ 137:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 138:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 139:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Put the accelerometer in power-down mode
+ 140:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 141:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_powerDownAccelerometer() {
+ 393              		.loc 1 141 0
+ 394              		.cfi_startproc
+ 395              		@ args = 0, pretend = 0, frame = 0
+ 396              		@ frame_needed = 0, uses_anonymous_args = 0
+ 397 0000 08B5     		push	{r3, lr}
+ 398              	.LCFI11:
+ 399              		.cfi_def_cfa_offset 8
+ 400              		.cfi_offset 3, -8
+ 401              		.cfi_offset 14, -4
+ 142:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 143:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_ODR_POWERDOWN | LSM303AGR_ACC_X_EN
+ 402              		.loc 1 143 0
+ 403 0002 0721     		movs	r1, #7
+ 404 0004 034B     		ldr	r3, .L32
+ 405 0006 1970     		strb	r1, [r3]
+ 144:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_ACC_Y_EN | LSM303AGR_ACC_Z_EN;
+ 145:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, LSM303AGR_setting, 0);
+ 406              		.loc 1 145 0
+ 407 0008 0022     		movs	r2, #0
+ 408 000a 2020     		movs	r0, #32
+ 409 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 410              	.LVL32:
+ 146:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 147:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 411              		.loc 1 147 0
+ 412 0010 08BD     		pop	{r3, pc}
+ 413              	.L33:
+ 414 0012 00BF     		.align	2
+ 415              	.L32:
+ 416 0014 00000000 		.word	LSM303AGR_setting
+ 417              		.cfi_endproc
+ 418              	.LFE129:
+ 420              		.section	.text.LSM303AGR_powerDownMagnetometer,"ax",%progbits
+ 421              		.align	1
+ 422              		.global	LSM303AGR_powerDownMagnetometer
+ 423              		.syntax unified
+ 424              		.thumb
+ 425              		.thumb_func
+ 426              		.fpu fpv4-sp-d16
+ 428              	LSM303AGR_powerDownMagnetometer:
+ 429              	.LFB130:
+ 148:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 149:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 150:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Put the magnetometer in idle mode
+ 151:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 152:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_powerDownMagnetometer() {
+ 430              		.loc 1 152 0
+ 431              		.cfi_startproc
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 11
+
+
+ 432              		@ args = 0, pretend = 0, frame = 0
+ 433              		@ frame_needed = 0, uses_anonymous_args = 0
+ 434 0000 08B5     		push	{r3, lr}
+ 435              	.LCFI12:
+ 436              		.cfi_def_cfa_offset 8
+ 437              		.cfi_offset 3, -8
+ 438              		.cfi_offset 14, -4
+ 153:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 154:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_COMP_TEMP_EN | LSM303AGR_MAG_LP_EN
+ 439              		.loc 1 154 0
+ 440 0002 9221     		movs	r1, #146
+ 441 0004 034B     		ldr	r3, .L36
+ 442 0006 1970     		strb	r1, [r3]
+ 155:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_MAG_ODR_10HZ | LSM303AGR_MAG_MD_IDLE;
+ 156:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_A, LSM303AGR_setting, 1);
+ 443              		.loc 1 156 0
+ 444 0008 0122     		movs	r2, #1
+ 445 000a 6020     		movs	r0, #96
+ 446 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 447              	.LVL33:
+ 157:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 448              		.loc 1 157 0
+ 449 0010 08BD     		pop	{r3, pc}
+ 450              	.L37:
+ 451 0012 00BF     		.align	2
+ 452              	.L36:
+ 453 0014 00000000 		.word	LSM303AGR_setting
+ 454              		.cfi_endproc
+ 455              	.LFE130:
+ 457              		.section	.text.LSM303AGR_wakeUpAccelerometer,"ax",%progbits
+ 458              		.align	1
+ 459              		.global	LSM303AGR_wakeUpAccelerometer
+ 460              		.syntax unified
+ 461              		.thumb
+ 462              		.thumb_func
+ 463              		.fpu fpv4-sp-d16
+ 465              	LSM303AGR_wakeUpAccelerometer:
+ 466              	.LFB131:
+ 158:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 159:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 160:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Wake up the accelerometer from powerdown mode
+ 161:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 162:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_wakeUpAccelerometer() {
+ 467              		.loc 1 162 0
+ 468              		.cfi_startproc
+ 469              		@ args = 0, pretend = 0, frame = 0
+ 470              		@ frame_needed = 0, uses_anonymous_args = 0
+ 471 0000 08B5     		push	{r3, lr}
+ 472              	.LCFI13:
+ 473              		.cfi_def_cfa_offset 8
+ 474              		.cfi_offset 3, -8
+ 475              		.cfi_offset 14, -4
+ 163:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 164:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_ACC_ODR_10HZ | LSM303AGR_ACC_X_EN
+ 476              		.loc 1 164 0
+ 477 0002 2721     		movs	r1, #39
+ 478 0004 034B     		ldr	r3, .L40
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 12
+
+
+ 479 0006 1970     		strb	r1, [r3]
+ 165:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_ACC_Y_EN | LSM303AGR_ACC_Z_EN;
+ 166:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, LSM303AGR_setting, 0);
+ 480              		.loc 1 166 0
+ 481 0008 0022     		movs	r2, #0
+ 482 000a 2020     		movs	r0, #32
+ 483 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 484              	.LVL34:
+ 167:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 168:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 485              		.loc 1 168 0
+ 486 0010 08BD     		pop	{r3, pc}
+ 487              	.L41:
+ 488 0012 00BF     		.align	2
+ 489              	.L40:
+ 490 0014 00000000 		.word	LSM303AGR_setting
+ 491              		.cfi_endproc
+ 492              	.LFE131:
+ 494              		.section	.text.LSM303AGR_wakeUpMagnetometer,"ax",%progbits
+ 495              		.align	1
+ 496              		.global	LSM303AGR_wakeUpMagnetometer
+ 497              		.syntax unified
+ 498              		.thumb
+ 499              		.thumb_func
+ 500              		.fpu fpv4-sp-d16
+ 502              	LSM303AGR_wakeUpMagnetometer:
+ 503              	.LFB132:
+ 169:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 170:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 171:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Wake up the magnetometer from idle mode
+ 172:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 173:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_wakeUpMagnetometer() {
+ 504              		.loc 1 173 0
+ 505              		.cfi_startproc
+ 506              		@ args = 0, pretend = 0, frame = 0
+ 507              		@ frame_needed = 0, uses_anonymous_args = 0
+ 508 0000 08B5     		push	{r3, lr}
+ 509              	.LCFI14:
+ 510              		.cfi_def_cfa_offset 8
+ 511              		.cfi_offset 3, -8
+ 512              		.cfi_offset 14, -4
+ 174:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 175:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_setting = LSM303AGR_MAG_COMP_TEMP_EN | LSM303AGR_MAG_LP_EN
+ 513              		.loc 1 175 0
+ 514 0002 9021     		movs	r1, #144
+ 515 0004 034B     		ldr	r3, .L44
+ 516 0006 1970     		strb	r1, [r3]
+ 176:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| LSM303AGR_MAG_ODR_10HZ | LSM303AGR_MAG_MD_CONT;
+ 177:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_A, LSM303AGR_setting, 1);
+ 517              		.loc 1 177 0
+ 518 0008 0122     		movs	r2, #1
+ 519 000a 6020     		movs	r0, #96
+ 520 000c FFF7FEFF 		bl	LSM303AGR_writeRegister
+ 521              	.LVL35:
+ 178:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 179:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 522              		.loc 1 179 0
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 13
+
+
+ 523 0010 08BD     		pop	{r3, pc}
+ 524              	.L45:
+ 525 0012 00BF     		.align	2
+ 526              	.L44:
+ 527 0014 00000000 		.word	LSM303AGR_setting
+ 528              		.cfi_endproc
+ 529              	.LFE132:
+ 531              		.section	.text.LSM303AGR_ACC_readAccelerationData,"ax",%progbits
+ 532              		.align	1
+ 533              		.global	LSM303AGR_ACC_readAccelerationData
+ 534              		.syntax unified
+ 535              		.thumb
+ 536              		.thumb_func
+ 537              		.fpu fpv4-sp-d16
+ 539              	LSM303AGR_ACC_readAccelerationData:
+ 540              	.LFB133:
+ 180:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 181:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 182:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Reads the output registers of the accelerometer
+ 183:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param pData: a pointer to where the data needs to be stored
+ 184:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 185:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_ACC_readAccelerationData(int32_t *pData) {
+ 541              		.loc 1 185 0
+ 542              		.cfi_startproc
+ 543              		@ args = 0, pretend = 0, frame = 0
+ 544              		@ frame_needed = 0, uses_anonymous_args = 0
+ 545              	.LVL36:
+ 546 0000 30B5     		push	{r4, r5, lr}
+ 547              	.LCFI15:
+ 548              		.cfi_def_cfa_offset 12
+ 549              		.cfi_offset 4, -12
+ 550              		.cfi_offset 5, -8
+ 551              		.cfi_offset 14, -4
+ 552 0002 85B0     		sub	sp, sp, #20
+ 553              	.LCFI16:
+ 554              		.cfi_def_cfa_offset 32
+ 555 0004 0446     		mov	r4, r0
+ 186:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//accRegisterData[6];
+ 187:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//accRawData[3];
+ 188:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 189:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRegisterData[6];
+ 190:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRawData[3];
+ 191:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_ACC_TEMP_DATA rawData;
+ 192:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 193:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,	LSM303AGR_ACC_MULTI_READ, I2C_MEMADD_S
+ 556              		.loc 1 193 0
+ 557 0006 244B     		ldr	r3, .L48
+ 558 0008 1868     		ldr	r0, [r3]
+ 559              	.LVL37:
+ 560 000a 4FF0FF33 		mov	r3, #-1
+ 561 000e 0293     		str	r3, [sp, #8]
+ 562 0010 0623     		movs	r3, #6
+ 563 0012 0193     		str	r3, [sp, #4]
+ 564 0014 214D     		ldr	r5, .L48+4
+ 565 0016 0095     		str	r5, [sp]
+ 566 0018 0123     		movs	r3, #1
+ 567 001a A822     		movs	r2, #168
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 14
+
+
+ 568 001c 3221     		movs	r1, #50
+ 569 001e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 570              	.LVL38:
+ 194:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 195:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	accRawData[0] = (accRegisterData[1] << 8)	| accRegisterData[0];
+ 571              		.loc 1 195 0
+ 572 0022 6A78     		ldrb	r2, [r5, #1]	@ zero_extendqisi2
+ 573 0024 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 574 0026 43EA0223 		orr	r3, r3, r2, lsl #8
+ 575 002a 1BB2     		sxth	r3, r3
+ 576 002c 1C49     		ldr	r1, .L48+8
+ 577 002e 0B80     		strh	r3, [r1]	@ movhi
+ 196:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	accRawData[1] = (accRegisterData[3] << 8)| accRegisterData[2];
+ 578              		.loc 1 196 0
+ 579 0030 E878     		ldrb	r0, [r5, #3]	@ zero_extendqisi2
+ 580 0032 AA78     		ldrb	r2, [r5, #2]	@ zero_extendqisi2
+ 581 0034 42EA0022 		orr	r2, r2, r0, lsl #8
+ 582 0038 4A80     		strh	r2, [r1, #2]	@ movhi
+ 197:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	accRawData[2] = (accRegisterData[5] << 8)| accRegisterData[4];
+ 583              		.loc 1 197 0
+ 584 003a 6879     		ldrb	r0, [r5, #5]	@ zero_extendqisi2
+ 585 003c 2A79     		ldrb	r2, [r5, #4]	@ zero_extendqisi2
+ 586 003e 42EA0022 		orr	r2, r2, r0, lsl #8
+ 587 0042 8A80     		strh	r2, [r1, #4]	@ movhi
+ 198:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 199:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	/* Apply proper shift and sensitivity */
+ 200:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	// Normal mode 10-bit, shift = 6 and FS = 2
+ 201:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[0] = (int32_t) (((accRawData[0] >> 6) * 3900 + 500) / 1000);
+ 588              		.loc 1 201 0
+ 589 0044 9B11     		asrs	r3, r3, #6
+ 590 0046 40F63C72 		movw	r2, #3900
+ 591 004a 02FB03F3 		mul	r3, r2, r3
+ 592 004e 03F5FA73 		add	r3, r3, #500
+ 593 0052 1448     		ldr	r0, .L48+12
+ 594 0054 80FB03C5 		smull	ip, r5, r0, r3
+ 595 0058 DB17     		asrs	r3, r3, #31
+ 596 005a C3EBA513 		rsb	r3, r3, r5, asr #6
+ 597 005e 2360     		str	r3, [r4]
+ 202:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[1] = (int32_t) (((accRawData[1] >> 6) * 3900 + 500) / 1000);
+ 598              		.loc 1 202 0
+ 599 0060 B1F90230 		ldrsh	r3, [r1, #2]
+ 600 0064 9B11     		asrs	r3, r3, #6
+ 601 0066 02FB03F3 		mul	r3, r2, r3
+ 602 006a 03F5FA73 		add	r3, r3, #500
+ 603 006e 80FB03C5 		smull	ip, r5, r0, r3
+ 604 0072 DB17     		asrs	r3, r3, #31
+ 605 0074 C3EBA513 		rsb	r3, r3, r5, asr #6
+ 606 0078 6360     		str	r3, [r4, #4]
+ 203:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[2] = (int32_t) (((accRawData[2] >> 6) * 3900 + 500) / 1000);
+ 607              		.loc 1 203 0
+ 608 007a B1F90430 		ldrsh	r3, [r1, #4]
+ 609 007e 9B11     		asrs	r3, r3, #6
+ 610 0080 02FB03F2 		mul	r2, r2, r3
+ 611 0084 02F5FA72 		add	r2, r2, #500
+ 612 0088 80FB0230 		smull	r3, r0, r0, r2
+ 613 008c D217     		asrs	r2, r2, #31
+ 614 008e C2EBA012 		rsb	r2, r2, r0, asr #6
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 15
+
+
+ 615 0092 A260     		str	r2, [r4, #8]
+ 204:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 205:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 616              		.loc 1 205 0
+ 617 0094 05B0     		add	sp, sp, #20
+ 618              	.LCFI17:
+ 619              		.cfi_def_cfa_offset 12
+ 620              		@ sp needed
+ 621 0096 30BD     		pop	{r4, r5, pc}
+ 622              	.LVL39:
+ 623              	.L49:
+ 624              		.align	2
+ 625              	.L48:
+ 626 0098 00000000 		.word	LSM303AGR_hi2c
+ 627 009c 00000000 		.word	accRegisterData
+ 628 00a0 00000000 		.word	accRawData
+ 629 00a4 D34D6210 		.word	274877907
+ 630              		.cfi_endproc
+ 631              	.LFE133:
+ 633              		.section	.text.LSM303AGR_MAG_readMagneticData,"ax",%progbits
+ 634              		.align	1
+ 635              		.global	LSM303AGR_MAG_readMagneticData
+ 636              		.syntax unified
+ 637              		.thumb
+ 638              		.thumb_func
+ 639              		.fpu fpv4-sp-d16
+ 641              	LSM303AGR_MAG_readMagneticData:
+ 642              	.LFB134:
+ 206:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 207:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 208:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Reads the output registers of the magnetometer and applies the sensitivity
+ 209:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param pData: a pointer to where the data needs to be stored
+ 210:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 211:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_MAG_readMagneticData(int32_t *pData) {
+ 643              		.loc 1 211 0
+ 644              		.cfi_startproc
+ 645              		@ args = 0, pretend = 0, frame = 0
+ 646              		@ frame_needed = 0, uses_anonymous_args = 0
+ 647              	.LVL40:
+ 648 0000 30B5     		push	{r4, r5, lr}
+ 649              	.LCFI18:
+ 650              		.cfi_def_cfa_offset 12
+ 651              		.cfi_offset 4, -12
+ 652              		.cfi_offset 5, -8
+ 653              		.cfi_offset 14, -4
+ 654 0002 85B0     		sub	sp, sp, #20
+ 655              	.LCFI19:
+ 656              		.cfi_def_cfa_offset 32
+ 657 0004 0446     		mov	r4, r0
+ 212:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRegisterData[6];
+ 213:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		//magRawData[3];
+ 214:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 		//LSM303AGR_ACC_TEMP_DATA rawData;
+ 215:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 216:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_MAG_TEMP_DATA rawData;
+ 217:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 218:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_MAG_I2C_ADDRESS,
+ 658              		.loc 1 218 0
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 16
+
+
+ 659 0006 224B     		ldr	r3, .L52
+ 660 0008 1868     		ldr	r0, [r3]
+ 661              	.LVL41:
+ 662 000a 4FF0FF33 		mov	r3, #-1
+ 663 000e 0293     		str	r3, [sp, #8]
+ 664 0010 0623     		movs	r3, #6
+ 665 0012 0193     		str	r3, [sp, #4]
+ 666 0014 1F4D     		ldr	r5, .L52+4
+ 667 0016 0095     		str	r5, [sp]
+ 668 0018 0123     		movs	r3, #1
+ 669 001a E822     		movs	r2, #232
+ 670 001c 3C21     		movs	r1, #60
+ 671 001e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 672              	.LVL42:
+ 219:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_MAG_MULTI_READ, I2C_MEMADD_SIZE_8BIT, magRegisterData,
+ 220:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			sizeof(magRegisterData), HAL_MAX_DELAY);
+ 221:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 222:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	magRawData[0] = (magRegisterData[1] << 8)
+ 673              		.loc 1 222 0
+ 674 0022 6A78     		ldrb	r2, [r5, #1]	@ zero_extendqisi2
+ 223:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[0];
+ 675              		.loc 1 223 0
+ 676 0024 2B78     		ldrb	r3, [r5]	@ zero_extendqisi2
+ 677 0026 43EA0223 		orr	r3, r3, r2, lsl #8
+ 678 002a 1BB2     		sxth	r3, r3
+ 222:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[0];
+ 679              		.loc 1 222 0
+ 680 002c 1A4A     		ldr	r2, .L52+8
+ 681 002e 1380     		strh	r3, [r2]	@ movhi
+ 224:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	magRawData[1] = (magRegisterData[3] << 8)
+ 682              		.loc 1 224 0
+ 683 0030 E878     		ldrb	r0, [r5, #3]	@ zero_extendqisi2
+ 225:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[2];
+ 684              		.loc 1 225 0
+ 685 0032 A978     		ldrb	r1, [r5, #2]	@ zero_extendqisi2
+ 686 0034 41EA0021 		orr	r1, r1, r0, lsl #8
+ 224:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	magRawData[1] = (magRegisterData[3] << 8)
+ 687              		.loc 1 224 0
+ 688 0038 5180     		strh	r1, [r2, #2]	@ movhi
+ 226:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	magRawData[2] = (magRegisterData[5] << 8)
+ 689              		.loc 1 226 0
+ 690 003a 6879     		ldrb	r0, [r5, #5]	@ zero_extendqisi2
+ 227:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[4];
+ 691              		.loc 1 227 0
+ 692 003c 2979     		ldrb	r1, [r5, #4]	@ zero_extendqisi2
+ 693 003e 41EA0021 		orr	r1, r1, r0, lsl #8
+ 226:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	magRawData[2] = (magRegisterData[5] << 8)
+ 694              		.loc 1 226 0
+ 695 0042 9180     		strh	r1, [r2, #4]	@ movhi
+ 228:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 229:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	/* Calculate the data. */
+ 230:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[0] = (int32_t) (magRawData[0] * 1.5f);
+ 696              		.loc 1 230 0
+ 697 0044 07EE903A 		vmov	s15, r3	@ int
+ 698 0048 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 699 004c F7EE086A 		vmov.f32	s13, #1.5e+0
+ 700 0050 67EEA67A 		vmul.f32	s15, s15, s13
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 17
+
+
+ 701 0054 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 702 0058 C4ED007A 		vstr.32	s15, [r4]	@ int
+ 231:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[1] = (int32_t) (magRawData[1] * 1.5f);
+ 703              		.loc 1 231 0
+ 704 005c B2F90230 		ldrsh	r3, [r2, #2]
+ 705 0060 07EE103A 		vmov	s14, r3	@ int
+ 706 0064 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 707 0068 27EE267A 		vmul.f32	s14, s14, s13
+ 708 006c BDEEC77A 		vcvt.s32.f32	s14, s14
+ 709 0070 84ED017A 		vstr.32	s14, [r4, #4]	@ int
+ 232:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[2] = (int32_t) (magRawData[2] * 1.5f);
+ 710              		.loc 1 232 0
+ 711 0074 B2F90430 		ldrsh	r3, [r2, #4]
+ 712 0078 07EE903A 		vmov	s15, r3	@ int
+ 713 007c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 714 0080 67EEA67A 		vmul.f32	s15, s15, s13
+ 715 0084 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 716 0088 C4ED027A 		vstr.32	s15, [r4, #8]	@ int
+ 233:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 234:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 717              		.loc 1 234 0
+ 718 008c 05B0     		add	sp, sp, #20
+ 719              	.LCFI20:
+ 720              		.cfi_def_cfa_offset 12
+ 721              		@ sp needed
+ 722 008e 30BD     		pop	{r4, r5, pc}
+ 723              	.LVL43:
+ 724              	.L53:
+ 725              		.align	2
+ 726              	.L52:
+ 727 0090 00000000 		.word	LSM303AGR_hi2c
+ 728 0094 00000000 		.word	magRegisterData
+ 729 0098 00000000 		.word	magRawData
+ 730              		.cfi_endproc
+ 731              	.LFE134:
+ 733              		.section	.text.LSM303AGR_MAG_readMagneticRawData,"ax",%progbits
+ 734              		.align	1
+ 735              		.global	LSM303AGR_MAG_readMagneticRawData
+ 736              		.syntax unified
+ 737              		.thumb
+ 738              		.thumb_func
+ 739              		.fpu fpv4-sp-d16
+ 741              	LSM303AGR_MAG_readMagneticRawData:
+ 742              	.LFB135:
+ 235:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 236:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** /**
+ 237:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * Read the output registers of the magnetometer
+ 238:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  * @param pData: a pointer to where the data needs to be stored
+ 239:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c ****  */
+ 240:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_MAG_readMagneticRawData(uint16_t *pData) {
+ 743              		.loc 1 240 0
+ 744              		.cfi_startproc
+ 745              		@ args = 0, pretend = 0, frame = 0
+ 746              		@ frame_needed = 0, uses_anonymous_args = 0
+ 747              	.LVL44:
+ 748 0000 30B5     		push	{r4, r5, lr}
+ 749              	.LCFI21:
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 18
+
+
+ 750              		.cfi_def_cfa_offset 12
+ 751              		.cfi_offset 4, -12
+ 752              		.cfi_offset 5, -8
+ 753              		.cfi_offset 14, -4
+ 754 0002 85B0     		sub	sp, sp, #20
+ 755              	.LCFI22:
+ 756              		.cfi_def_cfa_offset 32
+ 757 0004 0546     		mov	r5, r0
+ 241:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRegisterData[6];
+ 242:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			//magRawData[3];
+ 243:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_MAG_TEMP_DATA rawData;
+ 244:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 245:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_MAG_I2C_ADDRESS,
+ 758              		.loc 1 245 0
+ 759 0006 0F4B     		ldr	r3, .L56
+ 760 0008 1868     		ldr	r0, [r3]
+ 761              	.LVL45:
+ 762 000a 4FF0FF33 		mov	r3, #-1
+ 763 000e 0293     		str	r3, [sp, #8]
+ 764 0010 0623     		movs	r3, #6
+ 765 0012 0193     		str	r3, [sp, #4]
+ 766 0014 0C4C     		ldr	r4, .L56+4
+ 767 0016 0094     		str	r4, [sp]
+ 768 0018 0123     		movs	r3, #1
+ 769 001a E822     		movs	r2, #232
+ 770 001c 3C21     		movs	r1, #60
+ 771 001e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 772              	.LVL46:
+ 246:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	LSM303AGR_MAG_MULTI_READ, I2C_MEMADD_SIZE_8BIT, magRegisterData,
+ 247:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			sizeof(magRegisterData), HAL_MAX_DELAY);
+ 248:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 249:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[0] = (magRegisterData[1] << 8)
+ 773              		.loc 1 249 0
+ 774 0022 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+ 250:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[0];
+ 775              		.loc 1 250 0
+ 776 0024 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 777 0026 43EA0223 		orr	r3, r3, r2, lsl #8
+ 249:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[0];
+ 778              		.loc 1 249 0
+ 779 002a 2B80     		strh	r3, [r5]	@ movhi
+ 251:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[1] = (magRegisterData[3] << 8)
+ 780              		.loc 1 251 0
+ 781 002c E278     		ldrb	r2, [r4, #3]	@ zero_extendqisi2
+ 252:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[2];
+ 782              		.loc 1 252 0
+ 783 002e A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
+ 784 0030 43EA0223 		orr	r3, r3, r2, lsl #8
+ 251:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[1] = (magRegisterData[3] << 8)
+ 785              		.loc 1 251 0
+ 786 0034 6B80     		strh	r3, [r5, #2]	@ movhi
+ 253:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[2] = (magRegisterData[5] << 8)
+ 787              		.loc 1 253 0
+ 788 0036 6279     		ldrb	r2, [r4, #5]	@ zero_extendqisi2
+ 254:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 			| magRegisterData[4];
+ 789              		.loc 1 254 0
+ 790 0038 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 19
+
+
+ 791 003a 43EA0223 		orr	r3, r3, r2, lsl #8
+ 253:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[2] = (magRegisterData[5] << 8)
+ 792              		.loc 1 253 0
+ 793 003e AB80     		strh	r3, [r5, #4]	@ movhi
+ 255:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 256:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 257:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 794              		.loc 1 257 0
+ 795 0040 05B0     		add	sp, sp, #20
+ 796              	.LCFI23:
+ 797              		.cfi_def_cfa_offset 12
+ 798              		@ sp needed
+ 799 0042 30BD     		pop	{r4, r5, pc}
+ 800              	.LVL47:
+ 801              	.L57:
+ 802              		.align	2
+ 803              	.L56:
+ 804 0044 00000000 		.word	LSM303AGR_hi2c
+ 805 0048 00000000 		.word	magRegisterData
+ 806              		.cfi_endproc
+ 807              	.LFE135:
+ 809              		.global	__aeabi_i2d
+ 810              		.global	__aeabi_dmul
+ 811              		.section	.text.LSM303AGR_ACC_readAccelerationRawData,"ax",%progbits
+ 812              		.align	1
+ 813              		.global	LSM303AGR_ACC_readAccelerationRawData
+ 814              		.syntax unified
+ 815              		.thumb
+ 816              		.thumb_func
+ 817              		.fpu fpv4-sp-d16
+ 819              	LSM303AGR_ACC_readAccelerationRawData:
+ 820              	.LFB136:
+ 258:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 259:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** void LSM303AGR_ACC_readAccelerationRawData(double *pData) {
+ 821              		.loc 1 259 0
+ 822              		.cfi_startproc
+ 823              		@ args = 0, pretend = 0, frame = 8
+ 824              		@ frame_needed = 0, uses_anonymous_args = 0
+ 825              	.LVL48:
+ 826 0000 10B5     		push	{r4, lr}
+ 827              	.LCFI24:
+ 828              		.cfi_def_cfa_offset 8
+ 829              		.cfi_offset 4, -8
+ 830              		.cfi_offset 14, -4
+ 831 0002 86B0     		sub	sp, sp, #24
+ 832              	.LCFI25:
+ 833              		.cfi_def_cfa_offset 32
+ 834 0004 0446     		mov	r4, r0
+ 260:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	int8_t accRegisterData[6];
+ 261:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//accRawData[3];
+ 262:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 263:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRegisterData[6];
+ 264:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//magRawData[3];
+ 265:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//LSM303AGR_ACC_TEMP_DATA rawData;
+ 266:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 267:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,	LSM303AGR_ACC_MULTI_READ, I2C_MEMADD_S
+ 835              		.loc 1 267 0
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 20
+
+
+ 836 0006 1E4B     		ldr	r3, .L60
+ 837 0008 1868     		ldr	r0, [r3]
+ 838              	.LVL49:
+ 839 000a 4FF0FF33 		mov	r3, #-1
+ 840 000e 0293     		str	r3, [sp, #8]
+ 841 0010 0623     		movs	r3, #6
+ 842 0012 0193     		str	r3, [sp, #4]
+ 843 0014 04AB     		add	r3, sp, #16
+ 844 0016 0093     		str	r3, [sp]
+ 845 0018 0123     		movs	r3, #1
+ 846 001a A822     		movs	r2, #168
+ 847 001c 3221     		movs	r1, #50
+ 848 001e FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 849              	.LVL50:
+ 268:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 269:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[0] = ((double)((accRegisterData[1]*256)+ accRegisterData[0]))*(16/2048.0);
+ 850              		.loc 1 269 0
+ 851 0022 9DF91100 		ldrsb	r0, [sp, #17]
+ 852 0026 9DF91030 		ldrsb	r3, [sp, #16]
+ 853 002a 03EB0020 		add	r0, r3, r0, lsl #8
+ 854 002e FFF7FEFF 		bl	__aeabi_i2d
+ 855              	.LVL51:
+ 856 0032 0022     		movs	r2, #0
+ 857 0034 4FF07E53 		mov	r3, #1065353216
+ 858 0038 FFF7FEFF 		bl	__aeabi_dmul
+ 859              	.LVL52:
+ 860 003c C4E90001 		strd	r0, [r4]
+ 270:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[1] = ((double)((accRegisterData[3]*256)+ accRegisterData[2]))*(16/2048.0);
+ 861              		.loc 1 270 0
+ 862 0040 9DF91300 		ldrsb	r0, [sp, #19]
+ 863 0044 9DF91230 		ldrsb	r3, [sp, #18]
+ 864 0048 03EB0020 		add	r0, r3, r0, lsl #8
+ 865 004c FFF7FEFF 		bl	__aeabi_i2d
+ 866              	.LVL53:
+ 867 0050 0022     		movs	r2, #0
+ 868 0052 4FF07E53 		mov	r3, #1065353216
+ 869 0056 FFF7FEFF 		bl	__aeabi_dmul
+ 870              	.LVL54:
+ 871 005a C4E90201 		strd	r0, [r4, #8]
+ 271:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	pData[2] = ((double)((accRegisterData[5]*256)+ accRegisterData[4]))*(16/2048.0);
+ 872              		.loc 1 271 0
+ 873 005e 9DF91500 		ldrsb	r0, [sp, #21]
+ 874 0062 9DF91430 		ldrsb	r3, [sp, #20]
+ 875 0066 03EB0020 		add	r0, r3, r0, lsl #8
+ 876 006a FFF7FEFF 		bl	__aeabi_i2d
+ 877              	.LVL55:
+ 878 006e 0022     		movs	r2, #0
+ 879 0070 4FF07E53 		mov	r3, #1065353216
+ 880 0074 FFF7FEFF 		bl	__aeabi_dmul
+ 881              	.LVL56:
+ 882 0078 C4E90401 		strd	r0, [r4, #16]
+ 272:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 273:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	/* Apply proper shift and sensitivity */
+ 274:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	// Normal mode 10-bit, shift = 6 and FS = 2
+ 275:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//pData[0] = (int32_t) (((accRawData[0] >> 6) * 3900 + 500) / 1000);
+ 276:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//pData[1] = (int32_t) (((accRawData[1] >> 6) * 3900 + 500) / 1000);
+ 277:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 	//pData[2] = (int32_t) (((accRawData[2] >> 6) * 3900 + 500) / 1000);
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 21
+
+
+ 278:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** 
+ 279:../../core/drivers/LSM303AGR/src/LSM303AGRSensor.c **** }
+ 883              		.loc 1 279 0
+ 884 007c 06B0     		add	sp, sp, #24
+ 885              	.LCFI26:
+ 886              		.cfi_def_cfa_offset 8
+ 887              		@ sp needed
+ 888 007e 10BD     		pop	{r4, pc}
+ 889              	.LVL57:
+ 890              	.L61:
+ 891              		.align	2
+ 892              	.L60:
+ 893 0080 00000000 		.word	LSM303AGR_hi2c
+ 894              		.cfi_endproc
+ 895              	.LFE136:
+ 897              		.comm	magRawData,6,4
+ 898              		.comm	magRegisterData,6,4
+ 899              		.comm	accRawData,6,4
+ 900              		.comm	accRegisterData,6,4
+ 901              		.comm	LSM303AGR_hi2c,4,4
+ 902              		.comm	LSM303AGR_setting,1,1
+ 903              		.text
+ 904              	.Letext0:
+ 905              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 906              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 907              		.file 4 "../../core/ST/CMSIS/Include/core_cm4.h"
+ 908              		.file 5 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h"
+ 909              		.file 6 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 910              		.file 7 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h"
+ 911              		.file 8 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h"
+ 912              		.file 9 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c.h"
+ 913              		.file 10 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h"
+ 914              		.file 11 "../../core/drivers/LSM303AGR/inc/LSM303AGRSensor.h"
+ARM GAS  C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 LSM303AGRSensor.c
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:18     .text.LSM303AGR_setI2CInterface:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:25     .text.LSM303AGR_setI2CInterface:00000000 LSM303AGR_setI2CInterface
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:42     .text.LSM303AGR_setI2CInterface:00000008 $d
+                            *COM*:00000004 LSM303AGR_hi2c
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:47     .text.LSM303AGR_readRegister:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:54     .text.LSM303AGR_readRegister:00000000 LSM303AGR_readRegister
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:123    .text.LSM303AGR_readRegister:00000050 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:128    .text.LSM303AGR_writeRegister:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:135    .text.LSM303AGR_writeRegister:00000000 LSM303AGR_writeRegister
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:204    .text.LSM303AGR_writeRegister:00000050 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:209    .text.LSM303AGR_init:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:216    .text.LSM303AGR_init:00000000 LSM303AGR_init
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:305    .text.LSM303AGR_init:00000074 $d
+                            *COM*:00000001 LSM303AGR_setting
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:310    .text.LSM303AGR_ACC_reset:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:317    .text.LSM303AGR_ACC_reset:00000000 LSM303AGR_ACC_reset
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:342    .text.LSM303AGR_ACC_reset:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:347    .text.LSM303AGR_MAG_reset:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:354    .text.LSM303AGR_MAG_reset:00000000 LSM303AGR_MAG_reset
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:379    .text.LSM303AGR_MAG_reset:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:384    .text.LSM303AGR_powerDownAccelerometer:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:391    .text.LSM303AGR_powerDownAccelerometer:00000000 LSM303AGR_powerDownAccelerometer
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:416    .text.LSM303AGR_powerDownAccelerometer:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:421    .text.LSM303AGR_powerDownMagnetometer:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:428    .text.LSM303AGR_powerDownMagnetometer:00000000 LSM303AGR_powerDownMagnetometer
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:453    .text.LSM303AGR_powerDownMagnetometer:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:458    .text.LSM303AGR_wakeUpAccelerometer:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:465    .text.LSM303AGR_wakeUpAccelerometer:00000000 LSM303AGR_wakeUpAccelerometer
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:490    .text.LSM303AGR_wakeUpAccelerometer:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:495    .text.LSM303AGR_wakeUpMagnetometer:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:502    .text.LSM303AGR_wakeUpMagnetometer:00000000 LSM303AGR_wakeUpMagnetometer
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:527    .text.LSM303AGR_wakeUpMagnetometer:00000014 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:532    .text.LSM303AGR_ACC_readAccelerationData:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:539    .text.LSM303AGR_ACC_readAccelerationData:00000000 LSM303AGR_ACC_readAccelerationData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:626    .text.LSM303AGR_ACC_readAccelerationData:00000098 $d
+                            *COM*:00000006 accRegisterData
+                            *COM*:00000006 accRawData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:634    .text.LSM303AGR_MAG_readMagneticData:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:641    .text.LSM303AGR_MAG_readMagneticData:00000000 LSM303AGR_MAG_readMagneticData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:727    .text.LSM303AGR_MAG_readMagneticData:00000090 $d
+                            *COM*:00000006 magRegisterData
+                            *COM*:00000006 magRawData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:734    .text.LSM303AGR_MAG_readMagneticRawData:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:741    .text.LSM303AGR_MAG_readMagneticRawData:00000000 LSM303AGR_MAG_readMagneticRawData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:804    .text.LSM303AGR_MAG_readMagneticRawData:00000044 $d
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:812    .text.LSM303AGR_ACC_readAccelerationRawData:00000000 $t
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:819    .text.LSM303AGR_ACC_readAccelerationRawData:00000000 LSM303AGR_ACC_readAccelerationRawData
+C:\Users\Jola\AppData\Local\Temp\ccNYDSiX.s:893    .text.LSM303AGR_ACC_readAccelerationRawData:00000080 $d
+
+UNDEFINED SYMBOLS
+HAL_I2C_Mem_Read
+HAL_I2C_Mem_Write
+__aeabi_i2d
+__aeabi_dmul
