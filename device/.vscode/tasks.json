@@ -30,6 +30,33 @@
             }
         },
         {
+            "label": "make firmware SGP30",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/SPG30-sensor-example/; make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "make clean all firmware SGP30",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/SPG30-sensor-example/; make clean all",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
+        {
             "label": "make firmware no-scheduler-example",
             "type": "shell",
             // change the cd path to the current application path
