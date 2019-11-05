@@ -1,0 +1,358 @@
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"sensirion_configuration.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.sensirion_i2c_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	sensirion_i2c_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	sensirion_i2c_init:
+  27              	.LFB123:
+  28              		.file 1 "../../applications/SPG30-sensor-example/src/sensirion_configuration.c"
+   1:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /*
+   2:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Copyright (c) 2017, Sensirion AG
+   3:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * All rights reserved.
+   4:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+   5:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Redistribution and use in source and binary forms, with or without
+   6:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * modification, are permitted provided that the following conditions are met:
+   7:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+   8:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * * Redistributions of source code must retain the above copyright notice, this
+   9:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *   list of conditions and the following disclaimer.
+  10:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  11:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * * Redistributions in binary form must reproduce the above copyright notice,
+  12:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *   this list of conditions and the following disclaimer in the documentation
+  13:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *   and/or other materials provided with the distribution.
+  14:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  15:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * * Neither the name of Sensirion AG nor the names of its
+  16:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *   contributors may be used to endorse or promote products derived from
+  17:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *   this software without specific prior written permission.
+  18:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  19:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  20:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  21:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  22:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  23:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  24:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  25:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  26:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  27:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  28:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  29:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  30:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 2
+
+
+  31:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** #include "i2c.h"
+  32:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** #include "stm32l4xx_hal.h"
+  33:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** extern I2C_HandleTypeDef *hi2c1;
+  34:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+  35:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /*
+  36:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * INSTRUCTIONS
+  37:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * ============
+  38:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  39:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Implement all functions where they are marked as IMPLEMENT.
+  40:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Follow the function specification in the comments.
+  41:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  42:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+  43:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /**
+  44:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Initialize all hard- and software components that are needed for the I2C
+  45:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * communication.
+  46:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  47:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** void sensirion_i2c_init()
+  48:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** {
+  29              		.loc 1 48 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  49:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****     // MX_I2C1_Init(); // already called from main
+  50:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	P1_I2C_Init();
+  38              		.loc 1 50 2 view .LVU1
+  39 0002 FFF7FEFF 		bl	P1_I2C_Init
+  40              	.LVL0:
+  51:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** }
+  41              		.loc 1 51 1 is_stmt 0 view .LVU2
+  42 0006 08BD     		pop	{r3, pc}
+  43              		.cfi_endproc
+  44              	.LFE123:
+  46              		.section	.text.sensirion_i2c_read,"ax",%progbits
+  47              		.align	1
+  48              		.global	sensirion_i2c_read
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  52              		.fpu fpv4-sp-d16
+  54              	sensirion_i2c_read:
+  55              	.LVL1:
+  56              	.LFB124:
+  52:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+  53:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /**
+  54:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Execute one read transaction on the I2C bus, reading a given number of bytes.
+  55:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * If the device does not acknowledge the read command, an error shall be
+  56:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * returned.
+  57:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  58:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param address 7-bit I2C address to read from
+  59:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param data    pointer to the buffer where the data is to be stored
+  60:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param count   number of bytes to read from I2C and store in the buffer
+  61:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @returns 0 on success, error code otherwise
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 3
+
+
+  62:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  63:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count)
+  64:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** {
+  57              		.loc 1 64 1 is_stmt 1 view -0
+  58              		.cfi_startproc
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+  61              		.loc 1 64 1 is_stmt 0 view .LVU4
+  62 0000 00B5     		push	{lr}
+  63              	.LCFI1:
+  64              		.cfi_def_cfa_offset 4
+  65              		.cfi_offset 14, -4
+  66 0002 83B0     		sub	sp, sp, #12
+  67              	.LCFI2:
+  68              		.cfi_def_cfa_offset 16
+  65:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	return HAL_I2C_Master_Receive(&P1_I2C, address<<1, data, count, 100);
+  69              		.loc 1 65 2 is_stmt 1 view .LVU5
+  70              		.loc 1 65 9 is_stmt 0 view .LVU6
+  71 0004 6423     		movs	r3, #100
+  72 0006 0093     		str	r3, [sp]
+  73 0008 1346     		mov	r3, r2
+  74 000a 0A46     		mov	r2, r1
+  75              	.LVL2:
+  76              		.loc 1 65 9 view .LVU7
+  77 000c 4100     		lsls	r1, r0, #1
+  78              	.LVL3:
+  79              		.loc 1 65 9 view .LVU8
+  80 000e 0348     		ldr	r0, .L5
+  81              	.LVL4:
+  82              		.loc 1 65 9 view .LVU9
+  83 0010 FFF7FEFF 		bl	HAL_I2C_Master_Receive
+  84              	.LVL5:
+  66:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** }
+  85              		.loc 1 66 1 view .LVU10
+  86 0014 40B2     		sxtb	r0, r0
+  87 0016 03B0     		add	sp, sp, #12
+  88              	.LCFI3:
+  89              		.cfi_def_cfa_offset 4
+  90              		@ sp needed
+  91 0018 5DF804FB 		ldr	pc, [sp], #4
+  92              	.L6:
+  93              		.align	2
+  94              	.L5:
+  95 001c 00000000 		.word	P1_I2C
+  96              		.cfi_endproc
+  97              	.LFE124:
+  99              		.section	.text.sensirion_i2c_write,"ax",%progbits
+ 100              		.align	1
+ 101              		.global	sensirion_i2c_write
+ 102              		.syntax unified
+ 103              		.thumb
+ 104              		.thumb_func
+ 105              		.fpu fpv4-sp-d16
+ 107              	sensirion_i2c_write:
+ 108              	.LVL6:
+ 109              	.LFB125:
+  67:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 4
+
+
+  68:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /**
+  69:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Execute one write transaction on the I2C bus, sending a given number of bytes.
+  70:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * The bytes in the supplied buffer must be sent to the given address. If the
+  71:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * slave device does not acknowledge any of the bytes, an error shall be
+  72:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * returned.
+  73:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  74:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param address 7-bit I2C address to write to
+  75:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param data    pointer to the buffer containing the data to write
+  76:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param count   number of bytes to read from the buffer and send over I2C
+  77:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @returns 0 on success, error code otherwise
+  78:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  79:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data, uint16_t count)
+  80:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** {
+ 110              		.loc 1 80 1 is_stmt 1 view -0
+ 111              		.cfi_startproc
+ 112              		@ args = 0, pretend = 0, frame = 0
+ 113              		@ frame_needed = 0, uses_anonymous_args = 0
+ 114              		.loc 1 80 1 is_stmt 0 view .LVU12
+ 115 0000 00B5     		push	{lr}
+ 116              	.LCFI4:
+ 117              		.cfi_def_cfa_offset 4
+ 118              		.cfi_offset 14, -4
+ 119 0002 83B0     		sub	sp, sp, #12
+ 120              	.LCFI5:
+ 121              		.cfi_def_cfa_offset 16
+  81:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	return HAL_I2C_Master_Transmit(&P1_I2C, address<<1, data, count, 100);  // data is the start point
+ 122              		.loc 1 81 2 is_stmt 1 view .LVU13
+ 123              		.loc 1 81 9 is_stmt 0 view .LVU14
+ 124 0004 6423     		movs	r3, #100
+ 125 0006 0093     		str	r3, [sp]
+ 126 0008 1346     		mov	r3, r2
+ 127 000a 0A46     		mov	r2, r1
+ 128              	.LVL7:
+ 129              		.loc 1 81 9 view .LVU15
+ 130 000c 4100     		lsls	r1, r0, #1
+ 131              	.LVL8:
+ 132              		.loc 1 81 9 view .LVU16
+ 133 000e 0348     		ldr	r0, .L9
+ 134              	.LVL9:
+ 135              		.loc 1 81 9 view .LVU17
+ 136 0010 FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 137              	.LVL10:
+  82:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** }
+ 138              		.loc 1 82 1 view .LVU18
+ 139 0014 40B2     		sxtb	r0, r0
+ 140 0016 03B0     		add	sp, sp, #12
+ 141              	.LCFI6:
+ 142              		.cfi_def_cfa_offset 4
+ 143              		@ sp needed
+ 144 0018 5DF804FB 		ldr	pc, [sp], #4
+ 145              	.L10:
+ 146              		.align	2
+ 147              	.L9:
+ 148 001c 00000000 		.word	P1_I2C
+ 149              		.cfi_endproc
+ 150              	.LFE125:
+ 152              		.section	.text.sensirion_sleep_usec,"ax",%progbits
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 5
+
+
+ 153              		.align	1
+ 154              		.global	sensirion_sleep_usec
+ 155              		.syntax unified
+ 156              		.thumb
+ 157              		.thumb_func
+ 158              		.fpu fpv4-sp-d16
+ 160              	sensirion_sleep_usec:
+ 161              	.LVL11:
+ 162              	.LFB126:
+  83:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 
+  84:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** /**
+  85:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * Sleep for a given number of microseconds. The function should delay the
+  86:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * execution for at least the given time, but may also sleep longer.
+  87:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  *
+  88:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  * @param useconds the sleep time in microseconds
+  89:../../applications/SPG30-sensor-example/src/sensirion_configuration.c ****  */
+  90:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** void sensirion_sleep_usec(uint32_t useconds)
+  91:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** {
+ 163              		.loc 1 91 1 is_stmt 1 view -0
+ 164              		.cfi_startproc
+ 165              		@ args = 0, pretend = 0, frame = 0
+ 166              		@ frame_needed = 0, uses_anonymous_args = 0
+ 167              		.loc 1 91 1 is_stmt 0 view .LVU20
+ 168 0000 08B5     		push	{r3, lr}
+ 169              	.LCFI7:
+ 170              		.cfi_def_cfa_offset 8
+ 171              		.cfi_offset 3, -8
+ 172              		.cfi_offset 14, -4
+  92:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	if(useconds >= 1000)
+ 173              		.loc 1 92 2 is_stmt 1 view .LVU21
+ 174              		.loc 1 92 4 is_stmt 0 view .LVU22
+ 175 0002 B0F57A7F 		cmp	r0, #1000
+ 176 0006 06D3     		bcc	.L12
+  93:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	{
+  94:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 		HAL_Delay(useconds / (uint32_t)1000);
+ 177              		.loc 1 94 3 is_stmt 1 view .LVU23
+ 178 0008 054B     		ldr	r3, .L15
+ 179 000a A3FB0030 		umull	r3, r0, r3, r0
+ 180              	.LVL12:
+ 181              		.loc 1 94 3 is_stmt 0 view .LVU24
+ 182 000e 8009     		lsrs	r0, r0, #6
+ 183 0010 FFF7FEFF 		bl	HAL_Delay
+ 184              	.LVL13:
+ 185              	.L11:
+  95:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	}
+  96:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	else
+  97:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	{
+  98:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 		HAL_Delay(1);
+  99:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	}
+ 100:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** }
+ 186              		.loc 1 100 1 view .LVU25
+ 187 0014 08BD     		pop	{r3, pc}
+ 188              	.LVL14:
+ 189              	.L12:
+  98:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	}
+ 190              		.loc 1 98 3 is_stmt 1 view .LVU26
+ 191 0016 0120     		movs	r0, #1
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 6
+
+
+ 192              	.LVL15:
+  98:../../applications/SPG30-sensor-example/src/sensirion_configuration.c **** 	}
+ 193              		.loc 1 98 3 is_stmt 0 view .LVU27
+ 194 0018 FFF7FEFF 		bl	HAL_Delay
+ 195              	.LVL16:
+ 196              		.loc 1 100 1 view .LVU28
+ 197 001c FAE7     		b	.L11
+ 198              	.L16:
+ 199 001e 00BF     		.align	2
+ 200              	.L15:
+ 201 0020 D34D6210 		.word	274877907
+ 202              		.cfi_endproc
+ 203              	.LFE126:
+ 205              		.comm	P3_I2C,76,4
+ 206              		.comm	P2_I2C,76,4
+ 207              		.comm	P1_I2C,76,4
+ 208              		.comm	common_I2C,76,4
+ 209              		.text
+ 210              	.Letext0:
+ 211              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 212              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 213              		.file 4 "../../core/ST/CMSIS/Include/core_cm4.h"
+ 214              		.file 5 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h"
+ 215              		.file 6 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 216              		.file 7 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h"
+ 217              		.file 8 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h"
+ 218              		.file 9 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c.h"
+ 219              		.file 10 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h"
+ 220              		.file 11 "../../core/platform/octa/inc/i2c.h"
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sensirion_configuration.c
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:18     .text.sensirion_i2c_init:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:26     .text.sensirion_i2c_init:00000000 sensirion_i2c_init
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:47     .text.sensirion_i2c_read:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:54     .text.sensirion_i2c_read:00000000 sensirion_i2c_read
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:95     .text.sensirion_i2c_read:0000001c $d
+                            *COM*:0000004c P1_I2C
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:100    .text.sensirion_i2c_write:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:107    .text.sensirion_i2c_write:00000000 sensirion_i2c_write
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:148    .text.sensirion_i2c_write:0000001c $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:153    .text.sensirion_sleep_usec:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:160    .text.sensirion_sleep_usec:00000000 sensirion_sleep_usec
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccqmT0kZ.s:201    .text.sensirion_sleep_usec:00000020 $d
+                            *COM*:0000004c P3_I2C
+                            *COM*:0000004c P2_I2C
+                            *COM*:0000004c common_I2C
+
+UNDEFINED SYMBOLS
+P1_I2C_Init
+HAL_I2C_Master_Receive
+HAL_I2C_Master_Transmit
+HAL_Delay

@@ -1,0 +1,572 @@
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"GSP30.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.GSP30_setI2CInterface,"ax",%progbits
+  18              		.align	1
+  19              		.global	GSP30_setI2CInterface
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	GSP30_setI2CInterface:
+  27              	.LVL0:
+  28              	.LFB123:
+  29              		.file 1 "../../core/drivers/SGP30/src/GSP30.c"
+   1:../../core/drivers/SGP30/src/GSP30.c **** #include "GSP30.h"
+   2:../../core/drivers/SGP30/src/GSP30.c **** void GSP30_setI2CInterface(I2C_HandleTypeDef *hi2c) {
+  30              		.loc 1 2 53 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   3:../../core/drivers/SGP30/src/GSP30.c ****   GSP30_hi2c = hi2c;
+  35              		.loc 1 3 3 view .LVU1
+  36              		.loc 1 3 14 is_stmt 0 view .LVU2
+  37 0000 014B     		ldr	r3, .L2
+  38 0002 1860     		str	r0, [r3]
+   4:../../core/drivers/SGP30/src/GSP30.c **** }
+  39              		.loc 1 4 1 view .LVU3
+  40 0004 7047     		bx	lr
+  41              	.L3:
+  42 0006 00BF     		.align	2
+  43              	.L2:
+  44 0008 00000000 		.word	GSP30_hi2c
+  45              		.cfi_endproc
+  46              	.LFE123:
+  48              		.section	.text.GSP30_readData,"ax",%progbits
+  49              		.align	1
+  50              		.global	GSP30_readData
+  51              		.syntax unified
+  52              		.thumb
+  53              		.thumb_func
+  54              		.fpu fpv4-sp-d16
+  56              	GSP30_readData:
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 2
+
+
+  57              	.LVL1:
+  58              	.LFB126:
+   5:../../core/drivers/SGP30/src/GSP30.c **** 
+   6:../../core/drivers/SGP30/src/GSP30.c **** 
+   7:../../core/drivers/SGP30/src/GSP30.c **** void GSP30_init() {
+   8:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t addres[1];
+   9:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t data[1];
+  10:../../core/drivers/SGP30/src/GSP30.c ****   addres[0] = SGP30_CMD_IAQ_INIT;
+  11:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = SGP30_CMD_IAQ_INIT;
+  12:../../core/drivers/SGP30/src/GSP30.c ****   printf("GSP30 INIT Command: %x\n\r", addres[0]);
+  13:../../core/drivers/SGP30/src/GSP30.c ****   GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_INIT_DURATION_US);
+  14:../../core/drivers/SGP30/src/GSP30.c ****   HAL_Delay(100);
+  15:../../core/drivers/SGP30/src/GSP30.c **** }
+  16:../../core/drivers/SGP30/src/GSP30.c **** 
+  17:../../core/drivers/SGP30/src/GSP30.c **** 
+  18:../../core/drivers/SGP30/src/GSP30.c **** void GSP30_measure() {
+  19:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t addres[1];
+  20:../../core/drivers/SGP30/src/GSP30.c ****   uint8_t data[4];
+  21:../../core/drivers/SGP30/src/GSP30.c ****   data[0]=0;
+  22:../../core/drivers/SGP30/src/GSP30.c ****   data[1]=0;
+  23:../../core/drivers/SGP30/src/GSP30.c ****   data[2]=0;
+  24:../../core/drivers/SGP30/src/GSP30.c ****   data[3]=0;
+  25:../../core/drivers/SGP30/src/GSP30.c ****   addres[0] = SGP30_CMD_IAQ_MEASURE;
+  26:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = 0x20;
+  27:../../core/drivers/SGP30/src/GSP30.c ****   data[1] = 0x08;
+  28:../../core/drivers/SGP30/src/GSP30.c ****   printf("Measure Command: %x\n\r", addres[0]);
+  29:../../core/drivers/SGP30/src/GSP30.c ****   //GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_MEASURE_DURATION_US/1000);
+  30:../../core/drivers/SGP30/src/GSP30.c ****   //HAL_Delay(SGP30_CMD_IAQ_MEASURE_DURATION_US/1000);
+  31:../../core/drivers/SGP30/src/GSP30.c ****   GSP30_readRegister(addres, data,SGP30_CMD_IAQ_MEASURE_DURATION_US);
+  32:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Data Read Out: %x %x\n\r", data[0], data[1]);
+  33:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t CO2: %d\n\r",data[1]*256+data[0]);
+  34:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+  35:../../core/drivers/SGP30/src/GSP30.c **** }
+  36:../../core/drivers/SGP30/src/GSP30.c **** 
+  37:../../core/drivers/SGP30/src/GSP30.c **** void GSP30_readData(int32_t *pData) {
+  59              		.loc 1 37 37 is_stmt 1 view -0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+  38:../../core/drivers/SGP30/src/GSP30.c **** }
+  64              		.loc 1 38 1 view .LVU5
+  65 0000 7047     		bx	lr
+  66              		.cfi_endproc
+  67              	.LFE126:
+  69              		.section	.text.GSP30_reset,"ax",%progbits
+  70              		.align	1
+  71              		.global	GSP30_reset
+  72              		.syntax unified
+  73              		.thumb
+  74              		.thumb_func
+  75              		.fpu fpv4-sp-d16
+  77              	GSP30_reset:
+  78              	.LFB127:
+  39:../../core/drivers/SGP30/src/GSP30.c **** void GSP30_reset() {
+  79              		.loc 1 39 20 view -0
+  80              		.cfi_startproc
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 3
+
+
+  81              		@ args = 0, pretend = 0, frame = 0
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  83              		@ link register save eliminated.
+  40:../../core/drivers/SGP30/src/GSP30.c **** }
+  84              		.loc 1 40 1 view .LVU7
+  85 0000 7047     		bx	lr
+  86              		.cfi_endproc
+  87              	.LFE127:
+  89              		.section	.text.GSP30_readRegister,"ax",%progbits
+  90              		.align	1
+  91              		.global	GSP30_readRegister
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  95              		.fpu fpv4-sp-d16
+  97              	GSP30_readRegister:
+  98              	.LVL2:
+  99              	.LFB128:
+  41:../../core/drivers/SGP30/src/GSP30.c **** 
+  42:../../core/drivers/SGP30/src/GSP30.c **** HAL_StatusTypeDef GSP30_readRegister(uint16_t GSP30_reg, uint8_t GSP30_data,uint32_t Timeout) {
+ 100              		.loc 1 42 95 view -0
+ 101              		.cfi_startproc
+ 102              		@ args = 0, pretend = 0, frame = 8
+ 103              		@ frame_needed = 0, uses_anonymous_args = 0
+ 104              		.loc 1 42 95 is_stmt 0 view .LVU9
+ 105 0000 00B5     		push	{lr}
+ 106              	.LCFI0:
+ 107              		.cfi_def_cfa_offset 4
+ 108              		.cfi_offset 14, -4
+ 109 0002 87B0     		sub	sp, sp, #28
+ 110              	.LCFI1:
+ 111              		.cfi_def_cfa_offset 32
+ 112 0004 8DF81710 		strb	r1, [sp, #23]
+  43:../../core/drivers/SGP30/src/GSP30.c **** 
+  44:../../core/drivers/SGP30/src/GSP30.c ****   HAL_I2C_Mem_Read(GSP30_hi2c, GSP30_I2C_ADDRESS, GSP30_reg, I2C_MEMADD_SIZE_16BIT, &GSP30_data, si
+ 113              		.loc 1 44 3 is_stmt 1 view .LVU10
+ 114 0008 0A4B     		ldr	r3, .L8
+ 115 000a A3FB0232 		umull	r3, r2, r3, r2
+ 116              	.LVL3:
+ 117              		.loc 1 44 3 is_stmt 0 view .LVU11
+ 118 000e 9209     		lsrs	r2, r2, #6
+ 119 0010 0292     		str	r2, [sp, #8]
+ 120 0012 0123     		movs	r3, #1
+ 121 0014 0193     		str	r3, [sp, #4]
+ 122 0016 0DF11703 		add	r3, sp, #23
+ 123 001a 0093     		str	r3, [sp]
+ 124 001c 0223     		movs	r3, #2
+ 125 001e 0246     		mov	r2, r0
+ 126 0020 5821     		movs	r1, #88
+ 127              	.LVL4:
+ 128              		.loc 1 44 3 view .LVU12
+ 129 0022 0548     		ldr	r0, .L8+4
+ 130              	.LVL5:
+ 131              		.loc 1 44 3 view .LVU13
+ 132 0024 0068     		ldr	r0, [r0]
+ 133 0026 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 134              	.LVL6:
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 4
+
+
+  45:../../core/drivers/SGP30/src/GSP30.c **** 
+  46:../../core/drivers/SGP30/src/GSP30.c ****   return HAL_OK;
+ 135              		.loc 1 46 3 is_stmt 1 view .LVU14
+  47:../../core/drivers/SGP30/src/GSP30.c **** }
+ 136              		.loc 1 47 1 is_stmt 0 view .LVU15
+ 137 002a 0020     		movs	r0, #0
+ 138 002c 07B0     		add	sp, sp, #28
+ 139              	.LCFI2:
+ 140              		.cfi_def_cfa_offset 4
+ 141              		@ sp needed
+ 142 002e 5DF804FB 		ldr	pc, [sp], #4
+ 143              	.L9:
+ 144 0032 00BF     		.align	2
+ 145              	.L8:
+ 146 0034 D34D6210 		.word	274877907
+ 147 0038 00000000 		.word	GSP30_hi2c
+ 148              		.cfi_endproc
+ 149              	.LFE128:
+ 151              		.section	.text.GSP30_measure,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	GSP30_measure
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 157              		.fpu fpv4-sp-d16
+ 159              	GSP30_measure:
+ 160              	.LFB125:
+  18:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t addres[1];
+ 161              		.loc 1 18 22 is_stmt 1 view -0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 8
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165 0000 00B5     		push	{lr}
+ 166              	.LCFI3:
+ 167              		.cfi_def_cfa_offset 4
+ 168              		.cfi_offset 14, -4
+ 169 0002 83B0     		sub	sp, sp, #12
+ 170              	.LCFI4:
+ 171              		.cfi_def_cfa_offset 16
+  19:../../core/drivers/SGP30/src/GSP30.c ****   uint8_t data[4];
+ 172              		.loc 1 19 3 view .LVU17
+  20:../../core/drivers/SGP30/src/GSP30.c ****   data[0]=0;
+ 173              		.loc 1 20 3 view .LVU18
+  21:../../core/drivers/SGP30/src/GSP30.c ****   data[1]=0;
+ 174              		.loc 1 21 3 view .LVU19
+  22:../../core/drivers/SGP30/src/GSP30.c ****   data[2]=0;
+ 175              		.loc 1 22 3 view .LVU20
+  23:../../core/drivers/SGP30/src/GSP30.c ****   data[3]=0;
+ 176              		.loc 1 23 3 view .LVU21
+  23:../../core/drivers/SGP30/src/GSP30.c ****   data[3]=0;
+ 177              		.loc 1 23 10 is_stmt 0 view .LVU22
+ 178 0004 0023     		movs	r3, #0
+ 179 0006 8DF80230 		strb	r3, [sp, #2]
+  24:../../core/drivers/SGP30/src/GSP30.c ****   addres[0] = SGP30_CMD_IAQ_MEASURE;
+ 180              		.loc 1 24 3 is_stmt 1 view .LVU23
+  24:../../core/drivers/SGP30/src/GSP30.c ****   addres[0] = SGP30_CMD_IAQ_MEASURE;
+ 181              		.loc 1 24 10 is_stmt 0 view .LVU24
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 5
+
+
+ 182 000a 8DF80330 		strb	r3, [sp, #3]
+  25:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = 0x20;
+ 183              		.loc 1 25 3 is_stmt 1 view .LVU25
+  25:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = 0x20;
+ 184              		.loc 1 25 13 is_stmt 0 view .LVU26
+ 185 000e 42F20801 		movw	r1, #8200
+ 186 0012 ADF80410 		strh	r1, [sp, #4]	@ movhi
+  26:../../core/drivers/SGP30/src/GSP30.c ****   data[1] = 0x08;
+ 187              		.loc 1 26 3 is_stmt 1 view .LVU27
+  26:../../core/drivers/SGP30/src/GSP30.c ****   data[1] = 0x08;
+ 188              		.loc 1 26 11 is_stmt 0 view .LVU28
+ 189 0016 2023     		movs	r3, #32
+ 190 0018 8DF80030 		strb	r3, [sp]
+  27:../../core/drivers/SGP30/src/GSP30.c ****   printf("Measure Command: %x\n\r", addres[0]);
+ 191              		.loc 1 27 3 is_stmt 1 view .LVU29
+  27:../../core/drivers/SGP30/src/GSP30.c ****   printf("Measure Command: %x\n\r", addres[0]);
+ 192              		.loc 1 27 11 is_stmt 0 view .LVU30
+ 193 001c 0823     		movs	r3, #8
+ 194 001e 8DF80130 		strb	r3, [sp, #1]
+  28:../../core/drivers/SGP30/src/GSP30.c ****   //GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_MEASURE_DURATION_US/1000);
+ 195              		.loc 1 28 3 is_stmt 1 view .LVU31
+ 196 0022 1448     		ldr	r0, .L12
+ 197 0024 FFF7FEFF 		bl	printf
+ 198              	.LVL7:
+  31:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Data Read Out: %x %x\n\r", data[0], data[1]);
+ 199              		.loc 1 31 3 view .LVU32
+ 200 0028 01A8     		add	r0, sp, #4
+ 201 002a 80B2     		uxth	r0, r0
+ 202 002c 42F6E062 		movw	r2, #12000
+ 203 0030 6946     		mov	r1, sp
+ 204 0032 01F0F801 		and	r1, r1, #248
+ 205 0036 FFF7FEFF 		bl	GSP30_readRegister
+ 206              	.LVL8:
+  32:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t CO2: %d\n\r",data[1]*256+data[0]);
+ 207              		.loc 1 32 3 view .LVU33
+ 208 003a 9DF80120 		ldrb	r2, [sp, #1]	@ zero_extendqisi2
+ 209 003e 9DF80010 		ldrb	r1, [sp]	@ zero_extendqisi2
+ 210 0042 0D48     		ldr	r0, .L12+4
+ 211 0044 FFF7FEFF 		bl	printf
+ 212              	.LVL9:
+  33:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+ 213              		.loc 1 33 3 view .LVU34
+  33:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+ 214              		.loc 1 33 31 is_stmt 0 view .LVU35
+ 215 0048 9DF80110 		ldrb	r1, [sp, #1]	@ zero_extendqisi2
+  33:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+ 216              		.loc 1 33 43 view .LVU36
+ 217 004c 9DF80030 		ldrb	r3, [sp]	@ zero_extendqisi2
+  33:../../core/drivers/SGP30/src/GSP30.c ****   printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+ 218              		.loc 1 33 3 view .LVU37
+ 219 0050 03EB0121 		add	r1, r3, r1, lsl #8
+ 220 0054 0948     		ldr	r0, .L12+8
+ 221 0056 FFF7FEFF 		bl	printf
+ 222              	.LVL10:
+  34:../../core/drivers/SGP30/src/GSP30.c **** }
+ 223              		.loc 1 34 3 is_stmt 1 view .LVU38
+  34:../../core/drivers/SGP30/src/GSP30.c **** }
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 6
+
+
+ 224              		.loc 1 34 39 is_stmt 0 view .LVU39
+ 225 005a 9DF80310 		ldrb	r1, [sp, #3]	@ zero_extendqisi2
+  34:../../core/drivers/SGP30/src/GSP30.c **** }
+ 226              		.loc 1 34 51 view .LVU40
+ 227 005e 9DF80230 		ldrb	r3, [sp, #2]	@ zero_extendqisi2
+  34:../../core/drivers/SGP30/src/GSP30.c **** }
+ 228              		.loc 1 34 3 view .LVU41
+ 229 0062 03EB0121 		add	r1, r3, r1, lsl #8
+ 230 0066 0648     		ldr	r0, .L12+12
+ 231 0068 FFF7FEFF 		bl	printf
+ 232              	.LVL11:
+  35:../../core/drivers/SGP30/src/GSP30.c **** 
+ 233              		.loc 1 35 1 view .LVU42
+ 234 006c 03B0     		add	sp, sp, #12
+ 235              	.LCFI5:
+ 236              		.cfi_def_cfa_offset 4
+ 237              		@ sp needed
+ 238 006e 5DF804FB 		ldr	pc, [sp], #4
+ 239              	.L13:
+ 240 0072 00BF     		.align	2
+ 241              	.L12:
+ 242 0074 00000000 		.word	.LC0
+ 243 0078 18000000 		.word	.LC1
+ 244 007c 34000000 		.word	.LC2
+ 245 0080 40000000 		.word	.LC3
+ 246              		.cfi_endproc
+ 247              	.LFE125:
+ 249              		.section	.text.GSP30_writeRegister,"ax",%progbits
+ 250              		.align	1
+ 251              		.global	GSP30_writeRegister
+ 252              		.syntax unified
+ 253              		.thumb
+ 254              		.thumb_func
+ 255              		.fpu fpv4-sp-d16
+ 257              	GSP30_writeRegister:
+ 258              	.LVL12:
+ 259              	.LFB129:
+  48:../../core/drivers/SGP30/src/GSP30.c **** 
+  49:../../core/drivers/SGP30/src/GSP30.c **** HAL_StatusTypeDef GSP30_writeRegister(uint16_t GSP30_reg, uint8_t GSP30_data,uint32_t Timeout) {
+ 260              		.loc 1 49 96 is_stmt 1 view -0
+ 261              		.cfi_startproc
+ 262              		@ args = 0, pretend = 0, frame = 8
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264              		.loc 1 49 96 is_stmt 0 view .LVU44
+ 265 0000 00B5     		push	{lr}
+ 266              	.LCFI6:
+ 267              		.cfi_def_cfa_offset 4
+ 268              		.cfi_offset 14, -4
+ 269 0002 87B0     		sub	sp, sp, #28
+ 270              	.LCFI7:
+ 271              		.cfi_def_cfa_offset 32
+ 272 0004 8DF81710 		strb	r1, [sp, #23]
+  50:../../core/drivers/SGP30/src/GSP30.c ****   uint32_t a ;
+ 273              		.loc 1 50 3 is_stmt 1 view .LVU45
+  51:../../core/drivers/SGP30/src/GSP30.c ****   a = HAL_I2C_Mem_Write(GSP30_hi2c, GSP30_I2C_ADDRESS, GSP30_reg, I2C_MEMADD_SIZE_16BIT, &GSP30_dat
+ 274              		.loc 1 51 3 view .LVU46
+ 275              		.loc 1 51 7 is_stmt 0 view .LVU47
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 7
+
+
+ 276 0008 0C4B     		ldr	r3, .L16
+ 277 000a A3FB0232 		umull	r3, r2, r3, r2
+ 278              	.LVL13:
+ 279              		.loc 1 51 7 view .LVU48
+ 280 000e 9209     		lsrs	r2, r2, #6
+ 281 0010 0292     		str	r2, [sp, #8]
+ 282 0012 0123     		movs	r3, #1
+ 283 0014 0193     		str	r3, [sp, #4]
+ 284 0016 0DF11703 		add	r3, sp, #23
+ 285 001a 0093     		str	r3, [sp]
+ 286 001c 0223     		movs	r3, #2
+ 287 001e 0246     		mov	r2, r0
+ 288 0020 5821     		movs	r1, #88
+ 289              	.LVL14:
+ 290              		.loc 1 51 7 view .LVU49
+ 291 0022 0748     		ldr	r0, .L16+4
+ 292              	.LVL15:
+ 293              		.loc 1 51 7 view .LVU50
+ 294 0024 0068     		ldr	r0, [r0]
+ 295 0026 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 296              	.LVL16:
+  52:../../core/drivers/SGP30/src/GSP30.c ****   printf("%d",a);
+ 297              		.loc 1 52 3 is_stmt 1 view .LVU51
+ 298 002a 0146     		mov	r1, r0
+ 299 002c 0548     		ldr	r0, .L16+8
+ 300              	.LVL17:
+ 301              		.loc 1 52 3 is_stmt 0 view .LVU52
+ 302 002e FFF7FEFF 		bl	printf
+ 303              	.LVL18:
+  53:../../core/drivers/SGP30/src/GSP30.c ****   return HAL_OK;
+ 304              		.loc 1 53 3 is_stmt 1 view .LVU53
+  54:../../core/drivers/SGP30/src/GSP30.c **** }
+ 305              		.loc 1 54 1 is_stmt 0 view .LVU54
+ 306 0032 0020     		movs	r0, #0
+ 307 0034 07B0     		add	sp, sp, #28
+ 308              	.LCFI8:
+ 309              		.cfi_def_cfa_offset 4
+ 310              		@ sp needed
+ 311 0036 5DF804FB 		ldr	pc, [sp], #4
+ 312              	.L17:
+ 313 003a 00BF     		.align	2
+ 314              	.L16:
+ 315 003c D34D6210 		.word	274877907
+ 316 0040 00000000 		.word	GSP30_hi2c
+ 317 0044 00000000 		.word	.LC4
+ 318              		.cfi_endproc
+ 319              	.LFE129:
+ 321              		.section	.text.GSP30_init,"ax",%progbits
+ 322              		.align	1
+ 323              		.global	GSP30_init
+ 324              		.syntax unified
+ 325              		.thumb
+ 326              		.thumb_func
+ 327              		.fpu fpv4-sp-d16
+ 329              	GSP30_init:
+ 330              	.LFB124:
+   7:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t addres[1];
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 8
+
+
+ 331              		.loc 1 7 19 is_stmt 1 view -0
+ 332              		.cfi_startproc
+ 333              		@ args = 0, pretend = 0, frame = 8
+ 334              		@ frame_needed = 0, uses_anonymous_args = 0
+ 335 0000 00B5     		push	{lr}
+ 336              	.LCFI9:
+ 337              		.cfi_def_cfa_offset 4
+ 338              		.cfi_offset 14, -4
+ 339 0002 83B0     		sub	sp, sp, #12
+ 340              	.LCFI10:
+ 341              		.cfi_def_cfa_offset 16
+   8:../../core/drivers/SGP30/src/GSP30.c ****   uint16_t data[1];
+ 342              		.loc 1 8 3 view .LVU56
+   9:../../core/drivers/SGP30/src/GSP30.c ****   addres[0] = SGP30_CMD_IAQ_INIT;
+ 343              		.loc 1 9 3 view .LVU57
+  10:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = SGP30_CMD_IAQ_INIT;
+ 344              		.loc 1 10 3 view .LVU58
+  10:../../core/drivers/SGP30/src/GSP30.c ****   data[0] = SGP30_CMD_IAQ_INIT;
+ 345              		.loc 1 10 13 is_stmt 0 view .LVU59
+ 346 0004 42F20301 		movw	r1, #8195
+ 347 0008 ADF80410 		strh	r1, [sp, #4]	@ movhi
+  11:../../core/drivers/SGP30/src/GSP30.c ****   printf("GSP30 INIT Command: %x\n\r", addres[0]);
+ 348              		.loc 1 11 3 is_stmt 1 view .LVU60
+  11:../../core/drivers/SGP30/src/GSP30.c ****   printf("GSP30 INIT Command: %x\n\r", addres[0]);
+ 349              		.loc 1 11 11 is_stmt 0 view .LVU61
+ 350 000c ADF80010 		strh	r1, [sp]	@ movhi
+  12:../../core/drivers/SGP30/src/GSP30.c ****   GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_INIT_DURATION_US);
+ 351              		.loc 1 12 3 is_stmt 1 view .LVU62
+ 352 0010 0848     		ldr	r0, .L20
+ 353 0012 FFF7FEFF 		bl	printf
+ 354              	.LVL19:
+  13:../../core/drivers/SGP30/src/GSP30.c ****   HAL_Delay(100);
+ 355              		.loc 1 13 3 view .LVU63
+ 356 0016 01A8     		add	r0, sp, #4
+ 357 0018 80B2     		uxth	r0, r0
+ 358 001a 42F21072 		movw	r2, #10000
+ 359 001e 6946     		mov	r1, sp
+ 360 0020 01F0F801 		and	r1, r1, #248
+ 361 0024 FFF7FEFF 		bl	GSP30_writeRegister
+ 362              	.LVL20:
+  14:../../core/drivers/SGP30/src/GSP30.c **** }
+ 363              		.loc 1 14 3 view .LVU64
+ 364 0028 6420     		movs	r0, #100
+ 365 002a FFF7FEFF 		bl	HAL_Delay
+ 366              	.LVL21:
+  15:../../core/drivers/SGP30/src/GSP30.c **** 
+ 367              		.loc 1 15 1 is_stmt 0 view .LVU65
+ 368 002e 03B0     		add	sp, sp, #12
+ 369              	.LCFI11:
+ 370              		.cfi_def_cfa_offset 4
+ 371              		@ sp needed
+ 372 0030 5DF804FB 		ldr	pc, [sp], #4
+ 373              	.L21:
+ 374              		.align	2
+ 375              	.L20:
+ 376 0034 00000000 		.word	.LC5
+ 377              		.cfi_endproc
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 9
+
+
+ 378              	.LFE124:
+ 380              		.comm	GSP30_hi2c,4,4
+ 381              		.comm	GSP30_setting,1,1
+ 382              		.section	.rodata.GSP30_init.str1.4,"aMS",%progbits,1
+ 383              		.align	2
+ 384              	.LC5:
+ 385 0000 47535033 		.ascii	"GSP30 INIT Command: %x\012\015\000"
+ 385      3020494E 
+ 385      49542043 
+ 385      6F6D6D61 
+ 385      6E643A20 
+ 386              		.section	.rodata.GSP30_measure.str1.4,"aMS",%progbits,1
+ 387              		.align	2
+ 388              	.LC0:
+ 389 0000 4D656173 		.ascii	"Measure Command: %x\012\015\000"
+ 389      75726520 
+ 389      436F6D6D 
+ 389      616E643A 
+ 389      2025780A 
+ 390 0016 0000     		.space	2
+ 391              	.LC1:
+ 392 0018 09204461 		.ascii	"\011 Data Read Out: %x %x\012\015\000"
+ 392      74612052 
+ 392      65616420 
+ 392      4F75743A 
+ 392      20257820 
+ 393 0031 000000   		.space	3
+ 394              	.LC2:
+ 395 0034 0920434F 		.ascii	"\011 CO2: %d\012\015\000"
+ 395      323A2025 
+ 395      640A0D00 
+ 396              	.LC3:
+ 397 0040 09204169 		.ascii	"\011 Air Quality: %d\012\015\000"
+ 397      72205175 
+ 397      616C6974 
+ 397      793A2025 
+ 397      640A0D00 
+ 398              		.section	.rodata.GSP30_writeRegister.str1.4,"aMS",%progbits,1
+ 399              		.align	2
+ 400              	.LC4:
+ 401 0000 256400   		.ascii	"%d\000"
+ 402              		.text
+ 403              	.Letext0:
+ 404              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 405              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 406              		.file 4 "../../core/ST/CMSIS/Include/core_cm4.h"
+ 407              		.file 5 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h"
+ 408              		.file 6 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 409              		.file 7 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h"
+ 410              		.file 8 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h"
+ 411              		.file 9 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c.h"
+ 412              		.file 10 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h"
+ 413              		.file 11 "../../core/drivers/SGP30/inc/GSP30.h"
+ 414              		.file 12 "<built-in>"
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 GSP30.c
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:18     .text.GSP30_setI2CInterface:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:26     .text.GSP30_setI2CInterface:00000000 GSP30_setI2CInterface
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:44     .text.GSP30_setI2CInterface:00000008 $d
+                            *COM*:00000004 GSP30_hi2c
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:49     .text.GSP30_readData:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:56     .text.GSP30_readData:00000000 GSP30_readData
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:70     .text.GSP30_reset:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:77     .text.GSP30_reset:00000000 GSP30_reset
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:90     .text.GSP30_readRegister:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:97     .text.GSP30_readRegister:00000000 GSP30_readRegister
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:146    .text.GSP30_readRegister:00000034 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:152    .text.GSP30_measure:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:159    .text.GSP30_measure:00000000 GSP30_measure
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:242    .text.GSP30_measure:00000074 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:250    .text.GSP30_writeRegister:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:257    .text.GSP30_writeRegister:00000000 GSP30_writeRegister
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:315    .text.GSP30_writeRegister:0000003c $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:322    .text.GSP30_init:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:329    .text.GSP30_init:00000000 GSP30_init
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:376    .text.GSP30_init:00000034 $d
+                            *COM*:00000001 GSP30_setting
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:383    .rodata.GSP30_init.str1.4:00000000 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:387    .rodata.GSP30_measure.str1.4:00000000 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccJof4rQ.s:399    .rodata.GSP30_writeRegister.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_I2C_Mem_Read
+printf
+HAL_I2C_Mem_Write
+HAL_Delay
