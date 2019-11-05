@@ -1,0 +1,1122 @@
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"SPG30-sensor-example.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.printWelcome,"ax",%progbits
+  18              		.align	1
+  19              		.global	printWelcome
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	printWelcome:
+  27              	.LFB129:
+  28              		.file 1 "../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c"
+   1:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN Header */
+   2:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /**
+   3:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   ******************************************************************************
+   4:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @file           : main.c
+   5:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @brief          : Main program body
+   6:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   ******************************************************************************
+   7:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * This notice applies to any and all portions of this file
+   8:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * that are not between comment pairs USER CODE BEGIN and
+   9:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * USER CODE END. Other portions of this file, whether 
+  10:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * inserted by the user or by software development tools
+  11:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * are owned by their respective copyright owners.
+  12:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *
+  13:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * Copyright (c) 2019 STMicroelectronics International N.V. 
+  14:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * All rights reserved.
+  15:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *
+  16:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * Redistribution and use in source and binary forms, with or without 
+  17:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * modification, are permitted, provided that the following conditions are met:
+  18:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *
+  19:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * 1. Redistribution of source code must retain the above copyright notice, 
+  20:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    this list of conditions and the following disclaimer.
+  21:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * 2. Redistributions in binary form must reproduce the above copyright notice,
+  22:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    this list of conditions and the following disclaimer in the documentation
+  23:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    and/or other materials provided with the distribution.
+  24:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * 3. Neither the name of STMicroelectronics nor the names of other 
+  25:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    contributors to this software may be used to endorse or promote products 
+  26:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    derived from this software without specific written permission.
+  27:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * 4. This software, including modifications and/or derivative works of this 
+  28:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    software, must execute solely and exclusively on microcontroller or
+  29:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    microprocessor devices manufactured by or for STMicroelectronics.
+  30:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * 5. Redistribution and use of this software other than as permitted under 
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 2
+
+
+  31:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    this license is void and will automatically terminate your rights under 
+  32:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *    this license. 
+  33:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *
+  34:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
+  35:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
+  36:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  37:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  38:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  39:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  40:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  41:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+  42:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  43:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  44:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  45:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  46:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   *
+  47:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   ******************************************************************************
+  48:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   */
+  49:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END Header */
+  50:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  51:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Includes ------------------------------------------------------------------*/
+  52:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #include "SPG30-sensor-example.h"
+  53:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #include "SPG30.h"
+  54:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #include "sensirion_common.h"
+  55:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #include "sgp30.h"
+  56:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Private includes ----------------------------------------------------------*/
+  57:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN Includes */
+  58:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** I2C_HandleTypeDef *hi2c1;
+  59:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  60:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END Includes */
+  61:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  62:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Private typedef -----------------------------------------------------------*/
+  63:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN PTD */
+  64:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  65:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END PTD */
+  66:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  67:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Private define ------------------------------------------------------------*/
+  68:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN PD */
+  69:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  70:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END PD */
+  71:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  72:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Private macro -------------------------------------------------------------*/
+  73:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN PM */
+  74:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  75:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END PM */
+  76:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  77:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* Private user code ---------------------------------------------------------*/
+  78:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE BEGIN 0 */
+  79:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END 0 */
+  80:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  81:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /**
+  82:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @brief  The application entry point.
+  83:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @retval int
+  84:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   */
+  85:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** int main(void)
+  86:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** {
+  87:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN 1 */
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 3
+
+
+  88:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #if USE_BOOTLOADER
+  89:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   bootloader_SetVTOR();
+  90:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** #endif
+  91:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  92:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END 1 */
+  93:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****    uint8_t buf[5];
+  94:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  95:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* MCU Configuration--------------------------------------------------------*/
+  96:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+  97:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  98:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   HAL_Init();
+  99:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 100:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN Init */
+ 101:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 102:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END Init */
+ 103:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 104:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* Configure the system clock */
+ 105:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   SystemClock_Config();
+ 106:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 107:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN SysInit */
+ 108:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 109:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END SysInit */
+ 110:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 111:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* Initialize theplatform */
+ 112:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   Initialize_Platform();
+ 113:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN 2 */
+ 114:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 115:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printWelcome();
+ 116:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 117:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END 2 */
+ 118:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 119:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* We should never get here as control is now taken by the scheduler */
+ 120:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 121:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* Infinite loop */
+ 122:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN WHILE */
+ 123:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 124:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   //SPG30_Initialize(hi2c1);  //initializes I2C on pin 1.
+ 125:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 126:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   SPG30_Initialize();
+ 127:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 128:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   P1_I2C_Init();
+ 129:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 130:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   while (1)
+ 131:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   {
+ 132:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     IWDG_feed(NULL);
+ 133:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 134:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint16_t i = 0;
+ 135:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     int16_t err;
+ 136:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint16_t tvoc_ppb, co2_eq_ppm;
+ 137:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint32_t iaq_baseline;
+ 138:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint16_t scaled_ethanol_signal, scaled_h2_signal;
+ 139:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint32_t measurement_counter = 0;
+ 140:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 141:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     printf("\r\n");
+ 142:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 143:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     while(sgp_probe() != STATUS_OK)
+ 144:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 4
+
+
+ 145:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	printf("SGP sensor probing failed ... check SGP30 I2C connection and power\r\n");
+ 146:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	HAL_Delay(500); // delay retry
+ 147:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 148:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     
+ 149:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     printf("SGP sensor probing successful\r\n");
+ 150:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 151:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* Read gas signals */
+ 152:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+ 153:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     if(err == STATUS_OK)
+ 154:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 155:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			// Print ethanol signal with floating point support
+ 156:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       float sc = scaled_ethanol_signal / 512.0;
+ 157:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			printf("Ethanol signal: lf \r\n", 2.456);
+ 158:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 159:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			// Print H2 signal with floating point support
+ 160:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       float scaled = scaled_h2_signal / 512.0;
+ 161:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			printf("H2 signal: %lf \r\n", 1.456);
+ 162:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 163:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       printf("Test %lf\r\n", 17.42);
+ 164:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 165:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     else
+ 166:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 167:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	printf("error reading Ethanol and H2 signals\r\n");
+ 168:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 169:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 170:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* Consider the two cases (A) and (B):
+ 171:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      * (A) If no baseline is available or the most recent baseline is more than
+ 172:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      *     one week old, it must discarded. A new baseline is found with
+ 173:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      *     sgp_iaq_init() */
+ 174:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     err = sgp_iaq_init();
+ 175:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* (B) If a recent baseline is available, set it after sgp_iaq_init() for
+ 176:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      * faster start-up */
+ 177:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* IMPLEMENT: retrieve iaq_baseline from presistent storage;
+ 178:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      * err = sgp_set_iaq_baseline(iaq_baseline);
+ 179:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      */
+ 180:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     //err = sgp_set_iaq_baseline((uint32_t)0x86808F51);
+ 181:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     //printf("Set baseline values to: %5lu \r\n", (uint32_t)0x86808F51);
+ 182:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     //printf("\r\n");
+ 183:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 184:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     while(1)
+ 185:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 186:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	/* Run periodic IAQ measurements at defined intervals */
+ 187:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 188:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       IWDG_feed(NULL);// reset watchdog timer.$
+ 189:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 190:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+ 191:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			if(err == STATUS_OK)
+ 192:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			{
+ 193:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				measurement_counter++;
+ 194:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				printf("tVOC Concentration: %5d [ppb]     CO2eq Concentration: %5d [ppm]     measurement no.: %
+ 195:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 196:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			else
+ 197:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			{
+ 198:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				printf("error reading IAQ values\r\n");
+ 199:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 200:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 201:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			// set green LED LD2
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 5
+
+
+ 202:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_SET);
+ 203:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 204:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			/* Print the current baseline values every 10 minutes */
+ 205:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       if (measurement_counter % 600 == 0)
+ 206:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 207:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				err = sgp_get_iaq_baseline(&iaq_baseline);
+ 208:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 209:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 210:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 					printf("actual baseline values: %5lu\r\n", iaq_baseline);
+ 211:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 212:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       }
+ 213:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 214:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       /* Persist the current baseline every hour */
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       if(++i % 3600 == 3599)
+ 216:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 217:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				err = sgp_get_iaq_baseline(&iaq_baseline);
+ 218:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 219:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 220:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 					// IMPLEMENT: store baseline to presistent storage
+ 221:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 					printf("Set baseline values to: %5lu at next startup.\r\n", iaq_baseline);
+ 222:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 223:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       }
+ 224:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 225:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			/* The IAQ measurement must be triggered nearly once per second (SGP30) to get accurate values.*
+ 226:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			HAL_Delay(147); // 200 - code execution time
+ 227:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			// set green LED LD2
+ 228:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_RESET);
+ 229:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			HAL_Delay(800);
+ 230:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 231:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   }
+ 232:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 233:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 234:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* USER CODE END WHILE 
+ 235:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 236:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 237:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     
+ 238:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ 239:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_Delay(1000);
+ 240:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ 241:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+ 242:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_Delay(1000);
+ 243:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+ 244:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+ 245:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_Delay(1000);
+ 246:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+ 247:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 248:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****      USER CODE BEGIN 3 */
+ 249:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   
+ 250:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END 3 */
+ 251:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** }
+ 252:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 253:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** void printWelcome(void)
+ 254:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** {
+  29              		.loc 1 254 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 6
+
+
+  33 0000 38B5     		push	{r3, r4, r5, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 16
+  36              		.cfi_offset 3, -16
+  37              		.cfi_offset 4, -12
+  38              		.cfi_offset 5, -8
+  39              		.cfi_offset 14, -4
+ 255:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printf("\r\n");
+  40              		.loc 1 255 3 view .LVU1
+  41 0002 104C     		ldr	r4, .L3
+  42 0004 2046     		mov	r0, r4
+  43 0006 FFF7FEFF 		bl	puts
+  44              	.LVL0:
+ 256:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printf("*****************************************\r\n");
+  45              		.loc 1 256 3 view .LVU2
+  46 000a 0F4D     		ldr	r5, .L3+4
+  47 000c 2846     		mov	r0, r5
+  48 000e FFF7FEFF 		bl	puts
+  49              	.LVL1:
+ 257:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printf("no scheduler example\r\n");
+  50              		.loc 1 257 3 view .LVU3
+  51 0012 0E48     		ldr	r0, .L3+8
+  52 0014 FFF7FEFF 		bl	puts
+  53              	.LVL2:
+ 258:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printf("*****************************************\r\n");
+  54              		.loc 1 258 3 view .LVU4
+  55 0018 2846     		mov	r0, r5
+  56 001a FFF7FEFF 		bl	puts
+  57              	.LVL3:
+ 259:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   printf("\r\n");
+  58              		.loc 1 259 3 view .LVU5
+  59 001e 2046     		mov	r0, r4
+  60 0020 FFF7FEFF 		bl	puts
+  61              	.LVL4:
+ 260:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+  62              		.loc 1 260 3 view .LVU6
+  63 0024 0A4C     		ldr	r4, .L3+12
+  64 0026 4FF40041 		mov	r1, #32768
+  65 002a 2046     		mov	r0, r4
+  66 002c FFF7FEFF 		bl	HAL_GPIO_TogglePin
+  67              	.LVL5:
+ 261:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   HAL_Delay(2000);
+  68              		.loc 1 261 3 view .LVU7
+  69 0030 4FF4FA60 		mov	r0, #2000
+  70 0034 FFF7FEFF 		bl	HAL_Delay
+  71              	.LVL6:
+ 262:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+  72              		.loc 1 262 3 view .LVU8
+  73 0038 4FF40041 		mov	r1, #32768
+  74 003c 2046     		mov	r0, r4
+  75 003e FFF7FEFF 		bl	HAL_GPIO_TogglePin
+  76              	.LVL7:
+ 263:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** }
+  77              		.loc 1 263 1 is_stmt 0 view .LVU9
+  78 0042 38BD     		pop	{r3, r4, r5, pc}
+  79              	.L4:
+  80              		.align	2
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 7
+
+
+  81              	.L3:
+  82 0044 00000000 		.word	.LC0
+  83 0048 04000000 		.word	.LC1
+  84 004c 30000000 		.word	.LC2
+  85 0050 000C0048 		.word	1207962624
+  86              		.cfi_endproc
+  87              	.LFE129:
+  89              		.section	.text.main,"ax",%progbits
+  90              		.align	1
+  91              		.global	main
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  95              		.fpu fpv4-sp-d16
+  97              	main:
+  98              	.LFB128:
+  86:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN 1 */
+  99              		.loc 1 86 1 is_stmt 1 view -0
+ 100              		.cfi_startproc
+ 101              		@ args = 0, pretend = 0, frame = 16
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103 0000 30B5     		push	{r4, r5, lr}
+ 104              	.LCFI1:
+ 105              		.cfi_def_cfa_offset 12
+ 106              		.cfi_offset 4, -12
+ 107              		.cfi_offset 5, -8
+ 108              		.cfi_offset 14, -4
+ 109 0002 85B0     		sub	sp, sp, #20
+ 110              	.LCFI2:
+ 111              		.cfi_def_cfa_offset 32
+  93:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 112              		.loc 1 93 4 view .LVU11
+  98:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 113              		.loc 1 98 3 view .LVU12
+ 114 0004 FFF7FEFF 		bl	HAL_Init
+ 115              	.LVL8:
+ 105:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 116              		.loc 1 105 3 view .LVU13
+ 117 0008 FFF7FEFF 		bl	SystemClock_Config
+ 118              	.LVL9:
+ 112:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN 2 */
+ 119              		.loc 1 112 3 view .LVU14
+ 120 000c FFF7FEFF 		bl	Initialize_Platform
+ 121              	.LVL10:
+ 115:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 122              		.loc 1 115 3 view .LVU15
+ 123 0010 FFF7FEFF 		bl	printWelcome
+ 124              	.LVL11:
+ 126:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 125              		.loc 1 126 3 view .LVU16
+ 126 0014 FFF7FEFF 		bl	SPG30_Initialize
+ 127              	.LVL12:
+ 128:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 128              		.loc 1 128 3 view .LVU17
+ 129 0018 FFF7FEFF 		bl	P1_I2C_Init
+ 130              	.LVL13:
+ 130:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   {
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 8
+
+
+ 131              		.loc 1 130 3 view .LVU18
+ 132              	.LBB2:
+ 132:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 133              		.loc 1 132 5 view .LVU19
+ 134 001c 0020     		movs	r0, #0
+ 135 001e FFF7FEFF 		bl	IWDG_feed
+ 136              	.LVL14:
+ 134:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     int16_t err;
+ 137              		.loc 1 134 5 view .LVU20
+ 135:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint16_t tvoc_ppb, co2_eq_ppm;
+ 138              		.loc 1 135 5 view .LVU21
+ 136:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint32_t iaq_baseline;
+ 139              		.loc 1 136 5 view .LVU22
+ 137:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint16_t scaled_ethanol_signal, scaled_h2_signal;
+ 140              		.loc 1 137 5 view .LVU23
+ 138:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     uint32_t measurement_counter = 0;
+ 141              		.loc 1 138 5 view .LVU24
+ 139:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 142              		.loc 1 139 5 view .LVU25
+ 141:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 143              		.loc 1 141 5 view .LVU26
+ 144 0022 4948     		ldr	r0, .L17+24
+ 145 0024 FFF7FEFF 		bl	puts
+ 146              	.LVL15:
+ 143:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 147              		.loc 1 143 5 view .LVU27
+ 143:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 148              		.loc 1 143 10 is_stmt 0 view .LVU28
+ 149 0028 06E0     		b	.L6
+ 150              	.L7:
+ 145:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     	HAL_Delay(500); // delay retry
+ 151              		.loc 1 145 6 is_stmt 1 view .LVU29
+ 152 002a 4848     		ldr	r0, .L17+28
+ 153 002c FFF7FEFF 		bl	puts
+ 154              	.LVL16:
+ 146:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 155              		.loc 1 146 6 view .LVU30
+ 156 0030 4FF4FA70 		mov	r0, #500
+ 157 0034 FFF7FEFF 		bl	HAL_Delay
+ 158              	.LVL17:
+ 159              	.L6:
+ 143:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 160              		.loc 1 143 11 is_stmt 0 view .LVU31
+ 161 0038 FFF7FEFF 		bl	sgp_probe
+ 162              	.LVL18:
+ 143:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 163              		.loc 1 143 10 view .LVU32
+ 164 003c 0028     		cmp	r0, #0
+ 165 003e F4D1     		bne	.L7
+ 149:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 166              		.loc 1 149 5 is_stmt 1 view .LVU33
+ 167 0040 4348     		ldr	r0, .L17+32
+ 168 0042 FFF7FEFF 		bl	puts
+ 169              	.LVL19:
+ 152:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     if(err == STATUS_OK)
+ 170              		.loc 1 152 5 view .LVU34
+ 152:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     if(err == STATUS_OK)
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 9
+
+
+ 171              		.loc 1 152 11 is_stmt 0 view .LVU35
+ 172 0046 0DF10A01 		add	r1, sp, #10
+ 173 004a 02A8     		add	r0, sp, #8
+ 174 004c FFF7FEFF 		bl	sgp_measure_signals_blocking_read
+ 175              	.LVL20:
+ 153:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 176              		.loc 1 153 5 is_stmt 1 view .LVU36
+ 153:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 177              		.loc 1 153 7 is_stmt 0 view .LVU37
+ 178 0050 B0B9     		cbnz	r0, .L8
+ 179              	.LBB3:
+ 156:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			printf("Ethanol signal: lf \r\n", 2.456);
+ 180              		.loc 1 156 7 is_stmt 1 view .LVU38
+ 181              	.LVL21:
+ 157:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 182              		.loc 1 157 4 view .LVU39
+ 183 0052 37A3     		adr	r3, .L17
+ 184 0054 D3E90023 		ldrd	r2, [r3]
+ 185 0058 3E48     		ldr	r0, .L17+36
+ 186              	.LVL22:
+ 157:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 187              		.loc 1 157 4 is_stmt 0 view .LVU40
+ 188 005a FFF7FEFF 		bl	printf
+ 189              	.LVL23:
+ 160:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			printf("H2 signal: %lf \r\n", 1.456);
+ 190              		.loc 1 160 7 is_stmt 1 view .LVU41
+ 161:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 191              		.loc 1 161 4 view .LVU42
+ 192 005e 36A3     		adr	r3, .L17+8
+ 193 0060 D3E90023 		ldrd	r2, [r3]
+ 194 0064 3C48     		ldr	r0, .L17+40
+ 195 0066 FFF7FEFF 		bl	printf
+ 196              	.LVL24:
+ 163:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 197              		.loc 1 163 7 view .LVU43
+ 198 006a 35A3     		adr	r3, .L17+16
+ 199 006c D3E90023 		ldrd	r2, [r3]
+ 200 0070 3A48     		ldr	r0, .L17+44
+ 201 0072 FFF7FEFF 		bl	printf
+ 202              	.LVL25:
+ 203              	.L9:
+ 163:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 204              		.loc 1 163 7 is_stmt 0 view .LVU44
+ 205              	.LBE3:
+ 174:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* (B) If a recent baseline is available, set it after sgp_iaq_init() for
+ 206              		.loc 1 174 5 is_stmt 1 view .LVU45
+ 174:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     /* (B) If a recent baseline is available, set it after sgp_iaq_init() for
+ 207              		.loc 1 174 11 is_stmt 0 view .LVU46
+ 208 0076 FFF7FEFF 		bl	sgp_iaq_init
+ 209              	.LVL26:
+ 139:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 210              		.loc 1 139 14 view .LVU47
+ 211 007a 0025     		movs	r5, #0
+ 134:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     int16_t err;
+ 212              		.loc 1 134 14 view .LVU48
+ 213 007c 2C46     		mov	r4, r5
+ 214 007e 1CE0     		b	.L14
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 10
+
+
+ 215              	.LVL27:
+ 216              	.L8:
+ 167:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 217              		.loc 1 167 6 is_stmt 1 view .LVU49
+ 218 0080 3748     		ldr	r0, .L17+48
+ 219              	.LVL28:
+ 167:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 220              		.loc 1 167 6 is_stmt 0 view .LVU50
+ 221 0082 FFF7FEFF 		bl	puts
+ 222              	.LVL29:
+ 223 0086 F6E7     		b	.L9
+ 224              	.LVL30:
+ 225              	.L10:
+ 198:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 226              		.loc 1 198 5 is_stmt 1 view .LVU51
+ 227 0088 3648     		ldr	r0, .L17+52
+ 228              	.LVL31:
+ 198:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 229              		.loc 1 198 5 is_stmt 0 view .LVU52
+ 230 008a FFF7FEFF 		bl	puts
+ 231              	.LVL32:
+ 232 008e 27E0     		b	.L11
+ 233              	.L16:
+ 207:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 234              		.loc 1 207 5 is_stmt 1 view .LVU53
+ 207:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 235              		.loc 1 207 11 is_stmt 0 view .LVU54
+ 236 0090 03A8     		add	r0, sp, #12
+ 237 0092 FFF7FEFF 		bl	sgp_get_iaq_baseline
+ 238              	.LVL33:
+ 208:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 239              		.loc 1 208 5 is_stmt 1 view .LVU55
+ 208:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 240              		.loc 1 208 7 is_stmt 0 view .LVU56
+ 241 0096 90BB     		cbnz	r0, .L12
+ 210:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 242              		.loc 1 210 6 is_stmt 1 view .LVU57
+ 243 0098 0399     		ldr	r1, [sp, #12]
+ 244 009a 3348     		ldr	r0, .L17+56
+ 245              	.LVL34:
+ 210:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 246              		.loc 1 210 6 is_stmt 0 view .LVU58
+ 247 009c FFF7FEFF 		bl	printf
+ 248              	.LVL35:
+ 249 00a0 2DE0     		b	.L12
+ 250              	.L13:
+ 226:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			// set green LED LD2
+ 251              		.loc 1 226 4 is_stmt 1 view .LVU59
+ 252 00a2 9320     		movs	r0, #147
+ 253 00a4 FFF7FEFF 		bl	HAL_Delay
+ 254              	.LVL36:
+ 228:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			HAL_Delay(800);
+ 255              		.loc 1 228 4 view .LVU60
+ 256 00a8 0022     		movs	r2, #0
+ 257 00aa 0121     		movs	r1, #1
+ 258 00ac 2F48     		ldr	r0, .L17+60
+ 259 00ae FFF7FEFF 		bl	HAL_GPIO_WritePin
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 11
+
+
+ 260              	.LVL37:
+ 229:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 261              		.loc 1 229 4 view .LVU61
+ 262 00b2 4FF44870 		mov	r0, #800
+ 263 00b6 FFF7FEFF 		bl	HAL_Delay
+ 264              	.LVL38:
+ 265              	.L14:
+ 184:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 266              		.loc 1 184 5 view .LVU62
+ 188:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 267              		.loc 1 188 7 view .LVU63
+ 268 00ba 0020     		movs	r0, #0
+ 269 00bc FFF7FEFF 		bl	IWDG_feed
+ 270              	.LVL39:
+ 190:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			if(err == STATUS_OK)
+ 271              		.loc 1 190 6 view .LVU64
+ 190:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			if(err == STATUS_OK)
+ 272              		.loc 1 190 12 is_stmt 0 view .LVU65
+ 273 00c0 0DF10601 		add	r1, sp, #6
+ 274 00c4 01A8     		add	r0, sp, #4
+ 275 00c6 FFF7FEFF 		bl	sgp_measure_iaq_blocking_read
+ 276              	.LVL40:
+ 191:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			{
+ 277              		.loc 1 191 4 is_stmt 1 view .LVU66
+ 191:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			{
+ 278              		.loc 1 191 6 is_stmt 0 view .LVU67
+ 279 00ca 0028     		cmp	r0, #0
+ 280 00cc DCD1     		bne	.L10
+ 193:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				printf("tVOC Concentration: %5d [ppb]     CO2eq Concentration: %5d [ppm]     measurement no.: %
+ 281              		.loc 1 193 5 is_stmt 1 view .LVU68
+ 193:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				printf("tVOC Concentration: %5d [ppb]     CO2eq Concentration: %5d [ppm]     measurement no.: %
+ 282              		.loc 1 193 24 is_stmt 0 view .LVU69
+ 283 00ce 0135     		adds	r5, r5, #1
+ 284              	.LVL41:
+ 194:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 285              		.loc 1 194 5 is_stmt 1 view .LVU70
+ 286 00d0 2B46     		mov	r3, r5
+ 287 00d2 BDF80620 		ldrh	r2, [sp, #6]
+ 288 00d6 BDF80410 		ldrh	r1, [sp, #4]
+ 289 00da 2548     		ldr	r0, .L17+64
+ 290              	.LVL42:
+ 194:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 			}
+ 291              		.loc 1 194 5 is_stmt 0 view .LVU71
+ 292 00dc FFF7FEFF 		bl	printf
+ 293              	.LVL43:
+ 294              	.L11:
+ 202:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 295              		.loc 1 202 4 is_stmt 1 view .LVU72
+ 296 00e0 0122     		movs	r2, #1
+ 297 00e2 1146     		mov	r1, r2
+ 298 00e4 2148     		ldr	r0, .L17+60
+ 299 00e6 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 300              	.LVL44:
+ 205:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 301              		.loc 1 205 7 view .LVU73
+ 205:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 302              		.loc 1 205 31 is_stmt 0 view .LVU74
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 12
+
+
+ 303 00ea 224B     		ldr	r3, .L17+68
+ 304 00ec A3FB0523 		umull	r2, r3, r3, r5
+ 305 00f0 9B09     		lsrs	r3, r3, #6
+ 306 00f2 4FF41672 		mov	r2, #600
+ 307 00f6 02FB1353 		mls	r3, r2, r3, r5
+ 205:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 308              		.loc 1 205 10 view .LVU75
+ 309 00fa 002B     		cmp	r3, #0
+ 310 00fc C8D0     		beq	.L16
+ 311              	.L12:
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 312              		.loc 1 215 7 is_stmt 1 view .LVU76
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 313              		.loc 1 215 9 is_stmt 0 view .LVU77
+ 314 00fe 0134     		adds	r4, r4, #1
+ 315              	.LVL45:
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 316              		.loc 1 215 9 view .LVU78
+ 317 0100 A4B2     		uxth	r4, r4
+ 318              	.LVL46:
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 319              		.loc 1 215 21 view .LVU79
+ 320 0102 1D4B     		ldr	r3, .L17+72
+ 321 0104 A3FB0423 		umull	r2, r3, r3, r4
+ 322 0108 DB0A     		lsrs	r3, r3, #11
+ 323 010a 4FF46162 		mov	r2, #3600
+ 324 010e 02FB1343 		mls	r3, r2, r3, r4
+ 325 0112 9BB2     		uxth	r3, r3
+ 215:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****       {
+ 326              		.loc 1 215 9 view .LVU80
+ 327 0114 40F60F62 		movw	r2, #3599
+ 328 0118 9342     		cmp	r3, r2
+ 329 011a C2D1     		bne	.L13
+ 217:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 330              		.loc 1 217 5 is_stmt 1 view .LVU81
+ 217:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				if(err == STATUS_OK)
+ 331              		.loc 1 217 11 is_stmt 0 view .LVU82
+ 332 011c 03A8     		add	r0, sp, #12
+ 333 011e FFF7FEFF 		bl	sgp_get_iaq_baseline
+ 334              	.LVL47:
+ 218:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 335              		.loc 1 218 5 is_stmt 1 view .LVU83
+ 218:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				{
+ 336              		.loc 1 218 7 is_stmt 0 view .LVU84
+ 337 0122 0028     		cmp	r0, #0
+ 338 0124 BDD1     		bne	.L13
+ 221:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 339              		.loc 1 221 6 is_stmt 1 view .LVU85
+ 340 0126 0399     		ldr	r1, [sp, #12]
+ 341 0128 1448     		ldr	r0, .L17+76
+ 342              	.LVL48:
+ 221:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 				}
+ 343              		.loc 1 221 6 is_stmt 0 view .LVU86
+ 344 012a FFF7FEFF 		bl	printf
+ 345              	.LVL49:
+ 346 012e B8E7     		b	.L13
+ 347              	.L18:
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 13
+
+
+ 348              		.align	3
+ 349              	.L17:
+ 350 0130 D9CEF753 		.word	1408749273
+ 351 0134 E3A50340 		.word	1073980899
+ 352 0138 B29DEFA7 		.word	-1477468750
+ 353 013c C64BF73F 		.word	1073171398
+ 354 0140 EC51B81E 		.word	515396076
+ 355 0144 856B3140 		.word	1076980613
+ 356 0148 00000000 		.word	.LC0
+ 357 014c 00000000 		.word	.LC3
+ 358 0150 44000000 		.word	.LC4
+ 359 0154 64000000 		.word	.LC5
+ 360 0158 7C000000 		.word	.LC6
+ 361 015c 90000000 		.word	.LC7
+ 362 0160 9C000000 		.word	.LC8
+ 363 0164 24010000 		.word	.LC10
+ 364 0168 40010000 		.word	.LC11
+ 365 016c 00040048 		.word	1207960576
+ 366 0170 C4000000 		.word	.LC9
+ 367 0174 B5814E1B 		.word	458129845
+ 368 0178 C5B3A291 		.word	-1851608123
+ 369 017c 60010000 		.word	.LC12
+ 370              	.LBE2:
+ 371              		.cfi_endproc
+ 372              	.LFE128:
+ 374              		.section	.text.HAL_TIM_PeriodElapsedCallback,"ax",%progbits
+ 375              		.align	1
+ 376              		.global	HAL_TIM_PeriodElapsedCallback
+ 377              		.syntax unified
+ 378              		.thumb
+ 379              		.thumb_func
+ 380              		.fpu fpv4-sp-d16
+ 382              	HAL_TIM_PeriodElapsedCallback:
+ 383              	.LVL50:
+ 384              	.LFB130:
+ 264:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 265:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+ 266:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** {
+ 385              		.loc 1 266 1 is_stmt 1 view -0
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389              		.loc 1 266 1 is_stmt 0 view .LVU88
+ 390 0000 08B5     		push	{r3, lr}
+ 391              	.LCFI3:
+ 392              		.cfi_def_cfa_offset 8
+ 393              		.cfi_offset 3, -8
+ 394              		.cfi_offset 14, -4
+ 267:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN Callback 0 */
+ 268:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 269:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END Callback 0 */
+ 270:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   if (htim->Instance == TIM1)
+ 395              		.loc 1 270 3 is_stmt 1 view .LVU89
+ 396              		.loc 1 270 11 is_stmt 0 view .LVU90
+ 397 0002 0268     		ldr	r2, [r0]
+ 398              		.loc 1 270 6 view .LVU91
+ 399 0004 034B     		ldr	r3, .L23
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 14
+
+
+ 400 0006 9A42     		cmp	r2, r3
+ 401 0008 00D0     		beq	.L22
+ 402              	.LVL51:
+ 403              	.L19:
+ 271:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   {
+ 272:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     HAL_IncTick();
+ 273:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   }
+ 274:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN Callback 1 */
+ 275:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 276:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END Callback 1 */
+ 277:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** }
+ 404              		.loc 1 277 1 view .LVU92
+ 405 000a 08BD     		pop	{r3, pc}
+ 406              	.LVL52:
+ 407              	.L22:
+ 272:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   }
+ 408              		.loc 1 272 5 is_stmt 1 view .LVU93
+ 409 000c FFF7FEFF 		bl	HAL_IncTick
+ 410              	.LVL53:
+ 411              		.loc 1 277 1 is_stmt 0 view .LVU94
+ 412 0010 FBE7     		b	.L19
+ 413              	.L24:
+ 414 0012 00BF     		.align	2
+ 415              	.L23:
+ 416 0014 002C0140 		.word	1073818624
+ 417              		.cfi_endproc
+ 418              	.LFE130:
+ 420              		.section	.text.HAL_UART_RxCpltCallback,"ax",%progbits
+ 421              		.align	1
+ 422              		.global	HAL_UART_RxCpltCallback
+ 423              		.syntax unified
+ 424              		.thumb
+ 425              		.thumb_func
+ 426              		.fpu fpv4-sp-d16
+ 428              	HAL_UART_RxCpltCallback:
+ 429              	.LVL54:
+ 430              	.LFB131:
+ 278:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 279:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /* USER CODE END 4 */
+ 280:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 281:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+ 282:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** {
+ 431              		.loc 1 282 1 is_stmt 1 view -0
+ 432              		.cfi_startproc
+ 433              		@ args = 0, pretend = 0, frame = 0
+ 434              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435              		@ link register save eliminated.
+ 283:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 	#if USE_BOOTLOADER
+ 284:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     if(huart == &BLE_UART);
+ 285:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     {
+ 286:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****           printf("BLE UART INTERRUPT\r\n");
+ 287:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****           bootloader_parse_data();        
+ 288:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****     }
+ 289:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   #endif
+ 290:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** }
+ 436              		.loc 1 290 1 view .LVU96
+ 437 0000 7047     		bx	lr
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 15
+
+
+ 438              		.cfi_endproc
+ 439              	.LFE131:
+ 441              		.section	.text.Error_Handler,"ax",%progbits
+ 442              		.align	1
+ 443              		.global	Error_Handler
+ 444              		.syntax unified
+ 445              		.thumb
+ 446              		.thumb_func
+ 447              		.fpu fpv4-sp-d16
+ 449              	Error_Handler:
+ 450              	.LFB132:
+ 291:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 292:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** /**
+ 293:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @brief  This function is executed in case of error occurrence.
+ 294:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   * @retval None
+ 295:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   */
+ 296:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** void Error_Handler(void)
+ 297:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** {
+ 451              		.loc 1 297 1 view -0
+ 452              		.cfi_startproc
+ 453              		@ args = 0, pretend = 0, frame = 0
+ 454              		@ frame_needed = 0, uses_anonymous_args = 0
+ 455              		@ link register save eliminated.
+ 298:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE BEGIN Error_Handler_Debug */
+ 299:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* User can add his own implementation to report the HAL error return state */
+ 300:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** 
+ 301:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c ****   /* USER CODE END Error_Handler_Debug */
+ 302:../../applications/SPG30-sensor-example/src/SPG30-sensor-example.c **** }
+ 456              		.loc 1 302 1 view .LVU98
+ 457 0000 7047     		bx	lr
+ 458              		.cfi_endproc
+ 459              	.LFE132:
+ 461              		.comm	hi2c1,4,4
+ 462              		.comm	P3_header,44,4
+ 463              		.comm	P2_header,44,4
+ 464              		.comm	P1_header,44,4
+ 465              		.comm	FLASH_SPI,100,4
+ 466              		.comm	P3_SPI,100,4
+ 467              		.comm	P2_SPI,100,4
+ 468              		.comm	P1_SPI,100,4
+ 469              		.comm	P3_I2C,76,4
+ 470              		.comm	P2_I2C,76,4
+ 471              		.comm	P1_I2C,76,4
+ 472              		.comm	common_I2C,76,4
+ 473              		.comm	P3_UART,120,4
+ 474              		.comm	P2_UART,120,4
+ 475              		.comm	P1_UART,120,4
+ 476              		.comm	BLE_UART,120,4
+ 477              		.comm	USB_UART,120,4
+ 478              		.comm	hiwdg,16,4
+ 479              		.comm	P3_DIO6,8,4
+ 480              		.comm	P3_DIO5,8,4
+ 481              		.comm	P3_DIO4,8,4
+ 482              		.comm	P3_DIO3,8,4
+ 483              		.comm	P3_DIO2,8,4
+ 484              		.comm	P3_DIO1,8,4
+ 485              		.comm	P2_DIO6,8,4
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 16
+
+
+ 486              		.comm	P2_DIO5,8,4
+ 487              		.comm	P2_DIO4,8,4
+ 488              		.comm	P2_DIO3,8,4
+ 489              		.comm	P2_DIO2,8,4
+ 490              		.comm	P2_DIO1,8,4
+ 491              		.comm	P1_DIO6,8,4
+ 492              		.comm	P1_DIO5,8,4
+ 493              		.comm	P1_DIO4,8,4
+ 494              		.comm	P1_DIO3,8,4
+ 495              		.comm	P1_DIO2,8,4
+ 496              		.comm	P1_DIO1,8,4
+ 497              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+ 498              		.align	2
+ 499              	.LC3:
+ 500 0000 53475020 		.ascii	"SGP sensor probing failed ... check SGP30 I2C conne"
+ 500      73656E73 
+ 500      6F722070 
+ 500      726F6269 
+ 500      6E672066 
+ 501 0033 6374696F 		.ascii	"ction and power\015\000"
+ 501      6E20616E 
+ 501      6420706F 
+ 501      7765720D 
+ 501      00
+ 502              	.LC4:
+ 503 0044 53475020 		.ascii	"SGP sensor probing successful\015\000"
+ 503      73656E73 
+ 503      6F722070 
+ 503      726F6269 
+ 503      6E672073 
+ 504 0063 00       		.space	1
+ 505              	.LC5:
+ 506 0064 45746861 		.ascii	"Ethanol signal: lf \015\012\000"
+ 506      6E6F6C20 
+ 506      7369676E 
+ 506      616C3A20 
+ 506      6C66200D 
+ 507 007a 0000     		.space	2
+ 508              	.LC6:
+ 509 007c 48322073 		.ascii	"H2 signal: %lf \015\012\000"
+ 509      69676E61 
+ 509      6C3A2025 
+ 509      6C66200D 
+ 509      0A00
+ 510 008e 0000     		.space	2
+ 511              	.LC7:
+ 512 0090 54657374 		.ascii	"Test %lf\015\012\000"
+ 512      20256C66 
+ 512      0D0A00
+ 513 009b 00       		.space	1
+ 514              	.LC8:
+ 515 009c 6572726F 		.ascii	"error reading Ethanol and H2 signals\015\000"
+ 515      72207265 
+ 515      6164696E 
+ 515      67204574 
+ 515      68616E6F 
+ 516 00c2 0000     		.space	2
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 17
+
+
+ 517              	.LC9:
+ 518 00c4 74564F43 		.ascii	"tVOC Concentration: %5d [ppb]     CO2eq Concentrati"
+ 518      20436F6E 
+ 518      63656E74 
+ 518      72617469 
+ 518      6F6E3A20 
+ 519 00f7 6F6E3A20 		.ascii	"on: %5d [ppm]     measurement no.: %10lu \015\012\000"
+ 519      25356420 
+ 519      5B70706D 
+ 519      5D202020 
+ 519      20206D65 
+ 520 0123 00       		.space	1
+ 521              	.LC10:
+ 522 0124 6572726F 		.ascii	"error reading IAQ values\015\000"
+ 522      72207265 
+ 522      6164696E 
+ 522      67204941 
+ 522      51207661 
+ 523 013e 0000     		.space	2
+ 524              	.LC11:
+ 525 0140 61637475 		.ascii	"actual baseline values: %5lu\015\012\000"
+ 525      616C2062 
+ 525      6173656C 
+ 525      696E6520 
+ 525      76616C75 
+ 526 015f 00       		.space	1
+ 527              	.LC12:
+ 528 0160 53657420 		.ascii	"Set baseline values to: %5lu at next startup.\015\012"
+ 528      62617365 
+ 528      6C696E65 
+ 528      2076616C 
+ 528      75657320 
+ 529 018f 00       		.ascii	"\000"
+ 530              		.section	.rodata.printWelcome.str1.4,"aMS",%progbits,1
+ 531              		.align	2
+ 532              	.LC0:
+ 533 0000 0D00     		.ascii	"\015\000"
+ 534 0002 0000     		.space	2
+ 535              	.LC1:
+ 536 0004 2A2A2A2A 		.ascii	"*****************************************\015\000"
+ 536      2A2A2A2A 
+ 536      2A2A2A2A 
+ 536      2A2A2A2A 
+ 536      2A2A2A2A 
+ 537 002f 00       		.space	1
+ 538              	.LC2:
+ 539 0030 6E6F2073 		.ascii	"no scheduler example\015\000"
+ 539      63686564 
+ 539      756C6572 
+ 539      20657861 
+ 539      6D706C65 
+ 540              		.weak	SystemClock_Config
+ 541              		.text
+ 542              	.Letext0:
+ 543              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 544              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 545              		.file 4 "../../core/ST/CMSIS/Include/core_cm4.h"
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 18
+
+
+ 546              		.file 5 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h"
+ 547              		.file 6 "../../core/ST/CMSIS/Device/ST/STM32L4xx/Include/stm32l496xx.h"
+ 548              		.file 7 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h"
+ 549              		.file 8 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio.h"
+ 550              		.file 9 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h"
+ 551              		.file 10 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c.h"
+ 552              		.file 11 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_iwdg.h"
+ 553              		.file 12 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi.h"
+ 554              		.file 13 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h"
+ 555              		.file 14 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h"
+ 556              		.file 15 "../../core/ST/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h"
+ 557              		.file 16 "../../core/platform/octa/inc/gpio.h"
+ 558              		.file 17 "../../core/platform/octa/inc/iwdg.h"
+ 559              		.file 18 "../../core/platform/octa/inc/uart.h"
+ 560              		.file 19 "../../core/platform/octa/inc/i2c.h"
+ 561              		.file 20 "../../core/platform/octa/inc/spi.h"
+ 562              		.file 21 "../../core/platform/octa/inc/octa.h"
+ 563              		.file 22 "<built-in>"
+ 564              		.file 23 "../../applications/SPG30-sensor-example/inc/sgp30.h"
+ 565              		.file 24 "../../core/platform/octa/inc/sysclock.h"
+ 566              		.file 25 "../../core/platform/common/inc/platform.h"
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 19
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 SPG30-sensor-example.c
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:18     .text.printWelcome:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:26     .text.printWelcome:00000000 printWelcome
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:82     .text.printWelcome:00000044 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:90     .text.main:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:97     .text.main:00000000 main
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:350    .text.main:00000130 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:375    .text.HAL_TIM_PeriodElapsedCallback:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:382    .text.HAL_TIM_PeriodElapsedCallback:00000000 HAL_TIM_PeriodElapsedCallback
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:416    .text.HAL_TIM_PeriodElapsedCallback:00000014 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:421    .text.HAL_UART_RxCpltCallback:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:428    .text.HAL_UART_RxCpltCallback:00000000 HAL_UART_RxCpltCallback
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:442    .text.Error_Handler:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:449    .text.Error_Handler:00000000 Error_Handler
+                            *COM*:00000004 hi2c1
+                            *COM*:0000002c P3_header
+                            *COM*:0000002c P2_header
+                            *COM*:0000002c P1_header
+                            *COM*:00000064 FLASH_SPI
+                            *COM*:00000064 P3_SPI
+                            *COM*:00000064 P2_SPI
+                            *COM*:00000064 P1_SPI
+                            *COM*:0000004c P3_I2C
+                            *COM*:0000004c P2_I2C
+                            *COM*:0000004c P1_I2C
+                            *COM*:0000004c common_I2C
+                            *COM*:00000078 P3_UART
+                            *COM*:00000078 P2_UART
+                            *COM*:00000078 P1_UART
+                            *COM*:00000078 BLE_UART
+                            *COM*:00000078 USB_UART
+                            *COM*:00000010 hiwdg
+                            *COM*:00000008 P3_DIO6
+                            *COM*:00000008 P3_DIO5
+                            *COM*:00000008 P3_DIO4
+                            *COM*:00000008 P3_DIO3
+                            *COM*:00000008 P3_DIO2
+                            *COM*:00000008 P3_DIO1
+                            *COM*:00000008 P2_DIO6
+                            *COM*:00000008 P2_DIO5
+                            *COM*:00000008 P2_DIO4
+                            *COM*:00000008 P2_DIO3
+                            *COM*:00000008 P2_DIO2
+                            *COM*:00000008 P2_DIO1
+                            *COM*:00000008 P1_DIO6
+                            *COM*:00000008 P1_DIO5
+                            *COM*:00000008 P1_DIO4
+                            *COM*:00000008 P1_DIO3
+                            *COM*:00000008 P1_DIO2
+                            *COM*:00000008 P1_DIO1
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:498    .rodata.main.str1.4:00000000 $d
+C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s:531    .rodata.printWelcome.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+puts
+HAL_GPIO_TogglePin
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\ccQOc8AW.s 			page 20
+
+
+HAL_Delay
+HAL_Init
+SystemClock_Config
+Initialize_Platform
+SPG30_Initialize
+P1_I2C_Init
+IWDG_feed
+sgp_probe
+sgp_measure_signals_blocking_read
+printf
+sgp_iaq_init
+sgp_get_iaq_baseline
+HAL_GPIO_WritePin
+sgp_measure_iaq_blocking_read
+HAL_IncTick

@@ -1,0 +1,270 @@
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"sensirion_common.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.sensirion_common_generate_crc,"ax",%progbits
+  18              		.align	1
+  19              		.global	sensirion_common_generate_crc
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	sensirion_common_generate_crc:
+  27              	.LVL0:
+  28              	.LFB0:
+  29              		.file 1 "../../applications/SPG30-sensor-example/src/sensirion_common.c"
+   1:../../applications/SPG30-sensor-example/src/sensirion_common.c **** /*
+   2:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * Copyright (c) 2017, Sensirion AG
+   3:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * All rights reserved.
+   4:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+   5:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * Redistribution and use in source and binary forms, with or without
+   6:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * modification, are permitted provided that the following conditions are met:
+   7:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+   8:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * * Redistributions of source code must retain the above copyright notice, this
+   9:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *   list of conditions and the following disclaimer.
+  10:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+  11:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * * Redistributions in binary form must reproduce the above copyright notice,
+  12:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *   this list of conditions and the following disclaimer in the documentation
+  13:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *   and/or other materials provided with the distribution.
+  14:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+  15:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * * Neither the name of Sensirion AG nor the names of its
+  16:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *   contributors may be used to endorse or promote products derived from
+  17:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *   this software without specific prior written permission.
+  18:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+  19:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  20:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  21:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  22:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  23:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  24:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  25:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  26:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  27:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  28:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  29:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  */
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 2
+
+
+  30:../../applications/SPG30-sensor-example/src/sensirion_common.c **** 
+  31:../../applications/SPG30-sensor-example/src/sensirion_common.c **** /**
+  32:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * \file
+  33:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  *
+  34:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  * This module provides functionality that is common to all Sensirion drivers
+  35:../../applications/SPG30-sensor-example/src/sensirion_common.c ****  */
+  36:../../applications/SPG30-sensor-example/src/sensirion_common.c **** 
+  37:../../applications/SPG30-sensor-example/src/sensirion_common.c **** #include "sensirion_common.h"
+  38:../../applications/SPG30-sensor-example/src/sensirion_common.c **** 
+  39:../../applications/SPG30-sensor-example/src/sensirion_common.c **** u8 sensirion_common_generate_crc(u8 *data, u16 count)
+  40:../../applications/SPG30-sensor-example/src/sensirion_common.c **** {
+  30              		.loc 1 40 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  35              		.loc 1 40 1 is_stmt 0 view .LVU1
+  36 0000 10B4     		push	{r4}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 4
+  39              		.cfi_offset 4, -4
+  41:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     u16 current_byte;
+  40              		.loc 1 41 5 is_stmt 1 view .LVU2
+  42:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     u8 crc = CRC8_INIT;
+  41              		.loc 1 42 5 view .LVU3
+  42              	.LVL1:
+  43:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     u8 crc_bit;
+  43              		.loc 1 43 5 view .LVU4
+  44:../../applications/SPG30-sensor-example/src/sensirion_common.c **** 
+  45:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     /* calculates 8-Bit checksum with given polynomial */
+  46:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     for (current_byte = 0; current_byte < count; ++current_byte) {
+  44              		.loc 1 46 5 view .LVU5
+  42:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     u8 crc_bit;
+  45              		.loc 1 42 8 is_stmt 0 view .LVU6
+  46 0002 FF23     		movs	r3, #255
+  47              		.loc 1 46 23 view .LVU7
+  48 0004 0024     		movs	r4, #0
+  49              		.loc 1 46 5 view .LVU8
+  50 0006 0EE0     		b	.L2
+  51              	.LVL2:
+  52              	.L10:
+  47:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         crc ^= (data[current_byte]);
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         for (crc_bit = 8; crc_bit > 0; --crc_bit) {
+  49:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+  50:../../applications/SPG30-sensor-example/src/sensirion_common.c ****                 crc = (crc << 1) ^ CRC8_POLYNOMIAL;
+  53              		.loc 1 50 17 is_stmt 1 view .LVU9
+  54              		.loc 1 50 28 is_stmt 0 view .LVU10
+  55 0008 5B00     		lsls	r3, r3, #1
+  56              	.LVL3:
+  57              		.loc 1 50 34 view .LVU11
+  58 000a 83F03103 		eor	r3, r3, #49
+  59              		.loc 1 50 21 view .LVU12
+  60 000e DBB2     		uxtb	r3, r3
+  61              	.LVL4:
+  62              	.L5:
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+  63              		.loc 1 48 40 discriminator 2 view .LVU13
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 3
+
+
+  64 0010 013A     		subs	r2, r2, #1
+  65              	.LVL5:
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+  66              		.loc 1 48 40 discriminator 2 view .LVU14
+  67 0012 D2B2     		uxtb	r2, r2
+  68              	.LVL6:
+  69              	.L3:
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+  70              		.loc 1 48 9 discriminator 1 view .LVU15
+  71 0014 2AB1     		cbz	r2, .L9
+  49:../../applications/SPG30-sensor-example/src/sensirion_common.c ****                 crc = (crc << 1) ^ CRC8_POLYNOMIAL;
+  72              		.loc 1 49 13 is_stmt 1 view .LVU16
+  49:../../applications/SPG30-sensor-example/src/sensirion_common.c ****                 crc = (crc << 1) ^ CRC8_POLYNOMIAL;
+  73              		.loc 1 49 16 is_stmt 0 view .LVU17
+  74 0016 13F0800F 		tst	r3, #128
+  75 001a F5D1     		bne	.L10
+  51:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             else
+  52:../../applications/SPG30-sensor-example/src/sensirion_common.c ****                 crc = (crc << 1);
+  76              		.loc 1 52 17 is_stmt 1 view .LVU18
+  77              		.loc 1 52 21 is_stmt 0 view .LVU19
+  78 001c 5B00     		lsls	r3, r3, #1
+  79              	.LVL7:
+  80              		.loc 1 52 21 view .LVU20
+  81 001e DBB2     		uxtb	r3, r3
+  82              	.LVL8:
+  83              		.loc 1 52 21 view .LVU21
+  84 0020 F6E7     		b	.L5
+  85              	.L9:
+  46:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         crc ^= (data[current_byte]);
+  86              		.loc 1 46 50 discriminator 2 view .LVU22
+  87 0022 0134     		adds	r4, r4, #1
+  88              	.LVL9:
+  46:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         crc ^= (data[current_byte]);
+  89              		.loc 1 46 50 discriminator 2 view .LVU23
+  90 0024 A4B2     		uxth	r4, r4
+  91              	.LVL10:
+  92              	.L2:
+  46:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         crc ^= (data[current_byte]);
+  93              		.loc 1 46 5 discriminator 1 view .LVU24
+  94 0026 8C42     		cmp	r4, r1
+  95 0028 03D2     		bcs	.L11
+  47:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         for (crc_bit = 8; crc_bit > 0; --crc_bit) {
+  96              		.loc 1 47 9 is_stmt 1 view .LVU25
+  47:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         for (crc_bit = 8; crc_bit > 0; --crc_bit) {
+  97              		.loc 1 47 21 is_stmt 0 view .LVU26
+  98 002a 025D     		ldrb	r2, [r0, r4]	@ zero_extendqisi2
+  47:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         for (crc_bit = 8; crc_bit > 0; --crc_bit) {
+  99              		.loc 1 47 13 view .LVU27
+ 100 002c 5340     		eors	r3, r3, r2
+ 101              	.LVL11:
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+ 102              		.loc 1 48 9 is_stmt 1 view .LVU28
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+ 103              		.loc 1 48 22 is_stmt 0 view .LVU29
+ 104 002e 0822     		movs	r2, #8
+  48:../../applications/SPG30-sensor-example/src/sensirion_common.c ****             if (crc & 0x80)
+ 105              		.loc 1 48 9 view .LVU30
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 4
+
+
+ 106 0030 F0E7     		b	.L3
+ 107              	.LVL12:
+ 108              	.L11:
+  53:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         }
+  54:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     }
+  55:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     return crc;
+ 109              		.loc 1 55 5 is_stmt 1 view .LVU31
+  56:../../applications/SPG30-sensor-example/src/sensirion_common.c **** }
+ 110              		.loc 1 56 1 is_stmt 0 view .LVU32
+ 111 0032 1846     		mov	r0, r3
+ 112              	.LVL13:
+ 113              		.loc 1 56 1 view .LVU33
+ 114 0034 5DF8044B 		ldr	r4, [sp], #4
+ 115              	.LCFI1:
+ 116              		.cfi_restore 4
+ 117              		.cfi_def_cfa_offset 0
+ 118              	.LVL14:
+ 119              		.loc 1 56 1 view .LVU34
+ 120 0038 7047     		bx	lr
+ 121              		.cfi_endproc
+ 122              	.LFE0:
+ 124              		.section	.text.sensirion_common_check_crc,"ax",%progbits
+ 125              		.align	1
+ 126              		.global	sensirion_common_check_crc
+ 127              		.syntax unified
+ 128              		.thumb
+ 129              		.thumb_func
+ 130              		.fpu fpv4-sp-d16
+ 132              	sensirion_common_check_crc:
+ 133              	.LVL15:
+ 134              	.LFB1:
+  57:../../applications/SPG30-sensor-example/src/sensirion_common.c **** 
+  58:../../applications/SPG30-sensor-example/src/sensirion_common.c **** s8 sensirion_common_check_crc(u8 *data, u16 count, u8 checksum)
+  59:../../applications/SPG30-sensor-example/src/sensirion_common.c **** {
+ 135              		.loc 1 59 1 is_stmt 1 view -0
+ 136              		.cfi_startproc
+ 137              		@ args = 0, pretend = 0, frame = 0
+ 138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 139              		.loc 1 59 1 is_stmt 0 view .LVU36
+ 140 0000 10B5     		push	{r4, lr}
+ 141              	.LCFI2:
+ 142              		.cfi_def_cfa_offset 8
+ 143              		.cfi_offset 4, -8
+ 144              		.cfi_offset 14, -4
+ 145 0002 1446     		mov	r4, r2
+  60:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     if (sensirion_common_generate_crc(data, count) != checksum)
+ 146              		.loc 1 60 5 is_stmt 1 view .LVU37
+ 147              		.loc 1 60 9 is_stmt 0 view .LVU38
+ 148 0004 FFF7FEFF 		bl	sensirion_common_generate_crc
+ 149              	.LVL16:
+ 150              		.loc 1 60 8 view .LVU39
+ 151 0008 A042     		cmp	r0, r4
+ 152 000a 01D1     		bne	.L14
+  61:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         return STATUS_FAIL;
+  62:../../applications/SPG30-sensor-example/src/sensirion_common.c ****     return STATUS_OK;
+ 153              		.loc 1 62 12 view .LVU40
+ 154 000c 0020     		movs	r0, #0
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 5
+
+
+ 155              	.L13:
+  63:../../applications/SPG30-sensor-example/src/sensirion_common.c **** }
+ 156              		.loc 1 63 1 view .LVU41
+ 157 000e 10BD     		pop	{r4, pc}
+ 158              	.L14:
+  61:../../applications/SPG30-sensor-example/src/sensirion_common.c ****         return STATUS_FAIL;
+ 159              		.loc 1 61 16 view .LVU42
+ 160 0010 4FF0FF30 		mov	r0, #-1
+ 161 0014 FBE7     		b	.L13
+ 162              		.cfi_endproc
+ 163              	.LFE1:
+ 165              		.text
+ 166              	.Letext0:
+ 167              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 168              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 169              		.file 4 "../../applications/SPG30-sensor-example/inc/sensirion_configuration.h"
+ARM GAS  C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sensirion_common.c
+C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s:18     .text.sensirion_common_generate_crc:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s:26     .text.sensirion_common_generate_crc:00000000 sensirion_common_generate_crc
+C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s:125    .text.sensirion_common_check_crc:00000000 $t
+C:\Users\RUBENJ~1\AppData\Local\Temp\cc6p3N3h.s:132    .text.sensirion_common_check_crc:00000000 sensirion_common_check_crc
+
+NO UNDEFINED SYMBOLS
