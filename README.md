@@ -10,7 +10,7 @@ git clone git@github.com:machaj45/iotprojectg2.git
 
 ## This project is configured for working with klaxalk setup.
 
-
+#ruben
 ```
 git clone https://github.com/klaxalk/linux-setup.git
 ```
@@ -24,5 +24,5 @@ bindsym $mod2+g exec tmux send-keys -t jlink "g" ENTER
 bindsym $mod2+f exec ~/iotprojectg2/device/applications/iotproject/tmux/flash.sh
 
 
-Hanna was here again
+Hanna was here again last time
 ```

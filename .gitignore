@@ -1,7 +1,10 @@
 .device/applications/*/build/*
-device/applications/iotproject/build/*
+device/applications/*/build/*
 *.swp
-.vscode/*
+device/.vscode/*
+device/.vscode/launch.json
+device/.vscode/tasks.json
+
 shields/Murata/inc/keys.h
 shields/NB-IoT/inc/SARAN21X_Params.h
 tags
