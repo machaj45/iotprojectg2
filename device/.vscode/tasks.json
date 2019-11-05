@@ -30,6 +30,33 @@
             }
         },
         {
+            "label": "make firmware SGP30",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/SPG30-sensor-example/; make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "make clean all firmware SGP30",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/SPG30-sensor-example/; make clean all",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
+        {
             "label": "make firmware no-scheduler-example",
             "type": "shell",
             // change the cd path to the current application path
@@ -203,6 +230,32 @@
             "type": "shell",
             // change the cd path to the current application path
             "command": "cd applications/octa-flash-example/; make clean all",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "make firmware murata-dualstack-example-ns",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/murata-dualstack-example-ns/; make",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "make clean all firmware murata-dualstack-example-ns",
+            "type": "shell",
+            // change the cd path to the current application path
+            "command": "cd applications/murata-dualstack-example-ns/; make clean all",
             "problemMatcher": [
                 "$gcc"
             ],

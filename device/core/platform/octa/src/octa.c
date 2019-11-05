@@ -26,6 +26,8 @@ void OCTA_Initialize_Platform(void)
     //P3 UART, I2C, SPI & GPIO handles
     OCTA_Initialize_P3_Peripherals();
     //Interupts
+    platform_initialize_I2C(platform_getHeader(1)); 
+
     OCTA_NVIC_Initialize();
 }
 
@@ -35,8 +37,6 @@ void OCTA_Initialize_Common_Peripherals(void)
     OCTA_IWDG_Init();
     FLASH_SPI_Init();
     common_I2C_Init();
-    //P1_I2C_Init();
-    P3_I2C_Init();
     USB_UART_Init(115200);
     #if USE_BOOTLOADER
         printf("\r\nusing bootloader, initializing BLE UART\r\n");

@@ -1,37 +1,35 @@
 #include "GSP30.h"
-void GSP30_setI2CInterface(I2C_HandleTypeDef *hi2c) {
-  GSP30_hi2c = hi2c;
-}
 
 
 void GSP30_init() {
+//  GSP30_softReset();
   uint16_t addres[1];
-  uint16_t data[1];
-  addres[0] = SGP30_CMD_IAQ_INIT;
-  data[0] = SGP30_CMD_IAQ_INIT;
-  printf("GSP30 INIT Command: %x\n\r", addres[0]);
-  GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_INIT_DURATION_US);
+  uint8_t data[2];
+  for(int i = 0;i<sizeof(data);i++){
+    data[i]=0;
+  }
+  addres[0] = 0x2032;
+  printf("READ ID\n\r");
+  (addres, data, SGP30_CMD_MEASURE_TEST_DURATION_US);
   HAL_Delay(100);
 }
-
-
 void GSP30_measure() {
-  uint16_t addres[1];
-  uint8_t data[4];
-  data[0]=0;
-  data[1]=0;
-  data[2]=0;
-  data[3]=0;
-  addres[0] = SGP30_CMD_IAQ_MEASURE;
-  data[0] = 0x20;
-  data[1] = 0x08;
-  printf("Measure Command: %x\n\r", addres[0]);
-  //GSP30_writeRegister(addres, data,SGP30_CMD_IAQ_MEASURE_DURATION_US/1000);
-  //HAL_Delay(SGP30_CMD_IAQ_MEASURE_DURATION_US/1000);
-  GSP30_readRegister(addres, data,SGP30_CMD_IAQ_MEASURE_DURATION_US);
-  printf("\t Data Read Out: %x %x\n\r", data[0], data[1]);
-  printf("\t CO2: %d\n\r",data[1]*256+data[0]);
-  printf("\t Air Quality: %d\n\r",data[3]*256+data[2]);
+  uint8_t  data[9];
+  data[0]=0x20;
+  data[1]=0x08;
+  uint32_t status;
+  status = HAL_I2C_Master_Transmit(GSP30_hi2c, 0x58<<1, data,2, 50);
+  decodeError(status);
+  HAL_Delay(50);
+  data[0]=0x20;
+  data[1]=0x08;
+  status = HAL_I2C_Master_Receive(GSP30_hi2c,0x58<<1, data,sizeof(data), 500);
+  decodeError(status);
+
+
+  printf("\t Data Read Out: 0x%x 0x%x 0x%x 0x%x  0x%x  0x%x\n\r", data[0], data[1], data[2], data[3], data[4], data[5]);
+  printf("\t CO2: %d\n\r", data[1] * 256 + data[0]);
+  printf("\t Air Quality: %d\n\r", data[3] * 256 + data[2]);
 }
 
 void GSP30_readData(int32_t *pData) {
@@ -39,16 +37,62 @@ void GSP30_readData(int32_t *pData) {
 void GSP30_reset() {
 }
 
-HAL_StatusTypeDef GSP30_readRegister(uint16_t GSP30_reg, uint8_t GSP30_data,uint32_t Timeout) {
 
-  HAL_I2C_Mem_Read(GSP30_hi2c, GSP30_I2C_ADDRESS, GSP30_reg, I2C_MEMADD_SIZE_16BIT, &GSP30_data, sizeof(GSP30_data), Timeout/1000);
-
-  return HAL_OK;
+void decodeError(status) {
+  switch (status) {
+    case 0:
+      printf("HAL_OK\n\r");
+      break;
+    case 1:
+      printf("HAL_Error\n\r");
+      break;
+    case 2:
+      printf("HAL_BUSY\n\r");
+      break;
+    case 3:
+      printf("HAL_TIMEOUT\n\r");
+      break;
+  }
+  switch (GSP30_hi2c->ErrorCode) {
+    case 0:
+      printf("HAL_I2C_ERROR_NONE   \n\r");
+      break;
+    case 0x1:
+      printf("HAL_I2C_ERROR_BERR  \n\r");
+      break;
+    case 0x2:
+      printf("HAL_I2C_ERROR_ARLO \n\r");
+      break;
+    case 0x4:
+      printf("HAL_I2C_ERROR_AF  \n\r");
+      break;
+    case 0x8:
+      printf("HAL_I2C_ERROR_OVR\n\r");
+      break;
+    case 0x10:
+      printf("HAL_I2C_ERROR_DMA\n\r");
+      break;
+    case 0x20:
+      printf("HAL_I2C_ERROR_TIMEOUT\n\r");
+      break;
+    case 0x40:
+      printf("HAL_I2C_ERROR_SIZE  \n\r");
+      break;
+    case 0x80:
+      printf("HAL_I2C_ERROR_DMA_PARAM\n\r");
+      break;
+    case 0x100:
+      printf("HAL_I2C_ERROR_INVALID_CALLBACK\n\r");
+      break;
+    case 0x200:
+      printf("HAL_I2C_ERROR_INVALID_PARAM\n\r");
+      break;
+    default:
+      printf("Error Code is: %x\n\r", GSP30_hi2c->ErrorCode);
+      GSP30_hi2c->ErrorCode=0;
+  }
 }
 
-HAL_StatusTypeDef GSP30_writeRegister(uint16_t GSP30_reg, uint8_t GSP30_data,uint32_t Timeout) {
-  uint32_t a ;
-  a = HAL_I2C_Mem_Write(GSP30_hi2c, GSP30_I2C_ADDRESS, GSP30_reg, I2C_MEMADD_SIZE_16BIT, &GSP30_data, sizeof(GSP30_data), Timeout/1000);
-  printf("%d",a);
-  return HAL_OK;
+void GSP30_setI2CInterface(I2C_HandleTypeDef *hi2c) {
+  GSP30_hi2c = hi2c;
 }

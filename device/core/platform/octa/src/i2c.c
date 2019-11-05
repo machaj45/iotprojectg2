@@ -66,6 +66,7 @@ void P1_I2C_Init(void)
   P1_I2C.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
   if (HAL_I2C_Init(&P1_I2C) != HAL_OK)
   {
+    printf("init of I2C port 1 failedi\n\r");
     Error_Handler();
   }
   /**Configure Analogue filter 
@@ -84,6 +85,13 @@ void P1_I2C_Init(void)
 
   /* USER CODE END I2C3_Init 2 */
 
+  GPIO_InitTypeDef I2C3_init;
+  I2C3_init.Pin=GPIO_PIN_0 | GPIO_PIN_1;
+  I2C3_init.Mode=GPIO_MODE_AF_OD;
+  I2C3_init.Pull=GPIO_PULLUP;
+  I2C3_init.Speed=GPIO_SPEED_LOW;
+  I2C3_init.Alternate=GPIO_AF4_I2C3;
+  HAL_GPIO_Init(GPIOC,&I2C3_init);
 }
 
 void P2_I2C_Init(void)
