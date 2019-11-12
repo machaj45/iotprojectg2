@@ -23,6 +23,9 @@ def on_message(client, userdata, message):
         print("message topic = ", message.topic)
         print("message qos = ", message.qos)
         print("message retain flag = ", message.retain)
+	hexstring = message1.strip().replace(' ', '')
+	data = bytearray(hexstring.decode("hex"))
+	print AlpParser().parse(ConstBitStream(data), len(data))
 
 
 
@@ -31,11 +34,11 @@ broker_address = "student-04.idlab.uantwerpen.be"
 print("creating new instance")
 client = mqtt.Client("P1") # create new instance 
 client.on_message=on_message # attach function to callback
-subscribe_to_our_devices(client)
-print("connecting to broker")
+print("connecting to the broker")
 client.connect(broker_address) # connect broker
 client.loop_start() # start the loop
 print("Subscribing to topic", "/d7/#")
+subscribe_to_our_devices(client)
 
 
 time.sleep(1000) # wait
