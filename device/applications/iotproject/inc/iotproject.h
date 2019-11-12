@@ -26,6 +26,7 @@ osTimerId GSPTimId;
 osMutexId i2cMutexId;
 osMutexId txMutexId;
 osMutexId murata_rx_process_mutex_id;
+osTimerId iwdgTimId;
 
 volatile uint8_t acc_int;
 float SHTData[2];

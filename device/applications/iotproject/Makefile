@@ -5,10 +5,9 @@ APPLICATION = iotproject
 PLATFORM ?= octa
 PRINT_FLOATS = 1
 
-SHIELDS += Murata
-MURATA_CONNECTOR = 2
-
-LORAWAN_APPLICATION = iowttn
+SHIELDS += Murata-dualstack
+MURATA_CONNECTOR = 1
+LORAWAN_APPLICATION = lpiot
 # Path to the octa-stack base directory:
 STACKBASE ?= ../..
 
