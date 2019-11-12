@@ -1,0 +1,6 @@
+[submodule "backend/pyda7a"]
+	path = backend/pyda7a
+	url = https://github.com/christophevg/pyd7a.git
+[submodule "backend/pyd7a"]
+	path = backend/pyd7a
+	url = https://github.com/MOSAIC-LoPoW/pyd7a.git
