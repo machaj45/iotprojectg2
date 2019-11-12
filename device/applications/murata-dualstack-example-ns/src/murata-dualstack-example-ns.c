@@ -171,6 +171,10 @@ int main(void)
   { 
     IWDG_feed(NULL);
 
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+
     if(murata_data_ready)
     {
       printf("processing murata fifo\r\n");
@@ -214,6 +218,8 @@ int main(void)
     /* USER CODE END WHILE */
     
     /* USER CODE BEGIN 3 */
+
+    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
   }
   /* USER CODE END 3 */
 }

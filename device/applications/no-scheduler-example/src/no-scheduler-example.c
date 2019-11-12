@@ -50,6 +50,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "no-scheduler-example.h"
+
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
+#include <stdio.h>
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\SHT31\inc\sht31.h"
+#include "murata.h"
+#include "..\..\..\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
+#include "..\..\..\core\drivers\SHT31\inc\sht31.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -119,17 +126,51 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    IWDG_feed(NULL); 
+    /* USER CODE END WHILE */
+    //LSM303AGR_readRegister(0x31, data, 0);
+
+    //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
+    if (temperatureflag==1) {
+        SystemClock_Config();
+        printf("handle interrupt\r\n"); 
+      temperatureflag=0; 
+    }
+ 
+
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ //   printf("\33[2K");
+    printf("RED\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+  //  printf("\33[2K");
+    printf("GREEN\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+//    printf("\33[2K");
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+
+    HAL_Delay(1000);
+
+HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+//    printf("\33[2K");
+    printf("BLUE\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 
-    /* USER CODE BEGIN 3 */
+    HAL_Delay(1000);
+
+    printf("going in sleep mode\r\n");
+
+    HAL_Delay(200);
+
+HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+//HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);HAL_ResumeTick();
+//HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);HAL_ResumeTick();
   }
   /* USER CODE END 3 */
 }
