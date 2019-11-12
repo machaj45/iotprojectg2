@@ -1,4 +1,6 @@
 #include "iotproject.h"
+
+
 int main(void) {
   HAL_Init();
   SystemClock_Config();
@@ -7,7 +9,7 @@ int main(void) {
   Initialize_Sensors();
   IWDG_feed(NULL);
   HAL_Delay(1000);
-  GSP30_init();
+  //GSP30_init();
   HAL_Delay(1000);
   LorawanInit();
   osKernelStart();

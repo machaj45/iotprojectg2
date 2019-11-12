@@ -1,7 +1,17 @@
 #include "iotproject.h"
 #include "func.h"
 
+#define IWDG_INTERVAL           5    //seconds
+#define LORAWAN_INTERVAL        60   //seconds
+#define DASH7_INTERVAL          20  //seconds
+#define MODULE_CHECK_INTERVAL   3600 //seconds
+
+uint8_t counter = 0;
+uint8_t use_lora = 1;
 uint16_t LoRaWAN_Counter = 0;
+uint8_t murata_init = 0;
+uint8_t murata_data_ready = 0;
+uint16_t DASH7_Counter = 0;
 uint8_t lora_init = 0;
 uint64_t short_UID;
 void StartDefaultTask(void const *argument) {
@@ -13,9 +23,45 @@ void StartDefaultTask(void const *argument) {
       //LoRaWAN_send(NULL);
     }
     IWDG_feed(NULL);
-    osDelay(15000);
-    //temp_hum_measurement();
-    //LoRaWAN_send(NULL);
+
+    if(murata_data_ready)
+    {
+      printf("processing murata fifo\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
+    
+    // SEND 5 D7 messages, every 10 sec.
+    // Afterwards, send 3 LoRaWAN messages, every minute
+    if(DASH7_Counter<5)
+    {
+      if(counter==DASH7_INTERVAL)
+      {
+        Dash7_send(NULL);
+        counter = 0;
+      }
+    }
+    else
+    { 
+      if(LoRaWAN_Counter == 0)
+        Murata_LoRaWAN_Join();
+      if(LoRaWAN_Counter<3)
+      {
+        if (counter == LORAWAN_INTERVAL)
+        {
+          LoRaWAN_send(NULL);
+          counter = 0;
+        }
+      }
+      if(LoRaWAN_Counter == 3)
+      {
+        //reset counters to restart flow
+        DASH7_Counter = 0;
+        LoRaWAN_Counter = 0;
+      }
+    }
+   
+    counter++;
+    HAL_Delay(1000);
   }
 }
 void EXTI15_10_IRQHandler(void){
@@ -95,7 +141,7 @@ void check_modules(void const *argument)
   if (!lora_init)
   {
     // LORAWAN
-    lora_init = Murata_Initialize(short_UID);
+    lora_init = Murata_Initialize(short_UID,0);
     Murata_toggleResetPin();
   }
 }
@@ -134,13 +180,14 @@ void print_magnetometer(uint16_t data[]) {
   printf("Magnetometer data: X: %d Y: %d Z: %d \r\n", data[0], data[1], data[2]);
   printf("\r\n");
 }
-void LorawanInit(void){
-  lora_init = Murata_Initialize(short_UID);
-  if (lora_init)
+void LorawanInit(uint64_t short_UID){
+  short_UID = get_UID();
+  printf("%d",short_UID);
+  murata_init = Murata_Initialize(short_UID, 0);
+
+  if (murata_init)
   {
-    printf("LoRaWAN module init OK\r\n");
-  }else{
-    printf("LoRaWAN not initialized correctly!\r\n");
+    printf("Murata dualstack module init OK\r\n\r\n");
   }
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -148,10 +195,40 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     HAL_IncTick();
   }
 }
+void Dash7_send(void const *argument)
+{
+  if (murata_init)
+  {
+    uint8_t dash7Message[5];
+    uint8_t i = 0;
+    //uint16 counter to uint8 array (little endian)
+    //counter (large) type byte
+    dash7Message[i++] = 0x14;
+    dash7Message[i++] = 0xFF;
+    dash7Message[i++] = 0xFF;
+    //osMutexWait(txMutexId, osWaitForever);
+    if(!Murata_Dash7_Send((uint8_t *)dash7Message, i))
+    {
+      murata_init++;
+      if(murata_init == 10)
+        murata_init == 0;
+    }
+    else
+    {
+      murata_init = 1;
+    }
+    //BLOCK TX MUTEX FOR 3s
+    //osDelay(3000);
+    //osMutexRelease(txMutexId);
+    DASH7_Counter++;
+  }
+  else{
+    printf("murata not initialized, not sending\r\n");
+  }
+}
 void Initialize_Sensors(void){
   LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
-  GSP30_setI2CInterface(&P1_I2C);
   LSM303AGR_ACC_reset();
   acc_int=0;
   LSM303AGR_MAG_reset();
@@ -159,9 +236,6 @@ void Initialize_Sensors(void){
   LSM303AGR_init();
   HAL_Delay(50);
   SHT31_begin();
-}
-void measure(){
-  GSP30_measure();
 }
 void Initialize_OS(void){
 
@@ -176,9 +250,6 @@ void Initialize_OS(void){
   moduleCheckTimId = osTimerCreate(osTimer(moduleCheckTim), osTimerPeriodic, NULL);
   osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 1000);
 
-  osTimerDef(GSPmeasuerTim, measure);
-  GSPTimId = osTimerCreate(osTimer(GSPmeasuerTim), osTimerPeriodic, NULL);
-  osTimerStart(GSPTimId, 1000);
 
   osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
