@@ -49,7 +49,6 @@ void on_modem_reboot_callback(void)
 
 uint8_t Murata_Initialize(uint64_t octa_UID)
 {    
-    printf("***Initializing LoRaWAN modem driver***\r\n");
 
     #ifndef MURATA_CONNECTOR
         printf("No MURATA_CONNECTOR provided in Makefile\r\n");
@@ -76,7 +75,6 @@ uint8_t Murata_Initialize(uint64_t octa_UID)
     modem_init(murataHeader.uartHandle);
     modem_cb_init(&modem_callbacks);
 
-    printf("Murata module init OK \r\n\r\n");
     return 1;
 }
 

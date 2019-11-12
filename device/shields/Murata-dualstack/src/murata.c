@@ -16,13 +16,13 @@ session_config_t session_config_lora =
             .adr_enabled = true,
             .data_rate = 0}};
 
-// change qos_resp_mode to SESSION_RESP_MODE_ALL if you want all gateways to receive your message
+// change qos_resp_mode to  SESSION_RESP_MODE_PREFERRE Dif you want all gateways to receive your message
 // SESSION_RESP_MODE_PREFERRED to only communicate with one (the preferred) gateway
 session_config_t session_config_d7 = {
   .interface_type = DASH7,
   .d7ap_session_config = {
     .qos = {
-        .qos_resp_mode = SESSION_RESP_MODE_PREFERRED, //SESSION_RESP_MODE_ALL,
+        .qos_resp_mode = SESSION_RESP_MODE_ALL, //SESSION_RESP_MODE_ALL,
         .qos_retry_mode = SESSION_RETRY_MODE_NO
     },
     .dormant_timeout = 0,
@@ -181,7 +181,7 @@ uint8_t Murata_Dash7_Send(uint8_t *buffer, uint8_t length)
 {
     uint8_t status = 0;
     status = modem_send_unsolicited_response(0x40, 0, length, (uint8_t *)buffer, &session_config_d7);
-    printf("Sending Dash7 message with payload size %d\r\n", length);
+    printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x]\r\n", length,buffer[0],buffer[1],buffer[2]);
     return status;
 }
 
