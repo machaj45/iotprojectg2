@@ -86,7 +86,7 @@
 /* USER CODE BEGIN 0 */
 osTimerId temp_hum_timer_id;
 float SHTData[2];
-volatile _Bool temperatureflag=0; 
+volatile _Bool interruptFlag=0; 
 uint16_t LoRaWAN_Counter = 0;
 uint8_t lora_init = 0;
 uint64_t short_UID;
@@ -159,16 +159,14 @@ LSM303AGR_setI2CInterface(&common_I2C);
 
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
-    //LSM303AGR_readRegister(0x31, data, 0);
 
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
-    if (temperatureflag==1) {
-        SystemClock_Config();
+    if (interruptFlag==1) {
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
         printf("Session %d\r\n", ++counter);
-      temperatureflag=0; 
+      interruptFlag=0; 
     }
  
 
@@ -202,10 +200,15 @@ HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 
     HAL_Delay(200);
 
-HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 
-//HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);HAL_ResumeTick();
-//HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);HAL_ResumeTick();
+
+//go to stop mode with frozen IWDG-timer
+HAL_SuspendTick();
+HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+HAL_ResumeTick();
+
+//reset the right clock config.
+SystemClock_Config();
 
     /* USER CODE BEGIN 3 */
   }
@@ -247,7 +250,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // file. In this function the "HAL_GPIO_EXTI_Callback" is called, which we define below 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   if (GPIO_Pin==GPIO_Pin_13) {
-  temperatureflag = 1; 
+  interruptFlag = 1; 
   printf("interrupt accelerometer! \r\n");
   // we work with a flag so as to make sure that we don't stay in the callback for too long. This will cause disruption. 
   // the flag will call the measurement function in de while loop
