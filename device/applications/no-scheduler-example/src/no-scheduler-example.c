@@ -56,6 +56,7 @@
 #include "murata.h"
 #include "..\..\..\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
 #include "..\..\..\core\drivers\SHT31\inc\sht31.h"
+#include "..\..\..\core\ST\STM32L4xx_HAL_Driver\Inc\stm32l4xx_hal_rtc.h"
 
 //#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\applications\lorawan-example\inc\lorawan-example.h"
 //#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\platform\common\inc\platform.h"
@@ -73,6 +74,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define HAL_EXTI_MODULE_ENABLED
+#define HAL_RTC_MODULE_ENABLED
+
 #define temp_hum_timer    3
 //#define LOW_POWER
 /* USER CODE END PD */
@@ -92,6 +95,14 @@ uint8_t lora_init = 0;
 uint64_t short_UID;
 uint16_t rep_counter = 0; 
 volatile uint8_t counter = 0;
+
+//RTC 
+
+/*
+RTC_HandleTypeDef RTCHandle;
+static void SystemPower_Config(void);
+
+*/
 /* USER CODE END 0 */
 
 /**
@@ -118,6 +129,22 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+
+
+
+//////////////////////////////////////////////////
+
+  /* ENable Power clock */
+  //__HAL_RCC_PWR_CLK_ENABLE();
+
+  // See this for longer periods.
+  /* Ensure that MSI is wake-up system clock */ 
+  //__HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+
+  //SystemPower_Config();
+
+
+  ///////////////////////////////////////
 
   /* USER CODE BEGIN SysInit */
 
@@ -149,10 +176,7 @@ LSM303AGR_setI2CInterface(&common_I2C);
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
-
-   
+  /* USER CODE BEGIN WHILE */   
 
   while (1)
   {
@@ -202,6 +226,27 @@ HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 
 
 
+/* Re-enable wakeup source */
+    /* ## Setting the Wake up time ############################################*/
+    /* RTC Wakeup Interrupt Generation: 
+      the wake-up counter is set to its maximum value to yield the longuest
+      stop time to let the current reach its lowest operating point.
+      The maximum value is 0xFFFF, corresponding to about 33 sec. when 
+      RTC_WAKEUPCLOCK_RTCCLK_DIV = RTCCLK_Div16 = 16
+
+      Wakeup Time Base = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI))
+      Wakeup Time = Wakeup Time Base * WakeUpCounter 
+        = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI)) * WakeUpCounter
+        ==> WakeUpCounter = Wakeup Time / Wakeup Time Base
+  
+      To configure the wake up timer to 60s the WakeUpCounter is set to 0xFFFF:
+      Wakeup Time Base = 16 /(~32.000KHz) = ~0.5 ms
+      Wakeup Time = 0.5 ms  * WakeUpCounter
+      Therefore, with wake-up counter =  0xFFFF  = 65,535 
+         Wakeup Time =  0,5 ms *  65,535 = 32,7675 s ~ 33 sec. */
+ //*******   HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle, 0x0FFFF, RTC_WAKEUPCLOCK_RTCCLK_DIV16);
+  
+
 //go to stop mode with frozen IWDG-timer
 HAL_SuspendTick();
 HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
@@ -210,10 +255,15 @@ HAL_ResumeTick();
 //reset the right clock config.
 SystemClock_Config();
 
+/* Disable all used wakeup source */
+//******** HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
+
+
 
 void printWelcome(void)
 {
@@ -228,6 +278,50 @@ void printWelcome(void)
   HAL_Delay(2000);
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 }
+
+/**
+  * @brief  System Power Configuration
+  *         The system Power is configured as follow :
+  *            + RTC Clocked by LSI
+  *            + VREFINT OFF, with fast wakeup enabled
+  *            + No IWDG
+  *            + Automatic Wakeup using RTC clocked by LSI (after ~4s)
+  * @param  None
+  * @retval None
+  */
+
+ /*****
+static void SystemPower_Config(void)
+{
+
+  ///* Configure RTC */
+ // RTCHandle.Instance = RTC;
+  ///* Set the RTC time base to 1s */
+  /* Configure RTC prescaler and RTC data registers as follow:
+    - Hour Format = Format 24
+    - Asynch Prediv = Value according to source clock
+    - Synch Prediv = Value according to source clock
+    - OutPut = Output Disable
+    - OutPutPolarity = High Polarity
+    - OutPutType = Open Drain */
+
+    /*****
+  RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
+  RTCHandle.Init.AsynchPrediv = 127;
+  RTCHandle.Init.SynchPrediv = 255;
+  RTCHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+  RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if(HAL_RTC_Init(&RTCHandle) != HAL_OK)
+  {
+    
+    Error_Handler(); 
+  }
+}
+
+*****/
+
+
 
 
 

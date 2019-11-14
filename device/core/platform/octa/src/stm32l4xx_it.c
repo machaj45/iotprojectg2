@@ -38,6 +38,8 @@
 #include "cmsis_os.h"
 #include "uart.h"
 #include "spi.h"
+
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -74,6 +76,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
+// /****** extern RTC_HandleTypeDef RTCHandle;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -281,5 +285,20 @@ void EXTI15_10_IRQHandler(void) {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);		
   //we zeggen hier dat als interrupt zich op een van de pinnen voordoet, dan roepen we onze handler op en geven we de pin 13 (B13 is de interruptpin van de accelerometer)		
 }
+
+/**
+  * @brief  This function handles RTC Auto wake-up interrupt request.
+  * @param  None
+  * @retval None
+  */
+
+ /*****
+void RTC_WKUP_IRQHandler(void)
+{
+  HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
+  
+}
+
+*****/
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

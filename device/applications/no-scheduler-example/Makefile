@@ -11,6 +11,7 @@ MURATA_CONNECTOR = 3
 LORAWAN_APPLICATION = iowttn
 LOW_POWER = 1
 
+HAL_RTC_MODULE_ENABLED = 1
 # Path to the octa-stack base directory:
 STACKBASE ?= ../..
 
