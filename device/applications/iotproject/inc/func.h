@@ -8,7 +8,6 @@ void Initialize_Sensors(void);
 void Initialize_OS(void);
 void LorawanInit(uint64_t short_UID);
 void StartDefaultTask(void const *argument);
-void printWelcome(void);
 void LoRaWAN_send(void const *argument);
 void check_modules(void const *argument);
 void murata_process_rx_response(void const *argument);

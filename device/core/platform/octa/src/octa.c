@@ -34,13 +34,13 @@ void OCTA_Initialize_Platform(void)
 void OCTA_Initialize_Common_Peripherals(void)
 {
     OCTA_GPIO_Init();
-    OCTA_IWDG_Init();
+//    OCTA_IWDG_Init();
     FLASH_SPI_Init();
     common_I2C_Init();
     USB_UART_Init(115200);
+    BLE_UART_Init(115200); 
     #if USE_BOOTLOADER
         printf("\r\nusing bootloader, initializing BLE UART\r\n");
-        BLE_UART_Init(115200); 
         bootloader_initialize(&BLE_UART);     
     #endif
 }
