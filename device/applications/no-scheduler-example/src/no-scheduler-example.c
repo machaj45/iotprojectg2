@@ -50,13 +50,15 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "no-scheduler-example.h"
-
 //#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
 #include <stdio.h>
 //#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\SHT31\inc\sht31.h"
 #include "murata.h"
 #include "..\..\..\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
 #include "..\..\..\core\drivers\SHT31\inc\sht31.h"
+
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\applications\lorawan-example\inc\lorawan-example.h"
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\platform\common\inc\platform.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -70,7 +72,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define HAL_EXTI_MODULE_ENABLED
+#define temp_hum_timer    3
+//#define LOW_POWER
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -80,6 +84,14 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+osTimerId temp_hum_timer_id;
+float SHTData[2];
+volatile _Bool temperatureflag=0; 
+uint16_t LoRaWAN_Counter = 0;
+uint8_t lora_init = 0;
+uint64_t short_UID;
+uint16_t rep_counter = 0; 
+volatile uint8_t counter = 0;
 /* USER CODE END 0 */
 
 /**
@@ -99,7 +111,7 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
+ 
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -115,17 +127,36 @@ int main(void)
   Initialize_Platform();
   /* USER CODE BEGIN 2 */
 
-  printWelcome();
+  // get Unique ID of Octa
+ // short_UID = get_UID(); 
 
+LSM303AGR_setI2CInterface(&common_I2C);
+  setI2CInterface_SHT31(&common_I2C);
+  SHT31_begin(); 
+  LSM303AGR_init();
+
+  printWelcome();
+  uint8_t data; 
+
+// // TX MUTEX ensuring no transmits are happening at the same time
+//   osMutexDef(txMutex);
+//   txMutexId = osMutexCreate(osMutex(txMutex));
+    
+//     // pass processing thread handle to murata driver
+//   Murata_SetProcessingThread(murata_rx_processing_handle);
   /* USER CODE END 2 */
 
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+
+   
+
   while (1)
   {
-    /* USER CODE END WHILE */
+
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
     //LSM303AGR_readRegister(0x31, data, 0);
@@ -133,7 +164,10 @@ int main(void)
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
     if (temperatureflag==1) {
         SystemClock_Config();
-        printf("handle interrupt\r\n"); 
+          printf("\033[2J");
+          printf("\033[H");
+        printf("Back awake\r\n"); 
+        printf("Session %d\r\n", ++counter);
       temperatureflag=0; 
     }
  
@@ -169,23 +203,30 @@ HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
     HAL_Delay(200);
 
 HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
 //HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);HAL_ResumeTick();
 //HAL_SuspendTick();HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);HAL_ResumeTick();
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
 void printWelcome(void)
 {
+  printf("\033[2J");
+  printf("\033[H");
   printf("\r\n");
   printf("*****************************************\r\n");
-  printf("no scheduler example\r\n");
+  printf("noo scheduler example\r\n");
   printf("*****************************************\r\n");
   printf("\r\n");
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
   HAL_Delay(2000);
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 }
+
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -201,6 +242,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 1 */
 }
 
+//See platform>octa>stm32l4xx_it.c there we placed exti15_10 function to capture interrupts on one of the pins 10-15 on connector B,C,D
+// (see slides of Mr weyn for the exact function name). In this function we call the "HAL_GPIO_EXTI_IRQHandler" function in the stm32l4xx_hal_gpio.c
+// file. In this function the "HAL_GPIO_EXTI_Callback" is called, which we define below 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  if (GPIO_Pin==GPIO_Pin_13) {
+  temperatureflag = 1; 
+  printf("interrupt accelerometer! \r\n");
+  // we work with a flag so as to make sure that we don't stay in the callback for too long. This will cause disruption. 
+  // the flag will call the measurement function in de while loop
+  } 
+}
+
+
+
+void print_temp_hum(void){
+  printf("\r\n");
+  printf("Temperature: %.2f °C  \r\n", SHTData[0]);
+  printf("Humidity: %.2f %% \r\n", SHTData[1]);
+  printf("\r\n");
+}
+
+void temp_hum_measurement(void){
+
+  SHT31_get_temp_hum(SHTData);
+  print_temp_hum();
+}
+
+
 /* USER CODE END 4 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -214,6 +283,46 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   #endif
 }
 
+
+
+
+void LoRaWAN_send_self()
+{
+  if (lora_init)
+  {
+    uint8_t loraMessage[5];
+    uint8_t i = 0;
+    //uint16 counter to uint8 array (little endian)
+    //counter (large) type byte
+
+    //first data transfer works, but afterwards it stays in a kind of 'transmitted' loop. Find where we can reset the flag.
+    loraMessage[i++] = SHTData[0];
+    loraMessage[i++] = SHTData[1];
+    loraMessage[i++] = LoRaWAN_Counter >> 8;
+   // osMutexWait(txMutexId, osWaitForever);
+    if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
+    {
+      printf("tis ni gelukt :( ");
+      lora_init++;
+      if(lora_init == 10)
+        lora_init == 0;
+    }
+    else
+    {
+      lora_init = 1;
+    }
+    //BLOCK TX MUTEX FOR 3s
+    // osDelay(3000);
+    // osMutexRelease(txMutexId);
+    LoRaWAN_Counter++;
+  }
+  else{
+    printf("murata not initialized, not sending\r\n");
+  }
+}
+
+
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -224,7 +333,34 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
 
   /* USER CODE END Error_Handler_Debug */
+
 }
+
+
+void murata_process_rx_response(void)
+{
+  uint32_t startProcessing;
+  while (1)
+  {
+    // Wait to be notified that the transmission is complete.  Note the first
+    //parameter is pdTRUE, which has the effect of clearing the task's notification
+    //value back to 0, making the notification value act like a binary (rather than
+    //a counting) semaphore.
+    startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
+    if (startProcessing == 1)
+    {
+      // The transmission ended as expected.
+      Murata_process_fifo();
+    }
+    else
+    {
+    }
+    osDelay(1);
+  }
+  osThreadTerminate(NULL);
+}
+
+
 
 #ifdef USE_FULL_ASSERT
 /**

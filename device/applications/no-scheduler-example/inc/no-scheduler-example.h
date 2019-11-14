@@ -60,6 +60,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
 
+
 /* USER CODE BEGIN PFP */
 void printWelcome(void);
 
