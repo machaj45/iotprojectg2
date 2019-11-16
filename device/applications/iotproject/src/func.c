@@ -18,7 +18,8 @@ void     StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
   while (1) {
     if (acc_int == 1) {
-      acc_int = 2;
+    Dash7_send(NULL);
+      acc_int = 0;
       // temp_hum_measurement();
       // LoRaWAN_send(NULL);
     }
@@ -31,7 +32,6 @@ void     StartDefaultTask(void const *argument) {
 
     // SEND 5 D7 messages, every 10 sec.
     // Afterwards, send 3 LoRaWAN messages, every minute
-    Dash7_send(NULL);
     /*
     if(LoRaWAN_Counter == 0)
       Murata_LoRaWAN_Join();
@@ -50,7 +50,7 @@ void     StartDefaultTask(void const *argument) {
       LoRaWAN_Counter = 0;
     }
     */
-    HAL_Delay(17000);
+    HAL_Delay(100);
     modem_reinit();
   }
 }
