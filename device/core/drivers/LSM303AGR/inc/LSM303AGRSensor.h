@@ -14,8 +14,6 @@
 //LSM303AGR Accelerometer
 #define LSM303AGR_ACC_WHO_AM_I_REG      0x0F
 #define LSM303AGR_ACC_CTRL_REG1     	0x20
-#define LSM303AGR_ACC_CTRL_REG2     	0x21
-#define LSM303AGR_ACC_CTRL_REG3     	0x22
 #define LSM303AGR_ACC_CTRL_REG4    		0x23
 #define LSM303AGR_ACC_CTRL_REG5			0x24
 #define LSM303AGR_ACC_STATUS_REG   		0x27
@@ -26,16 +24,25 @@
 #define LSM303AGR_ACC_OUT_Z_L   		0x2C
 #define LSM303AGR_ACC_OUT_Z_H   		0x2D
 #define LSM303AGR_ACC_MULTI_READ		(LSM303AGR_ACC_OUT_X_L | 0x80)
-#define LSM303AGR_ACC_INT1_CFG_A   		0x30
-#define LSM303AGR_ACC_INT1_DURATION_A   		0x33
-#define LSM303AGR_ACC_INT2_CFG_A   		0x34
-#define LSM303AGR_ACC_INT2_SRC_A   		0x35
-#define LSM303AGR_ACC_INT2_THS_A   		0x36
-#define LSM303AGR_ACC_INT2_DURATION_A   		0x37
-#define LSM303AGR_ACC_CLICK_CFG_A   		0x38
-#define LSM303AGR_ACC_CLICK_SRC_A   		0x39
-#define LSM303AGR_ACC_CLICK_THS_A  		0x3A
-#define LSM303AGR_ACC_ACT_THS_A  		0x3E
+
+// zelluf
+#define LSM303AGR_ACC_CTRL_REG2     	0x21
+#define LSM303AGR_ACC_CTRL_REG3     	0x22
+#define LSM303AGR_ACC_INT1_DUR       	0x33
+#define LSM303AGR_ACC_INT1_CFG       	0x30
+#define LSM303AGR_ACC_INT1_THS       	0x32
+
+//zelf click
+#define LSM303AGR_ACC_CLICK_CFG       	0x38
+#define LSM303AGR_ACC_CLICK_SRC     	0x39
+#define LSM303AGR_ACC_CLICK_THS       	0x3A
+#define LSM303AGR_ACC_CLICK_TIME       	0x3B
+#define LSM303AGR_ACC_CLICK_LATENCY    	0x3C
+#define LSM303AGR_ACC_CLICK_WINDOW     	0x3D
+
+//zelf wake-up
+#define LSM303AGR_ACC_ACT_THS       	0x3D
+#define LSM303AGR_ACC_ACT_DUR	     	0x3D
 
 //LSM303AGR Magnetometer
 #define LSM303AGR_MAG_OFFSET_X_REG_L    0x45
@@ -73,17 +80,6 @@
 #define LSM303AGR_ACC_Z_EN				0x04
 #define LSM303AGR_ACC_Y_EN				0x02
 #define LSM303AGR_ACC_X_EN				0x01
-#define LSM303AGR_ACC_FS_2				0x00
-#define LSM303AGR_ACC_FS_4				0x10
-#define LSM303AGR_ACC_FS_8				0x20
-#define LSM303AGR_ACC_FS_16				0x30
-#define LSM303AGR_ACC_AOI				  0x80
-#define LSM303AGR_ACC_INT_X_UP_EN		0x02
-#define LSM303AGR_ACC_INT_X_DOWN_EN		0x01
-#define LSM303AGR_ACC_INT_Y_UP_EN		0x08;
-#define LSM303AGR_ACC_INT_Y_DOWN_EN		0x04
-#define LSM303AGR_ACC_INT_Z_UP_EN		0x20
-#define LSM303AGR_ACC_INT_Z_DOWN_EN		0x10
 //CTRL_REG_4 (0x23)
 #define LSM303AGR_ACC_BDU_EN			0x80
 //CTRL_REG5 (0x24)
@@ -134,5 +130,5 @@ void LSM303AGR_wakeUpMagnetometer();
 void LSM303AGR_ACC_readAccelerationData(int32_t *pData);
 void LSM303AGR_MAG_readMagneticData(int32_t *pData);
 void LSM303AGR_MAG_readMagneticRawData(uint16_t *pData);
-void LSM303AGR_ACC_readAccelerationRawData(double *pData);
+void LSM303AGR_ACC_readAccelerationRawData(uint16_t *pData);
 #endif /* LSM303AGRACCSENSOR_H_ */

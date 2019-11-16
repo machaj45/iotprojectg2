@@ -348,6 +348,7 @@
 
 #ifdef HAL_RTC_MODULE_ENABLED
   #include "stm32l4xx_hal_rtc.h"
+ // #include "stm32l4xx_hal_rtc_ex.h"
 #endif /* HAL_RTC_MODULE_ENABLED */
 
 #ifdef HAL_SAI_MODULE_ENABLED

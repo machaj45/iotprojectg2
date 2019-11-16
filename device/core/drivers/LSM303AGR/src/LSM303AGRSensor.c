@@ -80,40 +80,76 @@ HAL_StatusTypeDef LSM303AGR_writeRegister(uint8_t LSM303AGR_reg,
  */
 void LSM303AGR_init() {
 
-	LSM303AGR_setting = LSM303AGR_ACC_ODR_100Hz | LSM303AGR_ACC_X_EN
-			| LSM303AGR_ACC_Y_EN | LSM303AGR_ACC_Z_EN;
-	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, LSM303AGR_setting, 0);
+	//ga naar de application node op de site en daar staat alle registers die je moet instellen voor interrupts
 
-	LSM303AGR_setting = LSM303AGR_ACC_BDU_EN | LSM303AGR_ACC_FS_16;
-	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG4, LSM303AGR_setting, 0);
-  
-	LSM303AGR_setting =0xFF; //LSB = 1/ODR = 15/100
-	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_DURATION_A, LSM303AGR_setting, 0); //one of them is not necessery so delete it
-	//LSM303AGR_setting =0x0F; //LSB = 1/ODR = 15/100
-	//LSM303AGR_writeRegister(LSM303AGR_ACC_INT2_DURATION_A, LSM303AGR_setting, 0);
+	//normal interrupt
 
-	LSM303AGR_setting = LSM303AGR_ACC_INT_X_UP_EN | LSM303AGR_ACC_INT_Y_UP_EN;
-	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_CFG_A, LSM303AGR_setting, 0);
+	 LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, 0xA7, 0);  //enable/turn on xyz, ODR = 100Hz (gegokt, normal mode)
 
-	LSM303AGR_setting = (uint8_t)(40*0.186);//in G
-	LSM303AGR_writeRegister(LSM303AGR_ACC_ACT_THS_A, LSM303AGR_setting, 0);
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG2, 0x00 , 0); //highpass filter disable (got undesired effects otherwise)
 
-	LSM303AGR_setting = 0x1A;//in G
-	LSM303AGR_writeRegister(0x25, LSM303AGR_setting, 0);
-//	LSM303AGR_setting = 0x0A;
-//	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, LSM303AGR_setting, 0);
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG3, 0x40 , 0); //gewone interrupt op int lijn 1 zetten (AOI).
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG4, 0x00 , 0); //FS=2G, wil zeggen laagste treshold, alles voor derest disablen. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, 0x00 , 0); //no latching, alles disablen
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_THS, 0x10 , 0);	//set treshold, maximum threshold en de eenheid dat 1 bit in dit register voorstelt is bepaald door de FS in REG4. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_DUR, 0x7F , 0);  //duration van de interrupt. Ook weer maximum en stapgrootte afhankelijk van ODR die werd configureerd in REG1.
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_INT1_CFG, 0x0A , 0);  //INT1_CFG_A enable xh & yH interrupt 
 
 
+	/* //click single interrupt
 
-	LSM303AGR_setting = LSM303AGR_MAG_COMP_TEMP_EN | LSM303AGR_MAG_LP_EN
-			| LSM303AGR_MAG_ODR_10HZ;
-	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_A, LSM303AGR_setting, 1);
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, 0x2F, 0);  //enable/turn on xyz, ODR = 10Hz (normal mode), zodanig dat time limit groot genoeg kan worden gezet (zie verder)
 
-	LSM303AGR_setting = LSM303AGR_MAG_OFF_CANC | LSM303AGR_MAG_LPF;
-	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_B, LSM303AGR_setting, 1);
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG2, 0x00 , 0); //highpass filter disable (got undesired effects otherwise)
 
-	LSM303AGR_setting = LSM303AGR_MAG_BDU;
-	LSM303AGR_writeRegister(LSM303AGR_MAG_CFG_REG_C, LSM303AGR_setting, 1);
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG3, 0x80 , 0); //put de click interrupt on int line 1
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG4, 0x00 , 0); //FS=2G, wil zeggen laagste treshold, alles voor derest disablen. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, 0x00 , 0); //no latching, alles disablen
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_CFG, 0x01 , 0); //enablen single click on x-axis
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_SRC, 0x10 , 0); //single click enable
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_THS, 0x20 , 0);	//set treshold  
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_LATENCY, 0x00 , 0);  //set how long the interrupt lasts, we set minimum duration. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_TIME, 0x7F , 0);  	 //time limiit = value * 1/ODR so maximum time limit = 127*0.1 = +/- 10 s = time to do rep */
+
+
+
+	//click double interrupt
+/*
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG1, 0x2F, 0);  //enable/turn on xyz, ODR = 10Hz (normal mode), zodanig dat time limit groot genoeg kan worden gezet (zie verder)
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG2, 0x00 , 0); //highpass filter disable (got undesired effects otherwise)
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG3, 0x80 , 0); //put de click interrupt on int line 1
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG4, 0x00 , 0); //FS=2G, wil zeggen laagste treshold, alles voor derest disablen. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CTRL_REG5, 0x00 , 0); //no latching, alles disablen
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_CFG, 0x02 , 0); //enablen double click on x-axis
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_SRC, 0x20 , 0); //double click enable
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_THS, 0x20 , 0);	//set treshold  
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_LATENCY, 0x00 , 0);  //set how long the interrupt lasts, we set minimum duration. 
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_TIME, 0x7F , 0);  	 //time limiit = value * 1/ODR so maximum time limit = 127*0.1 = +/- 10 s = time to do rep
+
+	LSM303AGR_writeRegister(LSM303AGR_ACC_CLICK_WINDOW, 0x0A , 0);  	 //max time in between 2 clicks. If the second click is later than the time window the interrupt won't be generated. 
+	*/
+
 
 }
 
@@ -256,8 +292,8 @@ void LSM303AGR_MAG_readMagneticRawData(uint16_t *pData) {
 
 }
 
-void LSM303AGR_ACC_readAccelerationRawData(double *pData) {
-	int8_t accRegisterData[6];
+void LSM303AGR_ACC_readAccelerationRawData(uint16_t *pData) {
+	//accRegisterData[6];
 	//accRawData[3];
 
 	//magRegisterData[6];
@@ -266,9 +302,9 @@ void LSM303AGR_ACC_readAccelerationRawData(double *pData) {
 
 	HAL_I2C_Mem_Read(LSM303AGR_hi2c, LSM303AGR_ACC_I2C_ADDRESS,	LSM303AGR_ACC_MULTI_READ, I2C_MEMADD_SIZE_8BIT, accRegisterData,sizeof(accRegisterData), HAL_MAX_DELAY);
 
-	pData[0] = ((double)((accRegisterData[1]*256)+ accRegisterData[0]))*(16/2048.0);
-	pData[1] = ((double)((accRegisterData[3]*256)+ accRegisterData[2]))*(16/2048.0);
-	pData[2] = ((double)((accRegisterData[5]*256)+ accRegisterData[4]))*(16/2048.0);
+	pData[0] = (accRegisterData[1] << 8)	| accRegisterData[0];
+	pData[1] = (accRegisterData[3] << 8)| accRegisterData[2];
+	pData[2] = (accRegisterData[5] << 8)| accRegisterData[4];
 
 	/* Apply proper shift and sensitivity */
 	// Normal mode 10-bit, shift = 6 and FS = 2

@@ -50,6 +50,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "no-scheduler-example.h"
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
+#include <stdio.h>
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\SHT31\inc\sht31.h"
+#include "murata.h"
+#include "..\..\..\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
+#include "..\..\..\core\drivers\SHT31\inc\sht31.h"
+#include "..\..\..\core\ST\STM32L4xx_HAL_Driver\Inc\stm32l4xx_hal_rtc.h"
+
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\applications\lorawan-example\inc\lorawan-example.h"
+//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\platform\common\inc\platform.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -63,7 +73,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define HAL_EXTI_MODULE_ENABLED
+#define HAL_RTC_MODULE_ENABLED
 
+#define temp_hum_timer    3
+//#define LOW_POWER
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,6 +87,22 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+osTimerId temp_hum_timer_id;
+float SHTData[2];
+volatile _Bool interruptFlag=0; 
+uint16_t LoRaWAN_Counter = 0;
+uint8_t lora_init = 0;
+uint64_t short_UID;
+uint16_t rep_counter = 0; 
+volatile uint8_t counter = 0;
+
+//RTC 
+
+/*
+RTC_HandleTypeDef RTCHandle;
+static void SystemPower_Config(void);
+
+*/
 /* USER CODE END 0 */
 
 /**
@@ -92,13 +122,29 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
+ 
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
+
+
+
+//////////////////////////////////////////////////
+
+  /* ENable Power clock */
+  //__HAL_RCC_PWR_CLK_ENABLE();
+
+  // See this for longer periods.
+  /* Ensure that MSI is wake-up system clock */ 
+  //__HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+
+  //SystemPower_Config();
+
+
+  ///////////////////////////////////////
 
   /* USER CODE BEGIN SysInit */
 
@@ -108,43 +154,176 @@ int main(void)
   Initialize_Platform();
   /* USER CODE BEGIN 2 */
 
-  printWelcome();
+  // get Unique ID of Octa
+ // short_UID = get_UID(); 
 
+LSM303AGR_setI2CInterface(&common_I2C);
+  setI2CInterface_SHT31(&common_I2C);
+  SHT31_begin(); 
+  LSM303AGR_init();
+
+  printWelcome();
+  uint8_t data; 
+
+// // TX MUTEX ensuring no transmits are happening at the same time
+//   osMutexDef(txMutex);
+//   txMutexId = osMutexCreate(osMutex(txMutex));
+    
+//     // pass processing thread handle to murata driver
+//   Murata_SetProcessingThread(murata_rx_processing_handle);
   /* USER CODE END 2 */
 
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  /* USER CODE BEGIN WHILE */   
+
   while (1)
   {
+
+    IWDG_feed(NULL); 
     /* USER CODE END WHILE */
+
+    //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
+    if (interruptFlag==1) {
+          printf("\033[2J");
+          printf("\033[H");
+        printf("Back awake\r\n"); 
+        printf("Session %d\r\n", ++counter);
+      interruptFlag=0; 
+    }
+ 
+
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ //   printf("\33[2K");
+    printf("RED\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+  //  printf("\33[2K");
+    printf("GREEN\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+//    printf("\33[2K");
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+
+    HAL_Delay(1000);
+
+HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+//    printf("\33[2K");
+    printf("BLUE\r\n");
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+
+    HAL_Delay(1000);
+
+    printf("going in sleep mode\r\n");
+
+    HAL_Delay(200);
+
+
+
+/* Re-enable wakeup source */
+    /* ## Setting the Wake up time ############################################*/
+    /* RTC Wakeup Interrupt Generation: 
+      the wake-up counter is set to its maximum value to yield the longuest
+      stop time to let the current reach its lowest operating point.
+      The maximum value is 0xFFFF, corresponding to about 33 sec. when 
+      RTC_WAKEUPCLOCK_RTCCLK_DIV = RTCCLK_Div16 = 16
+
+      Wakeup Time Base = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI))
+      Wakeup Time = Wakeup Time Base * WakeUpCounter 
+        = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI)) * WakeUpCounter
+        ==> WakeUpCounter = Wakeup Time / Wakeup Time Base
+  
+      To configure the wake up timer to 60s the WakeUpCounter is set to 0xFFFF:
+      Wakeup Time Base = 16 /(~32.000KHz) = ~0.5 ms
+      Wakeup Time = 0.5 ms  * WakeUpCounter
+      Therefore, with wake-up counter =  0xFFFF  = 65,535 
+         Wakeup Time =  0,5 ms *  65,535 = 32,7675 s ~ 33 sec. */
+ //*******   HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle, 0x0FFFF, RTC_WAKEUPCLOCK_RTCCLK_DIV16);
+  
+
+//go to stop mode with frozen IWDG-timer
+HAL_SuspendTick();
+HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+HAL_ResumeTick();
+
+//reset the right clock config.
+SystemClock_Config();
+
+/* Disable all used wakeup source */
+//******** HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
+
+
 void printWelcome(void)
 {
+  printf("\033[2J");
+  printf("\033[H");
   printf("\r\n");
   printf("*****************************************\r\n");
-  printf("no scheduler example\r\n");
+  printf("noo scheduler example\r\n");
   printf("*****************************************\r\n");
   printf("\r\n");
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
   HAL_Delay(2000);
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 }
+
+/**
+  * @brief  System Power Configuration
+  *         The system Power is configured as follow :
+  *            + RTC Clocked by LSI
+  *            + VREFINT OFF, with fast wakeup enabled
+  *            + No IWDG
+  *            + Automatic Wakeup using RTC clocked by LSI (after ~4s)
+  * @param  None
+  * @retval None
+  */
+
+ /*****
+static void SystemPower_Config(void)
+{
+
+  ///* Configure RTC */
+ // RTCHandle.Instance = RTC;
+  ///* Set the RTC time base to 1s */
+  /* Configure RTC prescaler and RTC data registers as follow:
+    - Hour Format = Format 24
+    - Asynch Prediv = Value according to source clock
+    - Synch Prediv = Value according to source clock
+    - OutPut = Output Disable
+    - OutPutPolarity = High Polarity
+    - OutPutType = Open Drain */
+
+    /*****
+  RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
+  RTCHandle.Init.AsynchPrediv = 127;
+  RTCHandle.Init.SynchPrediv = 255;
+  RTCHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+  RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if(HAL_RTC_Init(&RTCHandle) != HAL_OK)
+  {
+    
+    Error_Handler(); 
+  }
+}
+
+*****/
+
+
+
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -160,6 +339,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 1 */
 }
 
+//See platform>octa>stm32l4xx_it.c there we placed exti15_10 function to capture interrupts on one of the pins 10-15 on connector B,C,D
+// (see slides of Mr weyn for the exact function name). In this function we call the "HAL_GPIO_EXTI_IRQHandler" function in the stm32l4xx_hal_gpio.c
+// file. In this function the "HAL_GPIO_EXTI_Callback" is called, which we define below 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  if (GPIO_Pin==GPIO_Pin_13) {
+  interruptFlag = 1; 
+  printf("interrupt accelerometer! \r\n");
+  // we work with a flag so as to make sure that we don't stay in the callback for too long. This will cause disruption. 
+  // the flag will call the measurement function in de while loop
+  } 
+}
+
+
+
+void print_temp_hum(void){
+  printf("\r\n");
+  printf("Temperature: %.2f °C  \r\n", SHTData[0]);
+  printf("Humidity: %.2f %% \r\n", SHTData[1]);
+  printf("\r\n");
+}
+
+void temp_hum_measurement(void){
+
+  SHT31_get_temp_hum(SHTData);
+  print_temp_hum();
+}
+
+
 /* USER CODE END 4 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -173,6 +380,46 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   #endif
 }
 
+
+
+
+void LoRaWAN_send_self()
+{
+  if (lora_init)
+  {
+    uint8_t loraMessage[5];
+    uint8_t i = 0;
+    //uint16 counter to uint8 array (little endian)
+    //counter (large) type byte
+
+    //first data transfer works, but afterwards it stays in a kind of 'transmitted' loop. Find where we can reset the flag.
+    loraMessage[i++] = SHTData[0];
+    loraMessage[i++] = SHTData[1];
+    loraMessage[i++] = LoRaWAN_Counter >> 8;
+   // osMutexWait(txMutexId, osWaitForever);
+    if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
+    {
+      printf("tis ni gelukt :( ");
+      lora_init++;
+      if(lora_init == 10)
+        lora_init == 0;
+    }
+    else
+    {
+      lora_init = 1;
+    }
+    //BLOCK TX MUTEX FOR 3s
+    // osDelay(3000);
+    // osMutexRelease(txMutexId);
+    LoRaWAN_Counter++;
+  }
+  else{
+    printf("murata not initialized, not sending\r\n");
+  }
+}
+
+
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -183,7 +430,34 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
 
   /* USER CODE END Error_Handler_Debug */
+
 }
+
+
+void murata_process_rx_response(void)
+{
+  uint32_t startProcessing;
+  while (1)
+  {
+    // Wait to be notified that the transmission is complete.  Note the first
+    //parameter is pdTRUE, which has the effect of clearing the task's notification
+    //value back to 0, making the notification value act like a binary (rather than
+    //a counting) semaphore.
+    startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
+    if (startProcessing == 1)
+    {
+      // The transmission ended as expected.
+      Murata_process_fifo();
+    }
+    else
+    {
+    }
+    osDelay(1);
+  }
+  osThreadTerminate(NULL);
+}
+
+
 
 #ifdef USE_FULL_ASSERT
 /**

@@ -164,9 +164,9 @@ void BLE_UART_Init(uint32_t aBaudRate)
   BLE_UART.Init.BaudRate = aBaudRate;
   BLE_UART.Init.WordLength = UART_WORDLENGTH_8B;
   BLE_UART.Init.StopBits = UART_STOPBITS_1;
-  BLE_UART.Init.Parity = UART_PARITY_NONE;
+  BLE_UART.Init.Parity = UART_PARITY_EVEN;
   BLE_UART.Init.Mode = UART_MODE_TX_RX;
-  BLE_UART.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  BLE_UART.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
   BLE_UART.Init.OverSampling = UART_OVERSAMPLING_16;
   BLE_UART.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   BLE_UART.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
