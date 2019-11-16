@@ -17,17 +17,16 @@ def subscribe_to_our_devices(client):
         # This is device of
         #client.subscribe("/d7/483638370025002f/#")
         # This is device of
-        client.subscribe("/d7/483638370041003f/#")
+        #client.subscribe("/d7/483638370041003f/#")
         # This is device of
         #client.subscribe("/d7/4836383700440045/#")
         # This is device of
-        #client.subscribe("/d7/48363837002a0038/#")
+        client.subscribe("/d7/48363837002a0038/#")
 
 def on_message(client, userdata, message):
         print("message received ", str(message.payload.decode("utf-8")))
         print("message topic = ", message.topic)
 	topic = message.topic
-	gateway =  topic.split("/")[3]
 	message1 = str(message.payload.decode("utf-8"))
 	hexstring = message1.strip().replace(' ', '')
 	data = bytearray(hexstring.decode("hex"))
@@ -38,39 +37,30 @@ def on_message(client, userdata, message):
 	rxLevel = parser.getRxLevel()
 	global old_parameters
 
-
 	if((old_parameters == []) or (parameters != old_parameters)):
-		global dataForMessages
-		with open('database.json', 'a') as json_file:
-			json.dump(dataForMessage, json_file)
-		print("data added to database")
-	
-		print("--------first case")
-		old_parameters = []
+		print("------
 		old_parameters = parameters
 		global counter_of_messages
-		counter_of_messages = counter_of_messages + 1
+		counter_of_messages += 1
 		message_number = 'message' + str(counter_of_messages)
+		#print(message_number)
+		print("----------------------------------")
+		print(parameters[0])
 		my_details = {'data1': parameters[0], 'data2' : parameters[1], 'data3' : parameters[2] }
 		print(my_details)
 		print("----------------------------")
-		dataForMessage.clear()
+		#dataForMessage[message_number] 
 		dataForMessage[message_number] = [my_details]
-		dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
 		print("last thing in first cache----------")
-		print(dataForMessages)
-		print("-----------------------")
+		print(dataForMessage)
+		print("-----")
 	else:
 		print("!!!!!     another case")
 		print("--------------------")
 		message_number = 'message' + str(counter_of_messages)
 		print(message_number)
 		#data = {}
-		print("---------------------")
-		print(dataForMessage)
-		dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-		print("----------")
-		print(dataForMessage)
+		dataForMessage[message_number].append({ 'gateway' : message.topic, 'rxLevel' : rxLevel })
 		print("---before data --")
 		print(data)
 		print("----after data----")
@@ -82,12 +72,9 @@ def on_message(client, userdata, message):
 	#data[message_number] = [my_details]
 	#data[message_number].append({'ddd' : 'lll', '11111' : '22222'})
 	#print(data)
-	
-
-
-#with open('database.json', 'a') as json_file:
-#		json.dump(dataForMessage, json_file)
-#	print("data added to database")
+	with open('database.json', 'a') as json_file:
+		json.dump(dataForMessage, json_file)
+	print("data added to database")
 	#print(data)
 
 #data = {
