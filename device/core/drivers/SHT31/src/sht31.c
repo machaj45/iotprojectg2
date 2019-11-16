@@ -27,7 +27,7 @@ uint8_t READ_REGISTER_SHT31(uint8_t buf[],uint16_t reg,uint8_t length)
 }
 uint8_t READ_REG_SHT31(uint8_t buf[],uint8_t length)
 {
-	uint8_t status= HAL_I2C_Master_Receive(SHThi2cLib, SHT31_DEFAULT_ADDR<<1, buf, length, 0x0F);
+	uint8_t status= HAL_I2C_Master_Receive(SHThi2cLib, SHT31_DEFAULT_ADDR<<1, buf, length, HAL_MAX_DELAY);
 return status;
 }
 
