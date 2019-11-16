@@ -524,6 +524,56 @@
           "rxLevel": 56
         }
       ]
+    },
+    {
+  "message": [
+    {
+      "data1": 20,
+      "data3": 0,
+      "data2": 0
+    },
+    {
+      "gateway": "4337313400210032",
+      "rxLevel": 44
+    },
+    {
+      "gateway": "42373434002a0049",
+      "rxLevel": 59
+    },
+    {
+      "gateway": "463230390032003e",
+      "rxLevel": 33
+    },
+    {
+      "gateway": "433731340023003d",
+      "rxLevel": 73
     }
   ]
+},
+{
+  "message": [
+    {
+      "data1": 20,
+      "data3": 1,
+      "data2": 0
+    },
+    {
+      "gateway": "42373434002a0049",
+      "rxLevel": 52
+    },
+    {
+      "gateway": "4337313400210032",
+      "rxLevel": 42
+    },
+    {
+      "gateway": "463230390032003e",
+      "rxLevel": 50
+    },
+    {
+      "gateway": "433731340023003d",
+      "rxLevel": 72
+    }
+  ]
+}
+ ]
 }
