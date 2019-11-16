@@ -16,13 +16,13 @@ for message in data.get("messages"):
             if gateways.get("gateway") != None:
                 B.append(gateways.get("rxLevel"))
                 C.append(gateways.get("gateway"))
-            else:
-                print("skiping", i)
         B = [x for _,x in sorted(zip(C,B))] 
         A.append(B)
+        print(B)
         B=[]
-    #neigh = KNeighborsClassifier(n_neighbors=3, metric='euclidean',n_jobs=2)
-    #pos=[[],[],[],[],[],[],[]]
-    #neigh.fit(A, pos)
-    #print(neigh.predict([[2.1,3.1, 3.9, 5]]))
-    #print(neigh.predict_proba([[2.1, 3.1, 3.9, 5]]))
+print(i)
+neigh = KNeighborsClassifier(n_neighbors=3, metric='euclidean',n_jobs=2)
+pos=[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]
+neigh.fit(A, pos)
+print(neigh.predict([[53,50, 43, 38]]))
+print(neigh.predict_proba([[53,50, 43, 38]]))
