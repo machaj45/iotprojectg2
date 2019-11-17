@@ -1,8 +1,9 @@
-import numpy as np
+import numpy as np 
 from sklearn.neighbors import KNeighborsClassifier
 import json
-
-with open ("database2.repair.json","r") as readfile:
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+with open ("database.json","r") as readfile:
     data = json.load(readfile)
 
 A = []
@@ -26,3 +27,7 @@ pos=[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,
 neigh.fit(A, pos)
 print(neigh.predict([[53,50, 43, 38]]))
 print(neigh.predict_proba([[53,50, 43, 38]]))
+
+img=mpimg.imread('map.png')
+imgplot = plt.imshow(img)
+plt.show()
