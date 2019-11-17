@@ -1,4 +1,5 @@
 import numpy as np 
+import os
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import RadiusNeighborsRegressor
 from sklearn.neighbors import KNeighborsRegressor
@@ -38,10 +39,13 @@ class knn:
     def plotmap(self,data):
         if len(data)!=2:
             data = self.neigh.predict(data)[0]
-        self.img=mpimg.imread('map.png')
-        self.imgplot = plt.imshow(self.img)
-        plt.plot(data[0],data[1],'r*')
-        plt.show()
+        if os.environ.get('DISPLAY','') == '':
+                print('No display found! TRY ssh -X student@student-ect')
+        else:
+            self.img=mpimg.imread('map.png')
+            self.imgplot = plt.imshow(self.img)
+            plt.plot(data[0],data[1],'r*')
+            plt.show()
 
 
 kn = knn()
