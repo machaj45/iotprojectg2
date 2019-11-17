@@ -6,7 +6,7 @@ from sklearn.neighbors import KNeighborsRegressor
 import json
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-class knn:
+class KNN:
     def __init__(self,*arg):
         if len(arg) == 0:
             filename='database.json'
@@ -48,9 +48,4 @@ class knn:
             plt.show()
 
 
-kn = knn()
-signal = [[53,50, 43, 38]]
-point = kn.getpoint(signal)
-print(point)
-kn.plotmap(point)
 

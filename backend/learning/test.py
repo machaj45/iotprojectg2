@@ -10,6 +10,7 @@ from d7a.serial_modem_interface.parser import Parser as SerialParser
 from d7a.system_files.system_file_ids import SystemFileIds
 from d7a.system_files.system_files import SystemFiles
 
+
 counter_of_messages = 0;
 old_parameters = []
 dataForMessage = {}
@@ -40,6 +41,7 @@ def on_message(client, userdata, message):
                 print("",l)
             prevd=parameters
             clevels.clear()
+
 
 broker_address = "student-04.idlab.uantwerpen.be"
 
