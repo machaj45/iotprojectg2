@@ -5,7 +5,7 @@ uint16_t LoRaWAN_Counter = 0;
 uint8_t  murata_init     = 0;
 uint16_t DASH7_Counter   = 0;
 
-void LorawanInit(uint64_t short_UID) {
+void LorawanInit() {
   short_UID   = get_UID();
   murata_init = Murata_Initialize(short_UID, 0);
 

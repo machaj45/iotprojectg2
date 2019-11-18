@@ -29,9 +29,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber) {
   }
   if (GPIO_PIN_0 == gpioPinNumber) {
     acc_int = 2;
-    button  = 1;
-    // printf("PIN0 Int \r\n");
-    printf("Send Dash7 \r\n");
+    if (button == 0) {
+      button = 1;
+      printf("Send Dash7 \r\n");
+    }
   }
   if (GPIO_PIN_1 == gpioPinNumber) {
     printf("PIN1 Int \r\n");

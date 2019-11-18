@@ -1,5 +1,7 @@
 #include "iotproject.h"
-
+#include "osi.h"
+#include "send.h"
+#include "other.h"
 
 void decodeError1(int status) {
   switch (status) {

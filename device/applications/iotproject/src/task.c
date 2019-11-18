@@ -23,7 +23,6 @@ void StartDefaultTask(void const *argument) {
     if (murata_data_ready) {
       printf("processing murata fifo\r\n");
       murata_data_ready = !Murata_process_fifo();
-      murata_process_rx_response(NULL);
     }
     HAL_Delay(200);
     modem_reinit();
@@ -45,7 +44,7 @@ void murata_process_rx_response(void const *argument) {
     // parameter is pdTRUE, which has the effect of clearing the task's notification
     // value back to 0, making the notification value act like a binary (rather than
     // a counting) semaphore.
-    IWDG_feed(NULL);
+      
     startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
     if (startProcessing == 1) {
       printf("The transmission ended as expected");
