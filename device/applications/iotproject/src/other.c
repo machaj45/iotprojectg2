@@ -1,7 +1,41 @@
 #include "iotproject.h"
 #include "other.h"
+#include "sensirion_common.h"
+#include "sgp30.h"
 
-volatile uint8_t acc_int=0;
+volatile uint8_t acc_int = 0;
+
+uint16_t i = 0;
+int16_t  err;
+uint16_t tvoc_ppb, co2_eq_ppm;
+uint32_t iaq_baseline;
+uint16_t scaled_ethanol_signal, scaled_h2_signal;
+uint32_t measurement_counter = 0;
+
+uint8_t SPG30_Initialize(void) {
+ struct OCTA_header SPG30_Header = platform_getHeader(SPG30_CONNECTOR);
+  if (!SPG30_Header.active) {
+    printf("Invalid SPG30_CONNECTOR provided in Makefile\r\n");
+    return 0;
+  } else
+    printf("SPG30 sensor on P%d, initializing I2C\r\n", SPG30_CONNECTOR);
+  while (sgp_probe() != STATUS_OK) {
+    printf("SGP sensor probing failed ... check SGP30 I2C connection and power\r\n");
+    HAL_Delay(500);
+  }
+
+  printf("SGP sensor probing successful\r\n");
+  err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+  if (err == STATUS_OK) {
+    printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+    printf("H2 signal: %.2f \r\n", scaled_h2_signal / 512.0);
+  } else {
+    printf("error reading Ethanol and H2 signals\r\n");
+  }
+  err = sgp_iaq_init();
+
+  return 1;
+}
 void Initialize_Sensors(void) {
   LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
@@ -12,8 +46,30 @@ void Initialize_Sensors(void) {
   LSM303AGR_init();
   HAL_Delay(50);
   SHT31_begin();
+  HAL_Delay(300);
+  SPG30_Initialize();
 }
-
+void SPG30_measure(void) {
+  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  if (err == STATUS_OK) {
+    measurement_counter++;
+    printf("tVOC Concentration: %5d [ppb]\t CO2eq Concentration: %5d [ppm]\t measurement no.: %10lu \r\n", tvoc_ppb, co2_eq_ppm, measurement_counter);
+  } else {
+    printf("error reading IAQ values\r\n");
+  }
+  if (measurement_counter % 600 == 0) {
+    err = sgp_get_iaq_baseline(&iaq_baseline);
+    if (err == STATUS_OK) {
+      printf("actual baseline values: %5lu\r\n", iaq_baseline);
+    }
+  }
+  if (++i % 3600 == 3599) {
+    err = sgp_get_iaq_baseline(&iaq_baseline);
+    if (err == STATUS_OK) {
+      printf("Set baseline values to: %5lu at next startup.\r\n", iaq_baseline);
+    }
+  }
+}
 void accelerometer_measurement(void) {
   uint16_t accDataRaw[3];
   osMutexWait(i2cMutexId, osWaitForever);
@@ -68,7 +124,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   }
 }
 
-void decodeError (int status) {
+void decodeError(int status) {
   switch (status) {
     case 0:
       printf("HAL_OK\n\r");

@@ -26,7 +26,6 @@ void OCTA_Initialize_Platform(void)
     //P3 UART, I2C, SPI & GPIO handles
     OCTA_Initialize_P3_Peripherals();
     //Interupts
-    platform_initialize_I2C(platform_getHeader(1)); 
 
     OCTA_NVIC_Initialize();
 }

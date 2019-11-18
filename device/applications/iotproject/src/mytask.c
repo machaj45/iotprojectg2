@@ -1,6 +1,7 @@
 #include "iotproject.h"
 #include "mytask.h"
 #include "send.h"
+#include "other.h"
 
 uint8_t          murata_data_ready = 0;
 volatile uint8_t button;
@@ -35,6 +36,8 @@ void StartDefaultTask(void const *argument) {
     if (button == 1) {
       Dash7_send(NULL);
       button = 0;
+      HAL_Delay(300);
+      modem_reinit();
     }
     IWDG_feed(NULL);
 
@@ -42,8 +45,8 @@ void StartDefaultTask(void const *argument) {
       printf("processing murata fifo\r\n");
       murata_data_ready = !Murata_process_fifo();
     }
-    HAL_Delay(200);
-    modem_reinit();
+    SPG30_measure();
+    HAL_Delay(1000);
   }
 }
 

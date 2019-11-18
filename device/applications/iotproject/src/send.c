@@ -8,6 +8,7 @@ uint16_t DASH7_Counter   = 0;
 void LorawanInit() {
   short_UID   = get_UID();
   murata_init = Murata_Initialize(short_UID, 0);
+  platform_initialize_I2C(platform_getHeader(MURATA_CONNECTOR)); 
 
   if (murata_init) {
     printf("Murata dualstack module init OK\r\n\r\n");
