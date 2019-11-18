@@ -15,7 +15,7 @@ extern "C" {
 // Me
 #define IWDG_INTERVAL 50           // seconds
 #define LORAWAN_INTERVAL 30        // seconds
-#define MODULE_CHECK_INTERVAL 500  // seconds
+#define MODULE_CHECK_INTERVAL 5000  // seconds
                                    // OS
 osThreadId defaultTaskHandle;
 osThreadId GSPmeasuerTaskHandle;

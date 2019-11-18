@@ -18,7 +18,7 @@ void Initialize_OS(void) {
 
   osTimerDef(moduleCheckTim, check_modules);
   moduleCheckTimId = osTimerCreate(osTimer(moduleCheckTim), osTimerPeriodic, NULL);
-  osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 10000);
+  osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 1000);
 
 
   osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128);
