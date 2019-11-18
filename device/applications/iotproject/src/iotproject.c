@@ -46,6 +46,7 @@ int main(void) {
   data[5]=0x00;
   //printf("after receaving data are %x %x %x %x \n\r",data[2],data[3],data[4],data[5]);
   status = HAL_UART_Transmit(&BLE_UART, buffer, sizeof(buffer), HAL_MAX_DELAY);
+
   status2 = HAL_UART_Receive(&BLE_UART, data, sizeof(data), 0xFFF);
   decodeError1(status);
   decodeError1(status2);
