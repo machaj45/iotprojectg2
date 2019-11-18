@@ -10,8 +10,13 @@ class KNN:
     def __init__(self,*arg):
         if len(arg) == 0:
             filename='database.json'
-        else:
+            filename2='points.json'
+        elif len(arg)==1:
             filename=arg[0]
+        elif len(arg)==2:
+            filename=arg[0]
+            filename2=arg[1]
+
         with open (filename,"r") as readfile:
             data = json.load(readfile)
         A = []
@@ -31,7 +36,10 @@ class KNN:
                 B=[]
         #print(i)
         self.neigh = KNeighborsRegressor(n_neighbors=3,radius=1.5, metric='euclidean',n_jobs=2)
-        pos=[[285,252],[285,252],[285,252],[285,326],[285,326],[285,326],[408,326],[408,326],[408,326],[408,252],[408,252],[408,252],[534,326],[534,326],[534,326],[534,252],[534,252],[671,326],[671,326],[671,326],[671,252],[671,252],[671,252]]
+
+        with open (filename2,"r") as readfile:
+            data = json.load(readfile)
+        pos=data["points"]
         self.neigh.fit(A, pos)
     def getpoint(self,signal):
         point = self.neigh.predict(signal)[0]
