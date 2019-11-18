@@ -63,7 +63,7 @@ void Error_Handler(void) {
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  if (huart == &P3_UART) {
+  if (huart == &P1_UART) {
     Murata_rxCallback();
   }
 }
