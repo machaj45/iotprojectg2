@@ -67,3 +67,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     Murata_rxCallback();
   }
 }
+
+void decodeError (int status) {
+  switch (status) {
+    case 0:
+      printf("HAL_OK\n\r");
+      break;
+    case 1:
+      printf("HAL_Error\n\r");
+      break;
+    case 2:
+      printf("HAL_BUSY\n\r");
+      break;
+    case 3:
+      printf("HAL_TIMEOUT\n\r");
+      break;
+  }
+}
+

@@ -19,12 +19,12 @@ void GSP30_measure() {
   data[1]=0x08;
   uint32_t status;
   status = HAL_I2C_Master_Transmit(GSP30_hi2c, 0x58<<1, data,2, 50);
-  decodeError(status);
+  decodeError1(status);
   HAL_Delay(50);
   data[0]=0x20;
   data[1]=0x08;
   status = HAL_I2C_Master_Receive(GSP30_hi2c,0x58<<1, data,sizeof(data), 500);
-  decodeError(status);
+  decodeError1(status);
 
 
   printf("\t Data Read Out: 0x%x 0x%x 0x%x 0x%x  0x%x  0x%x\n\r", data[0], data[1], data[2], data[3], data[4], data[5]);
@@ -38,7 +38,7 @@ void GSP30_reset() {
 }
 
 
-void decodeError(status) {
+void decodeError1(status) {
   switch (status) {
     case 0:
       printf("HAL_OK\n\r");
