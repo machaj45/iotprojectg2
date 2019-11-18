@@ -123,12 +123,13 @@ void LoRaWAN_send(void const *argument) {
 }
 
 void check_modules(void const *argument) {
-  printf("checking the status of the modules\r\n");
+ /* printf("checking the status of the modules\r\n");
   if (!lora_init) {
     // LORAWAN
     lora_init = Murata_Initialize(short_UID, 0);
     Murata_toggleResetPin();
   }
+  */
 }
 void accelerometer_measurement(void) {
   uint16_t accDataRaw[3];
@@ -157,7 +158,7 @@ void print_magnetometer(uint16_t data[]) {
 }
 void LorawanInit(uint64_t short_UID) {
   short_UID = get_UID();
-  printf("%lld", (long long)short_UID);
+  //printf("%lld", (long long)short_UID);
   murata_init = Murata_Initialize(short_UID, 0);
 
   if (murata_init) {
@@ -219,7 +220,7 @@ void Initialize_OS(void) {
 
   osTimerDef(moduleCheckTim, check_modules);
   moduleCheckTimId = osTimerCreate(osTimer(moduleCheckTim), osTimerPeriodic, NULL);
-  osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 1000);
+  osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 10000);
 
 
   osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128);
