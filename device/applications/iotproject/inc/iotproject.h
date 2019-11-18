@@ -16,7 +16,7 @@ extern "C" {
 #define IWDG_INTERVAL 50           // seconds
 #define LORAWAN_INTERVAL 30        // seconds
 #define MODULE_CHECK_INTERVAL 500  // seconds
-// OS
+                                   // OS
 osThreadId defaultTaskHandle;
 osThreadId GSPmeasuerTaskHandle;
 osThreadId murata_rx_processing_handle;
@@ -30,9 +30,9 @@ osTimerId  iwdgTimId;
 
 extern volatile uint8_t acc_int;
 extern volatile uint8_t button;
-extern float                   SHTData[2];
-extern uint8_t                 lora_init;
-extern uint64_t                short_UID;
+extern float            SHTData[2];
+extern uint8_t          lora_init;
+extern uint64_t         short_UID;
 // Globals
 
 #ifdef __cplusplus
