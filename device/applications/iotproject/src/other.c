@@ -1,6 +1,7 @@
 #include "iotproject.h"
 #include "other.h"
 
+volatile uint8_t acc_int=0;
 void Initialize_Sensors(void) {
   LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);

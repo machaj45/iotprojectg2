@@ -1,7 +1,11 @@
 #include "iotproject.h"
 #include "task.h"
+#include "send.h"
 
-uint8_t murata_data_ready = 0;
+uint8_t          murata_data_ready = 0;
+volatile uint8_t button;
+uint8_t          lora_init;
+uint64_t         short_UID;
 
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
@@ -19,6 +23,7 @@ void StartDefaultTask(void const *argument) {
     if (murata_data_ready) {
       printf("processing murata fifo\r\n");
       murata_data_ready = !Murata_process_fifo();
+      murata_process_rx_response(NULL);
     }
     HAL_Delay(200);
     modem_reinit();
@@ -40,6 +45,7 @@ void murata_process_rx_response(void const *argument) {
     // parameter is pdTRUE, which has the effect of clearing the task's notification
     // value back to 0, making the notification value act like a binary (rather than
     // a counting) semaphore.
+    IWDG_feed(NULL);
     startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
     if (startProcessing == 1) {
       printf("The transmission ended as expected");

@@ -250,7 +250,8 @@ void murata_process_rx_response(void const *argument)
     startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
     if (startProcessing == 1)
     {
-      // The transmission ended as expected.
+      printf("The transmission ended as expected.\n\r")
+
       Murata_process_fifo();
     }
     else
