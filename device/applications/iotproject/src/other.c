@@ -118,11 +118,6 @@ void print_temp_hum(void) {
 void Error_Handler(void) {
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  if (huart == &P1_UART) {
-    Murata_rxCallback();
-  }
-}
 
 void decodeError(int status) {
   switch (status) {
