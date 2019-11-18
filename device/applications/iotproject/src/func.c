@@ -1,25 +1,27 @@
 #include "iotproject.h"
 #include "func.h"
 
-#define IWDG_INTERVAL 5             // seconds
-#define LORAWAN_INTERVAL 60         // seconds
-#define DASH7_INTERVAL 20           // seconds
-#define MODULE_CHECK_INTERVAL 3600  // seconds
-
 uint8_t  counter           = 0;
-uint8_t  use_lora          = 1;
 uint16_t LoRaWAN_Counter   = 0;
 uint8_t  murata_init       = 0;
 uint8_t  murata_data_ready = 0;
 uint16_t DASH7_Counter     = 0;
 uint8_t  lora_init         = 0;
 uint64_t short_UID;
+uint8_t button;
 void     StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
   while (1) {
     if (acc_int == 1) {
-    Dash7_send(NULL);
+    //Dash7_send(NULL);
       acc_int = 0;
+      // temp_hum_measurement();
+      // LoRaWAN_send(NULL);
+    }
+    if (button == 1) {
+    Dash7_send(NULL);
+      button = 0;
+
       // temp_hum_measurement();
       // LoRaWAN_send(NULL);
     }
@@ -50,13 +52,13 @@ void     StartDefaultTask(void const *argument) {
       LoRaWAN_Counter = 0;
     }
     */
-    HAL_Delay(100);
+    HAL_Delay(200);
     modem_reinit();
   }
 }
-void EXTI15_10_IRQHandler(void) {
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-}
+//void EXTI15_10_IRQHandler(void) {
+  //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+//}
 void EXTI9_5_IRQHandler(void) {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
 }
@@ -68,17 +70,18 @@ void EXTI1_IRQHandler(void) {
 }
 void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber) {
   if (GPIO_PIN_5 == gpioPinNumber) {
-    printf("PIN5 Int \r\n");
+    //printf("PIN5 Int \r\n");
     if (acc_int != 2)
       acc_int = 1;
   }
   if (GPIO_PIN_13 == gpioPinNumber) {
-    printf("PIN13 Int \r\n");
+    //printf("PIN13 Int \r\n");
   }
   if (GPIO_PIN_0 == gpioPinNumber) {
     acc_int = 2;
+    button=1;
     // printf("PIN0 Int \r\n");
-    printf("Rearmed \r\n");
+    printf("Send Dash7 \r\n");
   }
   if (GPIO_PIN_1 == gpioPinNumber) {
     printf("PIN1 Int \r\n");
@@ -128,7 +131,7 @@ void check_modules(void const *argument) {
   }
 }
 void accelerometer_measurement(void) {
-  double accDataRaw[3];
+  uint16_t accDataRaw[3];
   osMutexWait(i2cMutexId, osWaitForever);
   LSM303AGR_ACC_readAccelerationRawData(accDataRaw);
   osMutexRelease(i2cMutexId);
@@ -142,9 +145,9 @@ void magnetometer_measurement(void) {
   print_magnetometer(magDataRaw);
 }
 
-void print_accelerometer(double data[]) {
+void print_accelerometer(uint16_t data[]) {
   printf("\r\n");
-  printf("Accelerometer data: X: % 06.2f Y: % 06.2f Z: % 06.2f \r\n", data[0], data[1], data[2]);
+  printf("Accelerometer data: X: % 06.2f Y: % 06.2f Z: % 06.2f \r\n", (double)(data[0]), (double)(data[1]), (double)(data[2]));
   printf("\r\n");
 }
 void print_magnetometer(uint16_t data[]) {
@@ -154,7 +157,7 @@ void print_magnetometer(uint16_t data[]) {
 }
 void LorawanInit(uint64_t short_UID) {
   short_UID = get_UID();
-  printf("%d", short_UID);
+  printf("%lld", (long long)short_UID);
   murata_init = Murata_Initialize(short_UID, 0);
 
   if (murata_init) {
@@ -179,7 +182,7 @@ void Dash7_send(void const *argument) {
     if (!Murata_Dash7_Send((uint8_t *)dash7Message, i)) {
       murata_init++;
       if (murata_init == 10)
-        murata_init == 0;
+        murata_init = 0;
     } else {
       murata_init = 1;
     }
