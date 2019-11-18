@@ -64,6 +64,7 @@ uint8_t addr;
 uint8_t            GSP30_setting;
 I2C_HandleTypeDef *GSP30_hi2c;
 
+void decodeError1(uint32_t status);
 void              GSP30_setI2CInterface(I2C_HandleTypeDef *hi2c);
 HAL_StatusTypeDef GSP30_readRegister(uint16_t GSP30_reg, uint8_t GSP30_data, uint32_t Timeout);
 HAL_StatusTypeDef GSP30_writeRegister(uint16_t GSP30_reg, uint8_t GSP30_data, uint32_t Timeout);

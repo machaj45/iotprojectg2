@@ -1,5 +1,6 @@
 #include "platform.h"
 #include "murata.h"
+#include <stdio.h>
 
 uint8_t use_scheduler = 0;
 struct OCTA_header murataHeader;

@@ -1,18 +1,18 @@
 #include "GSP30.h"
+#include <stdio.h>
 
 
 void GSP30_init() {
 //  GSP30_softReset();
-  uint16_t addres[1];
   uint8_t data[2];
   for(int i = 0;i<sizeof(data);i++){
     data[i]=0;
   }
-  addres[0] = 0x2032;
   printf("READ ID\n\r");
-  (addres, data, SGP30_CMD_MEASURE_TEST_DURATION_US);
+  HAL_I2C_Master_Transmit(GSP30_hi2c,0x58<<1, data,sizeof(data), SGP30_CMD_MEASURE_TEST_DURATION_US);
   HAL_Delay(100);
 }
+
 void GSP30_measure() {
   uint8_t  data[9];
   data[0]=0x20;
@@ -38,7 +38,7 @@ void GSP30_reset() {
 }
 
 
-void decodeError1(status) {
+void decodeError1(uint32_t status) {
   switch (status) {
     case 0:
       printf("HAL_OK\n\r");
@@ -88,7 +88,7 @@ void decodeError1(status) {
       printf("HAL_I2C_ERROR_INVALID_PARAM\n\r");
       break;
     default:
-      printf("Error Code is: %x\n\r", GSP30_hi2c->ErrorCode);
+      printf("Error Code is: %d\n\r", (int)(GSP30_hi2c->ErrorCode));
       GSP30_hi2c->ErrorCode=0;
   }
 }
