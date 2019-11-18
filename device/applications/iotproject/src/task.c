@@ -2,9 +2,6 @@
 #include "task.h"
 
 uint8_t murata_data_ready = 0;
-lora_init                 = 0;
-extern short_UID;
-extern uint8_t button;
 
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
