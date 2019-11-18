@@ -28,9 +28,11 @@ osMutexId  txMutexId;
 osMutexId  murata_rx_process_mutex_id;
 osTimerId  iwdgTimId;
 
-volatile uint8_t acc_int;
+volatile uint8_t acc_int = 0;
+volatile uint8_t button  = 0;
 float            SHTData[2];
 uint8_t          lora_init = 0;
+uint64_t         short_UID;
 // Globals
 #ifdef __cplusplus
 }
