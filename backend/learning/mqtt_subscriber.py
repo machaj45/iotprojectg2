@@ -8,10 +8,13 @@ from d7a.dll.parser import Parser as DllFrameParser, FrameType
 from d7a.serial_modem_interface.parser import Parser as SerialParser
 from d7a.system_files.system_file_ids import SystemFileIds
 from d7a.system_files.system_files import SystemFiles
+import datas
 
 counter_of_messages = 0;
 old_parameters = []
 dataForMessage = {}
+
+#print(len(datas.A))
 
 def subscribe_to_our_devices(client):
         # This is device of
