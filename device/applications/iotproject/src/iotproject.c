@@ -9,8 +9,6 @@ int main(void) {
   Initialize_Platform();
   Initialize_OS();
   Initialize_Sensors();
-  IWDG_feed(NULL);
-  HAL_Delay(1000);
   LorawanInit();
   osKernelStart();
   while (1) {

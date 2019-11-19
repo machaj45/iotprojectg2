@@ -20,7 +20,6 @@ void EXTI1_IRQHandler(void) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber) {
   if (GPIO_PIN_5 == gpioPinNumber) {
-    // printf("PIN5 Int \r\n");
     if (acc_int != 2)
       acc_int = 1;
   }

@@ -26,6 +26,7 @@ def subscribe_to_our_devices(client):
 def on_message(client, userdata, message):
         print("message received ", str(message.payload.decode("utf-8")))
         print("message topic = ", message.topic)
+        return 0
 	topic = message.topic
 	gateway =  topic.split("/")[3]
 	message1 = str(message.payload.decode("utf-8"))
