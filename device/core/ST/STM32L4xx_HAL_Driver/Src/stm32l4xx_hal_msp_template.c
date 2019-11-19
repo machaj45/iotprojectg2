@@ -54,6 +54,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+
+
+
+
+
 /** @defgroup HAL_MSP_Private_Functions
   * @{
   */
@@ -63,6 +68,8 @@
   * @param  None
   * @retval None
   */
+
+
 void HAL_MspInit(void)
 {
   /* NOTE : This function is generated automatically by STM32CubeMX and eventually  

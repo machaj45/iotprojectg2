@@ -49,18 +49,18 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "no-scheduler-example.h"
-//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
-#include <stdio.h>
-//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\drivers\SHT31\inc\sht31.h"
-#include "murata.h"
-#include "..\..\..\core\drivers\LSM303AGR\inc\LSM303AGRSensor.h"
-#include "..\..\..\core\drivers\SHT31\inc\sht31.h"
-#include "..\..\..\core\ST\STM32L4xx_HAL_Driver\Inc\stm32l4xx_hal_rtc.h"
+#define HAL_RTC_MODULE_ENABLED
 
-//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\applications\lorawan-example\inc\lorawan-example.h"
-//#include "C:\Users\yvesk\Documents\Academiejaar 2019-2020\IOT\Practicum\octa-stack-students-master\core\platform\common\inc\platform.h"
-/* Private includes ----------------------------------------------------------*/
+
+#include "no-scheduler-example.h"
+#include <stdio.h>
+#include "murata.h"
+
+//#include "platform.h"
+#include "LSM303AGRSensor.h"
+#include "sht31.h"
+
+// Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 
@@ -74,7 +74,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define HAL_EXTI_MODULE_ENABLED
-#define HAL_RTC_MODULE_ENABLED
 
 #define temp_hum_timer    3
 //#define LOW_POWER
@@ -98,11 +97,11 @@ volatile uint8_t counter = 0;
 
 //RTC 
 
-/*
+
 RTC_HandleTypeDef RTCHandle;
 static void SystemPower_Config(void);
 
-*/
+//*/
 /* USER CODE END 0 */
 
 /**
@@ -130,6 +129,13 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+    /* Enable Power Clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  
+  /* Ensure that MSI is wake-up system clock */ 
+  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+
+  SystemPower_Config();
 
 
 //////////////////////////////////////////////////
@@ -225,6 +231,12 @@ HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
     HAL_Delay(200);
 
 
+//    HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
+
+
+    HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle,0x02710,RTC_WAKEUPCLOCK_RTCCLK_DIV16);
+
+
 
 /* Re-enable wakeup source */
     /* ## Setting the Wake up time ############################################*/
@@ -248,12 +260,24 @@ HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
   
 
 //go to stop mode with frozen IWDG-timer
-HAL_SuspendTick();
+//HAL_SuspendTick();
 HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-HAL_ResumeTick();
+//HAL_ResumeTick();
+//printf("lalla\r\n");
 
+//Initialize_Platform();
 //reset the right clock config.
 SystemClock_Config();
+ // SystemClock_Config();
+
+    /* Enable Power Clock */
+ // __HAL_RCC_PWR_CLK_ENABLE();
+  
+  /* Ensure that MSI is wake-up system clock */ 
+ // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+
+  //SystemPower_Config();
+
 
 /* Disable all used wakeup source */
 //******** HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
@@ -290,13 +314,13 @@ void printWelcome(void)
   * @retval None
   */
 
- /*****
+ 
 static void SystemPower_Config(void)
 {
 
-  ///* Configure RTC */
- // RTCHandle.Instance = RTC;
-  ///* Set the RTC time base to 1s */
+  /* Configure RTC */
+  RTCHandle.Instance = RTC;
+  /* Set the RTC time base to 1s */
   /* Configure RTC prescaler and RTC data registers as follow:
     - Hour Format = Format 24
     - Asynch Prediv = Value according to source clock
@@ -304,22 +328,30 @@ static void SystemPower_Config(void)
     - OutPut = Output Disable
     - OutPutPolarity = High Polarity
     - OutPutType = Open Drain */
-
-    /*****
   RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-  RTCHandle.Init.AsynchPrediv = 127;
-  RTCHandle.Init.SynchPrediv = 255;
-  RTCHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+  RTCHandle.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
+  RTCHandle.Init.SynchPrediv = RTC_SYNCH_PREDIV;
+  RTCHandle.Init.OutPut = RTC_OUTPUT_WAKEUP;
   RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_PUSHPULL;
   if(HAL_RTC_Init(&RTCHandle) != HAL_OK)
   {
-    
+    /* Initialization Error */
     Error_Handler(); 
   }
 }
 
-*****/
+void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
+  printf("interrupt handled\r\n");
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
+   */
+}
 
 
 
@@ -350,6 +382,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   // the flag will call the measurement function in de while loop
   } 
 }
+
+
+
+
+
 
 
 

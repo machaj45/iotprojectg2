@@ -57,6 +57,9 @@
 extern "C" {
 #endif
 
+#define RTC_ASYNCH_PREDIV    0x7F
+#define RTC_SYNCH_PREDIV     0xF9  /* 32Khz/128 - 1 */
+
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
 

@@ -137,6 +137,8 @@
   * @{
   */
 
+
+#define HAL_RTC_MODULE_ENABLED 
 #ifdef HAL_RTC_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
@@ -981,6 +983,8 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateWakeUpTimer(RTC_HandleTypeDef *hrtc)
   /* Process Unlocked */
   __HAL_UNLOCK(hrtc);
 
+ // __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
   return HAL_OK;
 }
 
@@ -1000,6 +1004,8 @@ uint32_t HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc)
   * @param  hrtc RTC handle
   * @retval None
   */
+
+
 void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
 {
   /* Clear the EXTI's line Flag for RTC WakeUpTimer */
@@ -1032,6 +1038,38 @@ void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
   hrtc->State = HAL_RTC_STATE_READY;
 }
 
+// void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
+// {
+//   /* Clear the EXTI's line Flag for RTC WakeUpTimer */
+//   __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
+
+
+// #if defined(STM32L412xx) || defined(STM32L422xx)
+//   if((hrtc->Instance->MISR & RTC_MISR_WUTMF) != 0u)
+//   {
+//     /* Immediately clear flags */
+//     hrtc->Instance->SCR = RTC_SCR_CWUTF;
+// #else
+//   /* Get the pending status of the WAKEUPTIMER Interrupt */
+//   if(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTF) != 0U)
+//   {
+//     /* Clear the WAKEUPTIMER interrupt pending bit */
+//     __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
+// #endif
+
+//     /* WAKEUPTIMER callback */
+// #if (USE_HAL_RTC_REGISTER_CALLBACKS == 1)
+//     /* Call WakeUpTimerEvent registered Callback */
+//     hrtc->WakeUpTimerEventCallback(hrtc);
+// #else
+//     HAL_RTCEx_WakeUpTimerEventCallback(hrtc);
+// #endif /* USE_HAL_RTC_REGISTER_CALLBACKS */
+//   }
+
+//   /* Change RTC state */
+//   hrtc->State = HAL_RTC_STATE_READY;
+// }
+
 /**
   * @brief  Wake Up Timer callback.
   * @param  hrtc RTC handle
@@ -1041,6 +1079,8 @@ __weak void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hrtc);
+
+  printf("interrupt handled\r\n");
 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
