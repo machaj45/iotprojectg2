@@ -182,4 +182,11 @@ void OCTA_GPIO_Init(void)
   P3_DIO5.PIN = P3_DIO5_Pin;
   P3_DIO6.PORT = P3_DIO6_GPIO_Port;
   P3_DIO6.PIN = P3_DIO6_Pin;
+
+<<<<<<< HEAD
+=======
+  // HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);		
+  // HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+>>>>>>> 152ee2cd0d3b281fb2bd3ef14a3b974d4a80f225
+
 }

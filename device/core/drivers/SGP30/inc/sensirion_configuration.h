@@ -31,8 +31,15 @@
 #ifndef SENSIRION_CONFIGURATION_H
 #define SENSIRION_CONFIGURATION_H
 
+
+
+
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef SPG30_CONNECTOR
+#define SPG30_CONNECTOR 1
 #endif
 
 /**

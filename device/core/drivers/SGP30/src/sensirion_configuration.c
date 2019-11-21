@@ -33,6 +33,10 @@
 #include "platform.h"
 I2C_HandleTypeDef *hi2c1;
 
+#ifndef SPG30_CONNECTOR
+#define SPG30_CONNECTOR 1
+#endif
+
 /*
  * INSTRUCTIONS
  * ============

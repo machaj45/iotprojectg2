@@ -78,6 +78,7 @@ void TIM1_UP_TIM16_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);    //define the ext15_10 interrupt handler
 void RTC_WKUP_IRQHandler(void);
 
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
