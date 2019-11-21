@@ -1,6 +1,6 @@
 from KNN import *
 
-kn = KNN()
+kn = KNN('../database_test3.json')
 signal = [[53,50, 43, 38]]
 point = kn.getpoint(signal)
 print(point)
