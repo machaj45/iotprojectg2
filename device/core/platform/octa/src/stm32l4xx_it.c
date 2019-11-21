@@ -76,7 +76,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
-// /****** extern RTC_HandleTypeDef RTCHandle;
+extern RTC_HandleTypeDef RTCHandle;
 
 /* USER CODE BEGIN EV */
 
@@ -292,13 +292,13 @@ void EXTI15_10_IRQHandler(void) {
   * @retval None
   */
 
- /*****
+ 
 void RTC_WKUP_IRQHandler(void)
 {
   HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
   
 }
 
-*****/
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
