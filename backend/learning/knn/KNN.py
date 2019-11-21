@@ -8,10 +8,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 class KNN:
     def __init__(self,*arg):
-        if len(arg) == 0:
-            filename='database.json'
-            filename2='points.json'
-        elif len(arg)==1:
+        filename='database.json'
+        filename2='points.json'
+        if len(arg)==1:
             filename=arg[0]
         elif len(arg)==2:
             filename=arg[0]
@@ -24,23 +23,15 @@ class KNN:
         C = []
         i=0;
         for message in data.get("messages"):
-            for gateway in message:
-                i=i+1;
-                for gateways in message[gateway]:
-                    if gateways.get("gateway") != None:
-                        B.append(gateways.get("rxLevel"))
-                        C.append(gateways.get("gateway"))
-                B = [x for _,x in sorted(zip(C,B))] 
-                A.append(B)
-                #print(B)
-                B=[]
-        #print(i)
+            A.append(message)
+
         self.neigh = KNeighborsRegressor(n_neighbors=3,radius=1.5, metric='euclidean',n_jobs=2)
 
         with open (filename2,"r") as readfile:
             data = json.load(readfile)
         pos=data["points"]
         self.neigh.fit(A, pos)
+
     def getpoint(self,signal):
         point = self.neigh.predict(signal)[0]
         return point
@@ -54,6 +45,3 @@ class KNN:
             self.imgplot = plt.imshow(self.img)
             plt.plot(data[0],data[1],'r*')
             plt.show()
-
-
-
