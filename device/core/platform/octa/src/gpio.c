@@ -69,10 +69,6 @@ void OCTA_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = OCTA_BTN1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(OCTA_BTN1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : B13_Pin */
   GPIO_InitStruct.Pin = GPIO_Pin_13;
@@ -117,7 +113,7 @@ void OCTA_GPIO_Init(void)
 
   /*Configure GPIO pins : OCTA_BTN1_Pin OCTA_BTN2_Pin */
   GPIO_InitStruct.Pin = OCTA_BTN1_Pin|OCTA_BTN2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
@@ -187,7 +183,5 @@ void OCTA_GPIO_Init(void)
   P3_DIO6.PORT = P3_DIO6_GPIO_Port;
   P3_DIO6.PIN = P3_DIO6_Pin;
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);		
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }

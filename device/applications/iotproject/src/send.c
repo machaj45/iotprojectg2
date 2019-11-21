@@ -1,17 +1,17 @@
 #include "iotproject.h"
 #include "send.h"
 
-uint16_t LoRaWAN_Counter = 0;
-uint8_t  murata_init     = 0;
-uint16_t DASH7_Counter   = 0;
+uint16_t            LoRaWAN_Counter = 0;
+uint8_t             murata_init     = 0;
+uint16_t            DASH7_Counter   = 0;
 UART_HandleTypeDef *murata_uart;
 
 void LorawanInit() {
-  short_UID   = get_UID();
-  murata_init = Murata_Initialize(short_UID, 0);
+  short_UID               = get_UID();
+  murata_init             = Murata_Initialize(short_UID, 0);
   struct OCTA_header temp = platform_getHeader(MURATA_CONNECTOR);
-  platform_initialize_I2C(temp); 
-  murata_uart=temp.uartHandle;
+  platform_initialize_I2C(temp);
+  murata_uart = temp.uartHandle;
 
   if (murata_init) {
     printf("Murata dualstack module init OK\r\n\r\n");
@@ -66,8 +66,6 @@ void Dash7_send(void const *argument) {
     } else {
       murata_init = 1;
     }
-    // osDelay(3000);
-    // osMutexRelease(txMutexId);
     DASH7_Counter++;
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
     HAL_Delay(200);

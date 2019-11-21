@@ -5,15 +5,15 @@ void OCTA_NVIC_Initialize(){
   /* EXTI5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(23, 2, 0);
   HAL_NVIC_EnableIRQ(23); // 23 is interrupt line 5 - 9
-    
-//  HAL_NVIC_SetPriority(40, 0, 0);
- // HAL_NVIC_EnableIRQ(40); // 23 is interrupt line 10 - 15
 
-  HAL_NVIC_SetPriority(6, 0, 0);
-  HAL_NVIC_EnableIRQ(6); // 23 is interrupt line 0
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-  //HAL_NVIC_SetPriority(7, 0, 0);
-  //HAL_NVIC_EnableIRQ(7); // 23 is interrupt line 1
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn); // 6 is interrupt line 0
+
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn); // 7 is interrupt line 1
 }
 void OCTA_Initialize_Platform(void)
 {
@@ -40,7 +40,7 @@ void OCTA_Initialize_Common_Peripherals(void)
     BLE_UART_Init(115200); 
     #if USE_BOOTLOADER
         printf("\r\nusing bootloader, initializing BLE UART\r\n");
-        bootloader_initialize(&BLE_UART);     
+        bootloader_initialize(&BLE_UART);
     #endif
 }
 

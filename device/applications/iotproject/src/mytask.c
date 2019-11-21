@@ -3,6 +3,10 @@
 #include "send.h"
 #include "other.h"
 
+#define BlueButton 0
+#define Button1 1
+#define Button2 2
+
 uint8_t          murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
@@ -26,27 +30,63 @@ void Initialize_OS(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 }
 
+void onBlueButton() {
+}
+void onButton1() {
+  Dash7_send(NULL);
+  HAL_Delay(100);
+  modem_reinit();
+}
+void onButton2() {
+  //murata_data_ready = !Murata_process_fifo();
+  modem_reinit();
+  HAL_Delay(1000);
+  uint8_t loraMessage[5];
+  loraMessage[0] = 0x14;
+  loraMessage[1] = 0x00;
+  loraMessage[2] = 0x00;
+  Murata_LoRaWAN_Send(loraMessage, sizeof(loraMessage));
+}
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
+
+  Murata_LoRaWAN_Join();
   while (1) {
     if (acc_int == 1) {
       acc_int = 0;
       // temp_hum_measurement();LoRaWAN_send(NULL);
     }
-    if (button == 1) {
-      Dash7_send(NULL);
-      button = 0;
-      HAL_Delay(300);
-      modem_reinit();
+    /*
+    uint8_t data [20];
+    HAL_UART_Receive(&BLE_UART, data, sizeof(data),0xFFF);
+    printf("%d %d %d %d %d",data[0],data[1],data[2],data[3],data[4]);
+    */
+    switch (button) {
+      case BlueButton:
+        onBlueButton();
+        button = 0;
+        break;
+      case Button1:
+        onButton1();
+        button = 0;
+        break;
+      case Button2:
+        onButton2();
+        button = 0;
+        break;
     }
+
+
     IWDG_feed(NULL);
 
     if (murata_data_ready) {
       printf("processing murata fifo\r\n");
       murata_data_ready = !Murata_process_fifo();
     }
+
     SPG30_measure();
-    HAL_Delay(1000);
+
+    osDelay(500);
   }
 }
 
@@ -65,8 +105,9 @@ void murata_process_rx_response(void const *argument) {
     // parameter is pdTRUE, which has the effect of clearing the task's notification
     // value back to 0, making the notification value act like a binary (rather than
     // a counting) semaphore.
-      
+
     startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
+    printf("The transmission ended as expected");
     if (startProcessing == 1) {
       printf("The transmission ended as expected");
       // The transmission ended as expected.

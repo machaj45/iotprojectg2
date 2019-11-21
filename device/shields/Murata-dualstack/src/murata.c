@@ -9,7 +9,7 @@ session_config_t session_config_lora =
     {
         .interface_type = LORAWAN_OTAA,
         .lorawan_session_config_otaa = {
-            .devEUI = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
+            .devEUI = LORAWAN_DEV_EUI,
             .appEUI = LORAWAN_APP_EUI,
             .appKey = LORAWAN_APP_KEY,
             .request_ack = false,
@@ -182,7 +182,7 @@ uint8_t Murata_Dash7_Send(uint8_t *buffer, uint8_t length)
 {
     uint8_t status = 0;
     status = modem_send_unsolicited_response(0x40, 0, length, (uint8_t *)buffer, &session_config_d7);
-    printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x]\r\n", length,buffer[0],buffer[1],buffer[2]);
+    printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x] and status is %d\r\n", length,buffer[0],buffer[1],buffer[2],status);
     return status;
 }
 

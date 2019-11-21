@@ -32,10 +32,10 @@ class KNN:
                         C.append(gateways.get("gateway"))
                 B = [x for _,x in sorted(zip(C,B))] 
                 A.append(B)
-                #print(B)
+                print(B)
                 B=[]
         #print(i)
-        self.neigh = KNeighborsRegressor(n_neighbors=3,radius=1.5, metric='euclidean',n_jobs=2)
+        self.neigh = KNeighborsRegressor(n_neighbors=6,radius=0.2, metric='euclidean',n_jobs=2)
 
         with open (filename2,"r") as readfile:
             data = json.load(readfile)
