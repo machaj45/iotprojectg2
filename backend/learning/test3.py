@@ -10,7 +10,9 @@ from d7a.system_files.system_file_ids import SystemFileIds
 from d7a.system_files.system_files import SystemFiles
 import datas
 
-counter_of_messages = 0;
+first_time = 1
+move_on = 0
+counter_of_messages = 0
 old_parameters = []
 dataForMessage = {}
 gw = {}
@@ -27,7 +29,7 @@ def subscribe_to_our_devices(client):
         # This is device of Hanna
         #client.subscribe("/d7/483638370025002f/#")
         # This is device of Jan
-        client.subscribe("/d7/483638370041003f/#")
+        #client.subscribe("/d7/483638370041003f/#")
         # This is device of Ruben
         #client.subscribe("/d7/4836383700440045/#")
         # This is device of Jola
@@ -78,13 +80,27 @@ def on_message(client, userdata, message):
 				temp["messages"] = messages
 				json.dump(temp, output_file, indent=2, sort_keys=True)
 			print("data added to database")
+			print("  ")
+			global move_on
+			global first_time
+			if (first_time == 1):
+				move_on = move_on + 1
+				if (move_on == 3):
+					move_on = 0
+					first_time = first_time + 1
+					print("----- Go to another place!!")
+			else:
+				move_on = move_on + 1
+				if(move_on == 4):
+					move_on = 0
+					print("----- Go to another place!!")
 
 		#print("--------first case")
 		old_parameters = []
 		old_parameters = parameters
 		global counter_of_messages
 		counter_of_messages = counter_of_messages + 1
-		message_number = 'message' + str(counter_of_messages)
+		message_number = 'message ' + str(counter_of_messages - 1)
 		print(message_number)
 		messageOfValues = {}
 		messageOfValues = {tempGateway : rxLevel}
@@ -97,7 +113,7 @@ def on_message(client, userdata, message):
 		#dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
 	else:
 		#print("!!!!!     another case")
-		message_number = 'message' + str(counter_of_messages)
+		message_number = 'message ' + str(counter_of_messages - 1)
 		#print(message_number)
 		#data = {}
 		messageOfValues[tempGateway] = rxLevel
