@@ -1,8 +1,9 @@
 from KNN import *
 
-kn = KNN('../database_test3.json')
+kn = KNN()
 signal = [[53,50, 43, 38]]
-point = kn.getpoint(signal)
-print(point)
+#point = kn.getpoint(signal)
+#print(point)
+point=[0,0]
 kn.plotmap(point)
 
