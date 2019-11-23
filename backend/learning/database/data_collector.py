@@ -8,7 +8,6 @@ from d7a.dll.parser import Parser as DllFrameParser, FrameType
 from d7a.serial_modem_interface.parser import Parser as SerialParser
 from d7a.system_files.system_file_ids import SystemFileIds
 from d7a.system_files.system_files import SystemFiles
-import datas
 
 first_time = 1
 move_on = 0
