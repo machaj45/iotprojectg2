@@ -19,30 +19,32 @@ class KNN:
         with open (filename,"r") as readfile:
             data = json.load(readfile)
         A = []
-        B = []
-        C = []
-        i=0;
         for message in data.get("messages"):
             A.append(message)
 
-        #self.neigh = KNeighborsRegressor(n_neighbors=3,radius=1.5, metric='euclidean',n_jobs=2)
+        self.neigh = KNeighborsRegressor(n_neighbors=20,radius=10, metric='euclidean',n_jobs=2)
 
         with open (filename2,"r") as readfile:
             data = json.load(readfile)
-        pos=data["points"]
-        #self.neigh.fit(A, pos)
+        self.pos=data["points"]
+        self.neigh.fit(A, self.pos)
 
     def getpoint(self,signal):
-        #point = self.neigh.predict(signal)[0]
+        point = self.neigh.predict(signal)
         return point
+        
     def plotmap(self,data):
-        if len(data)!=2:
-            print()
-        #    data = self.neigh.predict(data)[0]
+        #if len(data)!=2:
+            #data = self.neigh.predict(data)
         if os.environ.get('DISPLAY','') == '':
-                print('No display found! TRY ssh -X student@student-ect')
+            print('No display found! TRY ssh -X student@student-ect')
         else:
             self.img=mpimg.imread('map.png')
             self.imgplot = plt.imshow(self.img)
-           # plt.plot(data[0],data[1],'r*')
+            X = []
+            Y = []
+            for x in data:
+                X.append(x[0])
+                Y.append(x[1])
+            plt.plot(X,Y,'r*')
             plt.show()
