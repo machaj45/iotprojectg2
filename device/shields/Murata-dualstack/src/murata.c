@@ -112,7 +112,7 @@ uint8_t Murata_Initialize(uint64_t octa_UID, uint8_t use_RTOS)
             return 0;  
         }
         else
-            printf("Murata on P%d, initializing UART\r\n", (uint8_t)MURATA_CONNECTOR);         
+            printf("Murata on P%d, initializing UART\r\n", (uint8_t)MURATA_CONNECTOR);
     #endif
     #ifdef LORAWAN_APP_NAME
         printf("Using LoRaWAN keys of %s application \r\n", LORAWAN_APP_NAME);

@@ -24,14 +24,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber) {
       acc_int = 1;
   }
   if (GPIO_PIN_13 == gpioPinNumber) {
+    button  = 3;
   }
   if (GPIO_PIN_0 == gpioPinNumber) {
     acc_int = 2;
-    if (button == 0) {
-      button = 1;
-    }
+    button  = 1;
   }
   if (GPIO_PIN_1 == gpioPinNumber) {
-      button = 2;
+    button = 2;
   }
 }

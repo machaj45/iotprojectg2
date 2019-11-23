@@ -33,6 +33,7 @@ osTimerId  iwdgTimId;
 
 extern volatile uint8_t acc_int;
 extern volatile uint8_t button;
+extern volatile uint8_t murata_data_ready;
 extern float            SHTData[2];
 extern uint8_t          lora_init;
 extern uint64_t         short_UID;

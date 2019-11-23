@@ -3,16 +3,17 @@
 #include "send.h"
 #include "other.h"
 
-#define BlueButton 0
+#define BlueButton 3
 #define Button1 1
 #define Button2 2
 
-uint8_t          murata_data_ready = 0;
+volatile uint8_t murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
 uint64_t         short_UID;
 
 void Initialize_OS(void) {
+
 
   osMutexDef(txMutex);
   txMutexId = osMutexCreate(osMutex(txMutex));
@@ -31,16 +32,13 @@ void Initialize_OS(void) {
 }
 
 void onBlueButton() {
+  printf("Blue Button pressed");
 }
 void onButton1() {
   Dash7_send(NULL);
-  HAL_Delay(100);
-  modem_reinit();
 }
 void onButton2() {
-  //murata_data_ready = !Murata_process_fifo();
-  modem_reinit();
-  HAL_Delay(1000);
+  printOCTAID();
   uint8_t loraMessage[5];
   loraMessage[0] = 0x14;
   loraMessage[1] = 0x00;
@@ -49,18 +47,22 @@ void onButton2() {
 }
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
-
-  Murata_LoRaWAN_Join();
   while (1) {
     if (acc_int == 1) {
       acc_int = 0;
       // temp_hum_measurement();LoRaWAN_send(NULL);
     }
+
+    if (murata_data_ready) {
+      printf("processing murata fifo dafasdfasd\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
     /*
     uint8_t data [20];
     HAL_UART_Receive(&BLE_UART, data, sizeof(data),0xFFF);
-    printf("%d %d %d %d %d",data[0],data[1],data[2],data[3],data[4]);
+    printf("%d %d %d %d %d\n\r",data[0],data[1],data[2],data[3],data[4]);
     */
+
     switch (button) {
       case BlueButton:
         onBlueButton();
@@ -79,21 +81,17 @@ void StartDefaultTask(void const *argument) {
 
     IWDG_feed(NULL);
 
-    if (murata_data_ready) {
-      printf("processing murata fifo\r\n");
-      murata_data_ready = !Murata_process_fifo();
-    }
 
     SPG30_measure();
 
-    osDelay(500);
+    osDelay(1000);
   }
 }
 
 void check_modules(void const *argument) {
   printf("checking the status of the modules\r\n");
   if (!lora_init) {
-    lora_init = Murata_Initialize(short_UID, 0);
+    lora_init = Murata_Initialize(short_UID, 1);
     Murata_toggleResetPin();
   }
 }

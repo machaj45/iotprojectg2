@@ -10,6 +10,7 @@ void magnetometer_measurement(void);
 void print_accelerometer(uint16_t data[]);
 void print_magnetometer(uint16_t data[]);
 void print_temp_hum(void);
+void printOCTAID();
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 void decodeError (int status);

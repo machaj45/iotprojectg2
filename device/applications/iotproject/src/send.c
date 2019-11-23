@@ -8,7 +8,7 @@ UART_HandleTypeDef *murata_uart;
 
 void LorawanInit() {
   short_UID               = get_UID();
-  murata_init             = Murata_Initialize(short_UID, 0);
+  murata_init             = Murata_Initialize(short_UID, 1);
   struct OCTA_header temp = platform_getHeader(MURATA_CONNECTOR);
   platform_initialize_I2C(temp);
   murata_uart = temp.uartHandle;
@@ -16,6 +16,8 @@ void LorawanInit() {
   if (murata_init) {
     printf("Murata dualstack module init OK\r\n\r\n");
   }
+  HAL_Delay(1000);
+  Murata_LoRaWAN_Join();
 }
 
 void LoRaWAN_send(void const *argument) {
@@ -78,5 +80,6 @@ void Dash7_send(void const *argument) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   if (huart == murata_uart) {
     Murata_rxCallback();
+    murata_data_ready = 1;
   }
 }

@@ -17,19 +17,18 @@ dataForMessage = {}
 #print(len(datas.A))
 
 def subscribe_to_our_devices(client):
-        # This is device of
+        # This is device of Hanna
         #client.subscribe("/d7/483638370025002f/#")
-        # This is device of
+        # This is device of Jan
         client.subscribe("/d7/483638370041003f/#")
-        # This is device of
-        #client.subscribe("/d7/4836383700440045/#")
-        # This is device of
-        #client.subscribe("/d7/48363837002a0038/#")
+        # This is device of Ruben
+        client.subscribe("/d7/4836383700440045/#")
+        # This is device of Jola
+        client.subscribe("/d7/48363837002a0038/#")
 
 def on_message(client, userdata, message):
         print("message received ", str(message.payload.decode("utf-8")))
         print("message topic = ", message.topic)
-        return 0
 	topic = message.topic
 	gateway =  topic.split("/")[3]
 	message1 = str(message.payload.decode("utf-8"))

@@ -6,8 +6,8 @@ windows:
   - jlink:
       layout: even-horizontal
       panes:
-        - tmux resize-pane -L 45;jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1
-        - cd ~/git/iotprojectg2/device/applications/iotproject 
+        - cd ~/git/iotprojectg2/device/applications/iotproject;sleep 1; tmux split-window -d ;tmux resize-pane -U 21; cu -l /dev/ttyACM* -s 115200
+        - tmux resize-pane -R 55; jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1
   - service:
       layout: even-vertical
       panes:

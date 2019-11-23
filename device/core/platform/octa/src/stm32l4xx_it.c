@@ -295,7 +295,7 @@ void EXTI15_10_IRQHandler(void) {
  
 void RTC_WKUP_IRQHandler(void)
 {
-  HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
+ // HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
   
 }
 

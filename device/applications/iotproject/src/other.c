@@ -96,12 +96,21 @@ void temp_hum_measurement(void) {
   print_temp_hum();
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM1) {
     HAL_IncTick();
   }
 }
-
+void printOCTAID() {
+  printf("\r\n");
+  char UIDString[sizeof(short_UID)];
+  memcpy(UIDString, &short_UID, sizeof(short_UID));
+  printf("octa ID: ");
+  for (const char* p = UIDString; *p; ++p) {
+    printf("%02x", *p);
+  }
+  printf("\r\n\r\n");
+}
 void print_accelerometer(uint16_t data[]) {
   printf("\r\n");
   printf("Accelerometer data: X: % 06.2f Y: % 06.2f Z: % 06.2f \r\n", (double)(data[0]), (double)(data[1]), (double)(data[2]));
