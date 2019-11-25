@@ -14,10 +14,10 @@ class mainservice:
     old_parameters = []
     dataForMessage = {}
     broker_address = "student-04.idlab.uantwerpen.be"
-    client = mqtt.Client("P1") # create new instance 
     def __init__(self):
         print("python main function")
         print("creating new instance")
+	client = mqtt.Client("P1") # create new instance
         self.client.on_message=self.on_message # attach function to callback
         print("connecting to the broker")
         self.client.connect(self.broker_address) # connect broker
@@ -37,7 +37,7 @@ class mainservice:
 
     def on_message(self,client, userdata, message):
         print("message received ", str(message.payload.decode("utf-8")))
-        print("message topic = ", message.topic)
+        print("message 
         topic = message.topic
         gateway =  topic.split("/")[3]
         message1 = str(message.payload.decode("utf-8"))
