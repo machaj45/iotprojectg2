@@ -1,10 +1,9 @@
 #include "iotproject.h"
 #include "inte.h"
 
-// is somewere defined
-// void EXTI15_10_IRQHandler(void) {
-// HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-//}
+void EXTI15_10_IRQHandler(void) {
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}
 
 void EXTI9_5_IRQHandler(void) {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
@@ -24,7 +23,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpioPinNumber) {
       acc_int = 1;
   }
   if (GPIO_PIN_13 == gpioPinNumber) {
-    button  = 3;
+    button = 3;
   }
   if (GPIO_PIN_0 == gpioPinNumber) {
     acc_int = 2;

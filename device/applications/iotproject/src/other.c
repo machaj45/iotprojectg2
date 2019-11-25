@@ -102,14 +102,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   }
 }
 void printOCTAID() {
-  printf("\r\n");
   char UIDString[sizeof(short_UID)];
   memcpy(UIDString, &short_UID, sizeof(short_UID));
   printf("octa ID: ");
   for (const char* p = UIDString; *p; ++p) {
     printf("%02x", *p);
   }
-  printf("\r\n\r\n");
+  printf("\r\n");
 }
 void print_accelerometer(uint16_t data[]) {
   printf("\r\n");

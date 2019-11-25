@@ -50,6 +50,10 @@ modem_callbacks_t modem_callbacks = {
 void on_modem_command_completed_callback(bool with_error, uint8_t tag_id)
 {
     printf("Murata modem command with tag %i completed (success = %i)\r\n", tag_id, !with_error);
+    //tag_id=0;
+    //Murata_toggleResetPin();
+    //HAL_Delay(500);
+    //Murata_LoRaWAN_Join();
 }
 
 void on_modem_return_file_data_callback(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t *output_buffer)
@@ -70,6 +74,17 @@ void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t* da
         printf("LoRaWAN interface status: attemps = %d, error state = %d, duty cycle wait time = %d \r\n", interface_status.attempts, 
                                                                                                             interface_status.error_state, 
                                                                                                             interface_status.duty_cycle_wait_time);
+        switch (interface_status.error_state){
+          case 0 :printf("OK\n\r");break;
+          case 1 :printf("NOT_JOINED\n\r");break;
+          case 2 :printf("TX_NOT_POSSIBLE\n\r");break;
+          case 3 :printf("UNKNOWN\n\r");break;
+          case 4 :printf("NACK\n\r");break;
+          case 5 :printf("JOIN_FAILED\n\r");break;
+          case 6 :printf("DUTY_CYCLE_DELAY\n\r");break;
+          case 7 :printf("RETRY_TRANSMISSION\n\r");break;
+          case 8 :printf("JOINED\n\r");break;
+        }
     }
     else if(interface_type==ALP_ITF_ID_D7ASP)
     {

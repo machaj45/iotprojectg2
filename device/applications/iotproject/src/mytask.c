@@ -11,6 +11,9 @@ volatile uint8_t murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
 uint64_t         short_UID;
+uint8_t          buffer[3];
+uint8_t          murata_init;
+uint8_t          murata_joined = 0;
 
 void Initialize_OS(void) {
 
@@ -26,43 +29,46 @@ void Initialize_OS(void) {
   moduleCheckTimId = osTimerCreate(osTimer(moduleCheckTim), osTimerPeriodic, NULL);
   osTimerStart(moduleCheckTimId, MODULE_CHECK_INTERVAL * 1000);
 
-
   osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 }
 
 void onBlueButton() {
-  printf("Blue Button pressed");
+  printf("Blue Button pressed\n\r");
+  if (murata_init) {
+    if (murata_joined == 0) {
+      printf("Command Join\r\n");
+      Murata_LoRaWAN_Join();
+    } else {
+      printf("Device is already joined!\r\n");
+    }
+  }
 }
 void onButton1() {
-  Dash7_send(NULL);
+  printf("BTN1 pressed\n\r");
+  buffer[2]++;
+  Dash7_send(buffer, sizeof(buffer));
+  printf("BTN1 end\n\r");
 }
 void onButton2() {
-  printOCTAID();
-  uint8_t loraMessage[5];
-  loraMessage[0] = 0x14;
-  loraMessage[1] = 0x00;
-  loraMessage[2] = 0x00;
-  Murata_LoRaWAN_Send(loraMessage, sizeof(loraMessage));
+  printf("BTN2 pressed\n\r");
+  LoRaWAN_send(buffer, sizeof(buffer));
+  printf("BTN2 end\n\r");
 }
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
+  // check_modules(NULL);
+
   while (1) {
     if (acc_int == 1) {
       acc_int = 0;
       // temp_hum_measurement();LoRaWAN_send(NULL);
-    }
-
-    if (murata_data_ready) {
-      printf("processing murata fifo dafasdfasd\r\n");
-      murata_data_ready = !Murata_process_fifo();
     }
     /*
     uint8_t data [20];
     HAL_UART_Receive(&BLE_UART, data, sizeof(data),0xFFF);
     printf("%d %d %d %d %d\n\r",data[0],data[1],data[2],data[3],data[4]);
     */
-
     switch (button) {
       case BlueButton:
         onBlueButton();
@@ -80,10 +86,7 @@ void StartDefaultTask(void const *argument) {
 
 
     IWDG_feed(NULL);
-
-
     SPG30_measure();
-
     osDelay(1000);
   }
 }
@@ -99,20 +102,14 @@ void check_modules(void const *argument) {
 void murata_process_rx_response(void const *argument) {
   uint32_t startProcessing;
   while (1) {
-    // Wait to be notified that the transmission is complete.  Note the first
-    // parameter is pdTRUE, which has the effect of clearing the task's notification
-    // value back to 0, making the notification value act like a binary (rather than
-    // a counting) semaphore.
-
     startProcessing = ulTaskNotifyTake(pdTRUE, osWaitForever);
-    printf("The transmission ended as expected");
     if (startProcessing == 1) {
-      printf("The transmission ended as expected");
-      // The transmission ended as expected.
+      printf("The transmission ended as expected\n\r");
       Murata_process_fifo();
-    } else {
     }
     osDelay(1);
+
+    startProcessing = 0;
   }
   osThreadTerminate(NULL);
 }

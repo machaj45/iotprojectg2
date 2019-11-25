@@ -16,20 +16,20 @@ extern "C" {
 #include "sgp30.h"
 // Me
 #define IWDG_INTERVAL 50           // seconds
-#define LORAWAN_INTERVAL 30        // seconds
 #define MODULE_CHECK_INTERVAL 5000  // seconds
-                                   // OS
 
 osThreadId defaultTaskHandle;
 osThreadId GSPmeasuerTaskHandle;
 osThreadId murata_rx_processing_handle;
-osTimerId  loraWANTimId;
+osThreadId measureTaskHandle;
+
 osTimerId  moduleCheckTimId;
 osTimerId  GSPTimId;
+osTimerId  iwdgTimId;
+
 osMutexId  i2cMutexId;
 osMutexId  txMutexId;
 osMutexId  murata_rx_process_mutex_id;
-osTimerId  iwdgTimId;
 
 extern volatile uint8_t acc_int;
 extern volatile uint8_t button;

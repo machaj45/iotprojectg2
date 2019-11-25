@@ -154,7 +154,9 @@ bool modem_execute_raw_alp(uint8_t* alp, uint8_t len) {
 
 bool alloc_command() {
   if(command.is_active) {
-    printf("prev command still active");
+    printf("prev command still active\n\r");
+    Murata_toggleResetPin();
+    modem_reinit();
     return false;
   }
 
