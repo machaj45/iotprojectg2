@@ -11,9 +11,10 @@ volatile uint8_t murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
 uint64_t         short_UID;
-uint8_t          buffer[3];
+uint8_t          buffer[30];
 uint8_t          murata_init;
 uint8_t          murata_joined = 0;
+uint8_t          data[1];
 
 void Initialize_OS(void) {
 
@@ -35,6 +36,7 @@ void Initialize_OS(void) {
 
 void onBlueButton() {
   printf("Blue Button pressed\n\r");
+  /*
   if (murata_init) {
     if (murata_joined == 0) {
       printf("Command Join\r\n");
@@ -43,6 +45,7 @@ void onBlueButton() {
       printf("Device is already joined!\r\n");
     }
   }
+  */
 }
 void onButton1() {
   printf("BTN1 pressed\n\r");
@@ -57,18 +60,12 @@ void onButton2() {
 }
 void StartDefaultTask(void const *argument) {
   printf("Start the device!\n\r");
-  // check_modules(NULL);
-
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while (1) {
     if (acc_int == 1) {
       acc_int = 0;
       // temp_hum_measurement();LoRaWAN_send(NULL);
     }
-    /*
-    uint8_t data [20];
-    HAL_UART_Receive(&BLE_UART, data, sizeof(data),0xFFF);
-    printf("%d %d %d %d %d\n\r",data[0],data[1],data[2],data[3],data[4]);
-    */
     switch (button) {
       case BlueButton:
         onBlueButton();
@@ -82,9 +79,17 @@ void StartDefaultTask(void const *argument) {
         onButton2();
         button = 0;
         break;
+      case 6:
+        printf("Received data from BLE\n\r");
+        printf("Received byte is %d\n\r", data[0]);
+        button = 0;
+        uint8_t adata[2];
+        adata[0] = 0x00;
+        adata[1] = 0x60;
+        HAL_UART_Transmit(&BLE_UART, adata, sizeof(adata), 0xFFF);
+        HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+        break;
     }
-
-
     IWDG_feed(NULL);
     SPG30_measure();
     osDelay(1000);

@@ -17,6 +17,8 @@ extern "C" {
 // Me
 #define IWDG_INTERVAL 50           // seconds
 #define MODULE_CHECK_INTERVAL 5000  // seconds
+#define SIZE 256
+#define BLOCK_ID 0
 
 osThreadId defaultTaskHandle;
 osThreadId GSPmeasuerTaskHandle;
@@ -31,6 +33,8 @@ osMutexId  i2cMutexId;
 osMutexId  txMutexId;
 osMutexId  murata_rx_process_mutex_id;
 
+extern  uint8_t tx[SIZE];
+extern  uint8_t rx[SIZE];
 extern volatile uint8_t acc_int;
 extern volatile uint8_t button;
 extern volatile uint8_t murata_data_ready;
