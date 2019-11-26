@@ -76,7 +76,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
-extern RTC_HandleTypeDef RTCHandle;
+extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN EV */
 
@@ -295,7 +295,7 @@ void SPI3_IRQHandler(void)
  
 void RTC_WKUP_IRQHandler(void)
 {
- // HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
+  HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
   
 }
 

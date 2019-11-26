@@ -6,7 +6,7 @@ PLATFORM ?= octa
 
 # use the SBSFU bootloader
 BOOTLOADER ?= 0
-SHIELDS += Murata
+SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 3
 LORAWAN_APPLICATION = iowttn
 #LOW_POWER = 1

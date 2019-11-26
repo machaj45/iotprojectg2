@@ -49,7 +49,6 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#define HAL_RTC_MODULE_ENABLED
 
 
 #include "no-scheduler-example.h"
@@ -92,14 +91,32 @@ volatile _Bool interruptFlag=0;
 uint16_t LoRaWAN_Counter = 0;
 uint8_t lora_init = 0;
 uint64_t short_UID;
-uint16_t rep_counter = 0; 
-volatile uint8_t counter = 0;
+volatile uint8_t safeCounter = 0;
+volatile uint8_t DangerCounter = 0;
+volatile uint8_t EmergencyCounter = 0;
+volatile _Bool NormalMode = 1;
+
+static uint8_t maxSafeCounter = 5;
+static uint8_t maxDangerCounter = 5;
+static uint8_t maxEmergencyCounter = 5;
+
+static uint16_t NormalSleepCounter = 0x000A;
+static uint16_t EmergencySleepCounter = 0x0005;
+static uint16_t OneMinute = 0x003C;
+static uint16_t fiveMinute = 0x012C;
+static uint16_t halfMinute = 0x001E;
 
 //RTC 
+RTC_HandleTypeDef hrtc;
 
+// static void SystemPower_Config(void);
+static void MX_RTC_Init(void);
 
-RTC_HandleTypeDef RTCHandle;
-static void SystemPower_Config(void);
+void sleep(uint16_t time);
+
+void testBlink(void);
+
+void quickBlink(void);
 
 //*/
 /* USER CODE END 0 */
@@ -130,27 +147,12 @@ int main(void)
   SystemClock_Config();
 
     /* Enable Power Clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
+//  __HAL_RCC_PWR_CLK_ENABLE();
   
   /* Ensure that MSI is wake-up system clock */ 
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+//  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
 
-  SystemPower_Config();
-
-
-//////////////////////////////////////////////////
-
-  /* ENable Power clock */
-  //__HAL_RCC_PWR_CLK_ENABLE();
-
-  // See this for longer periods.
-  /* Ensure that MSI is wake-up system clock */ 
-  //__HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-
-  //SystemPower_Config();
-
-
-  ///////////////////////////////////////
+  MX_RTC_Init();
 
   /* USER CODE BEGIN SysInit */
 
@@ -163,10 +165,10 @@ int main(void)
   // get Unique ID of Octa
  // short_UID = get_UID(); 
 
-LSM303AGR_setI2CInterface(&common_I2C);
+//LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
   SHT31_begin(); 
-  LSM303AGR_init();
+//  LSM303AGR_init();
 
   printWelcome();
   uint8_t data; 
@@ -195,92 +197,45 @@ LSM303AGR_setI2CInterface(&common_I2C);
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
-        printf("Session %d\r\n", ++counter);
+        printf("Session %d\r\n", ++safeCounter);
       interruptFlag=0; 
     }
+
+
+  // operating in normal mode
+  if (NormalMode){
+    //check for BLE config
+
+    //do environment measurements & check for danger
+
+
+    // if no danger:
+    ++safeCounter;
+
+    if (safeCounter == maxSafeCounter){
+      //send data
+      printf("safe update to the server \r\n");
+      safeCounter = 0;
+    }
+
+    
+  }
+  // operating in emergency mode
+  else {
+
+  }
+
  
 
-    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
- //   printf("\33[2K");
-    printf("RED\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-  //  printf("\33[2K");
-    printf("GREEN\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-//    printf("\33[2K");
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+  quickBlink();
 
-    HAL_Delay(1000);
+  temp_hum_measurement();
+    
 
-HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-//    printf("\33[2K");
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    
 
-    HAL_Delay(1000);
+    sleep(OneMinute);
 
-    printf("going in sleep mode\r\n");
-
-    HAL_Delay(200);
-
-
-//    HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
-
-
-    HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle,0x02710,RTC_WAKEUPCLOCK_RTCCLK_DIV16);
-
-
-
-/* Re-enable wakeup source */
-    /* ## Setting the Wake up time ############################################*/
-    /* RTC Wakeup Interrupt Generation: 
-      the wake-up counter is set to its maximum value to yield the longuest
-      stop time to let the current reach its lowest operating point.
-      The maximum value is 0xFFFF, corresponding to about 33 sec. when 
-      RTC_WAKEUPCLOCK_RTCCLK_DIV = RTCCLK_Div16 = 16
-
-      Wakeup Time Base = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI))
-      Wakeup Time = Wakeup Time Base * WakeUpCounter 
-        = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI)) * WakeUpCounter
-        ==> WakeUpCounter = Wakeup Time / Wakeup Time Base
-  
-      To configure the wake up timer to 60s the WakeUpCounter is set to 0xFFFF:
-      Wakeup Time Base = 16 /(~32.000KHz) = ~0.5 ms
-      Wakeup Time = 0.5 ms  * WakeUpCounter
-      Therefore, with wake-up counter =  0xFFFF  = 65,535 
-         Wakeup Time =  0,5 ms *  65,535 = 32,7675 s ~ 33 sec. */
- //*******   HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle, 0x0FFFF, RTC_WAKEUPCLOCK_RTCCLK_DIV16);
-  
-
-//go to stop mode with frozen IWDG-timer
-//HAL_SuspendTick();
-HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-//HAL_ResumeTick();
-//printf("lalla\r\n");
-
-//Initialize_Platform();
-//reset the right clock config.
-SystemClock_Config();
- // SystemClock_Config();
-
-    /* Enable Power Clock */
- // __HAL_RCC_PWR_CLK_ENABLE();
-  
-  /* Ensure that MSI is wake-up system clock */ 
- // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-
-  //SystemPower_Config();
-
-
-/* Disable all used wakeup source */
-//******** HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
 
     /* USER CODE BEGIN 3 */
   }
@@ -314,30 +269,48 @@ void printWelcome(void)
   * @retval None
   */
 
- 
-static void SystemPower_Config(void)
-{
 
-  /* Configure RTC */
-  RTCHandle.Instance = RTC;
-  /* Set the RTC time base to 1s */
-  /* Configure RTC prescaler and RTC data registers as follow:
-    - Hour Format = Format 24
-    - Asynch Prediv = Value according to source clock
-    - Synch Prediv = Value according to source clock
-    - OutPut = Output Disable
-    - OutPutPolarity = High Polarity
-    - OutPutType = Open Drain */
-  RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-  RTCHandle.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
-  RTCHandle.Init.SynchPrediv = RTC_SYNCH_PREDIV;
-  RTCHandle.Init.OutPut = RTC_OUTPUT_WAKEUP;
-  RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_PUSHPULL;
-  if(HAL_RTC_Init(&RTCHandle) != HAL_OK)
+ /* RTC init function */
+static void MX_RTC_Init(void)
+{
+  /* USER CODE BEGIN RTC_Init 0 */
+  /* USER CODE END RTC_Init 0 */
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+  /* USER CODE BEGIN RTC_Init 1 */
+  /* USER CODE END RTC_Init 1 */
+    /**Initialize RTC Only 
+    */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
-    /* Initialization Error */
-    Error_Handler(); 
+    Error_Handler();
+  }
+    /**Initialize RTC and set the Time and Date 
+    */
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = RTC_MONTH_JANUARY;
+  sDate.Date = 0x1;
+  sDate.Year = 0x0;
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
   }
 }
 
@@ -345,17 +318,24 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hrtc);
+  interruptFlag = 1; 
 
-  printf("interrupt handled\r\n");
-
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
-   */
 }
 
+void sleep(uint16_t timer)
+{
+  printf("going in sleep mode\r\n");
+  if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, timer,RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_IT();
 
-
-
+  HAL_SuspendTick();
+  HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+  HAL_ResumeTick();
+  SystemClock_Config();
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -383,16 +363,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   } 
 }
 
-
-
-
-
-
-
-
 void print_temp_hum(void){
   printf("\r\n");
-  printf("Temperature: %.2f °C  \r\n", SHTData[0]);
+  printf("Temperature: %.2f %cC  \r\n", SHTData[0],'°');
   printf("Humidity: %.2f %% \r\n", SHTData[1]);
   printf("\r\n");
 }
@@ -468,6 +441,37 @@ void Error_Handler(void)
 
   /* USER CODE END Error_Handler_Debug */
 
+}
+
+void testBlink(void){
+  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    printf("RED\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    printf("GREEN\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+    HAL_Delay(1000);
+
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+
+    HAL_Delay(1000);
+}
+
+void quickBlink(void){
+  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ //   printf("\33[2K");
+    printf("RED\r\n");
+    HAL_Delay(500);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
 }
 
 

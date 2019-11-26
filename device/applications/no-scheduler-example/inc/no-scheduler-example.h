@@ -67,6 +67,7 @@ extern "C" {
 /* USER CODE BEGIN PFP */
 void printWelcome(void);
 
+
 /* USER CODE END PFP */
 
 /* Private includes ----------------------------------------------------------*/
