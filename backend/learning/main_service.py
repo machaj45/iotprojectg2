@@ -10,14 +10,27 @@ from d7a.system_files.system_file_ids import SystemFileIds
 from d7a.system_files.system_files import SystemFiles
 
 class mainservice:
-    counter_of_messages = 0;
-    old_parameters = []
-    dataForMessage = {}
-    broker_address = "student-04.idlab.uantwerpen.be"
+
     def __init__(self):
+	self.counter_of_messages = 0;
+    	self.old_parameters = []
+    	self.dataForMessage = {}
+    	self.messageOfValues = {}
+    	self.A = "42373434002a0049"
+    	self.B = "4337313400210032"
+    	self.C = "433731340023003d"
+    	self.D = "463230390032003e"
+    	self.gw = {}
+    	self.gw[self.A] = 'A'
+    	self.gw[self.B] = 'B'
+    	self.gw[self.C] = 'C'
+    	self.gw[self.D] = 'D'
+    	self.client = mqtt.Client("P1") # create new instance
+    	self.client_pub = mqtt.Client("P2")
+    	self.broker_address = "student-04.idlab.uantwerpen.be"
+
         print("python main function")
         print("creating new instance")
-	client = mqtt.Client("P1") # create new instance
         self.client.on_message=self.on_message # attach function to callback
         print("connecting to the broker")
         self.client.connect(self.broker_address) # connect broker
@@ -35,52 +48,88 @@ class mainservice:
         # This is device of Jola
         self.client.subscribe("/d7/48363837002a0038/#")
 
+    def on_connect(client, userdata, flags, rc):
+	print("Connection returned result: " + connack_string(rc))
+
+    def on_publish(client, userdata, result):
+	print("data published")
+
+    def on_disconnect(client, userdata, rc):
+	print("client disconnected ok")
+
+    def publish_info_to_things_board(self, data):
+	access_token = 'wFRAZQnB2t8hIol30gkm' #Jola
+	#access_token = 'IWjQcWm3Q2PEiY9duRQP' #Jan
+	#access_token = 'P6S9p9cWsikzbqRNgQ7f' #Ruben
+	broker = "thingsboard.idlab.uantwerpen.be"
+	topic = "v1/devices/me/telemetry"
+	print(data)
+	print("using another instance")
+	#self.client_pub.on_connect = on_connect
+	#self.client_pub.on_publish = on_publish
+	self.client_pub.username_pw_set(access_token)
+	self.client_pub.connect(broker, keepalive=20)
+	message_to_send = {"data1" : data[0], "data2" : data[1], "data3" : data[2]}
+	result = json.dumps(message_to_send)
+	self.client_pub.publish(topic, result)
+	#time.sleep(5)
+
+	print("before disconnect")
+        #self.client_pub.on_disconnect = on_disconnect
+        self.client_pub.disconnect()
+	print("after disconnect")
+
     def on_message(self,client, userdata, message):
-        print("message received ", str(message.payload.decode("utf-8")))
-        print("message 
-        topic = message.topic
+        print("on message")
+	topic = message.topic
         gateway =  topic.split("/")[3]
         message1 = str(message.payload.decode("utf-8"))
         hexstring = message1.strip().replace(' ', '')
         data = bytearray(hexstring.decode("hex"))
         parser = AlpParser()
         parsed_values = parser.parse(ConstBitStream(data), len(data))
-        print(parsed_values)
         parameters = parser.getData()
         rxLevel = parser.getRxLevel()
+	tempGateway = self.gw[gateway]
 
+	if((self.old_parameters == []) or (parameters != self.old_parameters)):
+            	if(len(self.messageOfValues) < 4 and len(self.messageOfValues) > 0):
+                        print("Missing messages from gateways")
+			message_number = 'message' + str(self.counter_of_messages)
+                        if ('A' not in self.messageOfValues):
+                                self.messageOfValues['A'] = 120
+				self.dataForMessage[message_number].append({ 'gateway' : self.A, 'rxLevel' : 120 })
+                        if ('B' not in self.messageOfValues):
+				self.messageOfValues['B'] = 120
+				self.dataForMessage[message_number].append({ 'gateway' : self.B, 'rxLevel' : 120 })
+                        if ('C' not in self.messageOfValues):
+                                self.messageOfValues['C'] = 20
+				self.dataForMessage[message_number].append({ 'gateway' : self.C, 'rxLevel' : 120})
+                        if ('D' not in self.messageOfValues):
+                                self.messageOfValues['D'] = 120
+				self.dataForMessage[message_number].append({ 'gateway' : self.D, 'rxLevel' : 120 })
+		print(self.messageOfValues)
 
-        if((self.old_parameters == []) or (parameters != self.old_parameters)):
-            with open('database.json', 'a') as json_file:
-                    json.dump(self.dataForMessage, json_file)
-            print("data added to database")
-            print("--------first case")
-            self.old_parameters = []
-            self.old_parameters = parameters
-            self.counter_of_messages = self.counter_of_messages + 1
-            message_number = 'message' + str(self.counter_of_messages)
-            my_details = {'data1': parameters[0], 'data2' : parameters[1], 'data3' : parameters[2] }
-            print(my_details)
-            print("----------------------------")
-            self.dataForMessage.clear()
-            self.dataForMessage[message_number] = [my_details]
-            self.dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-            print("last thing in first cache----------")
-            print(self.dataForMessages)
-            print("-----------------------")
-        else:
-            print("!!!!!     another case")
-            print("--------------------")
-            message_number = 'message' + str(self.counter_of_messages)
-            print(message_number)
-            #data = {}
-            print("---------------------")
-            print(self.dataForMessage)
-            self.dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-            print("----------")
-            print(self.dataForMessage)
-            print("---before data --")
-            print(data)
-            print("----after data----")
+		if (len(self.messageOfValues) == 4 and self.messageOfValues != 0):
+			with open('database.json', 'a') as json_file:
+                		json.dump(self.dataForMessage, json_file, indent=2, sort_keys=True)
+			print("data added to database")
+			self.publish_info_to_things_board(parameters) #maybe in another theard
+
+		self.messageOfValues = {}
+		self.messageOfValues = {tempGateway : rxLevel}
+            	self.old_parameters = []
+            	self.old_parameters = parameters
+            	self.counter_of_messages = self.counter_of_messages + 1
+            	message_number = 'message' + str(self.counter_of_messages)
+            	my_details = {'data1': parameters[0], 'data2' : parameters[1], 'data3' : parameters[2] }
+		self.dataForMessage.clear()
+            	self.dataForMessage[message_number] = [my_details]
+            	self.dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
+	else:
+            	message_number = 'message' + str(self.counter_of_messages)
+            	self.dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
+		self.messageOfValues[tempGateway] = rxLevel
+
 ms = mainservice();
 

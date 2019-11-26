@@ -19,8 +19,11 @@ points_room2 = [[290, 535], [290, 466], [290, 408], [341, 408],
 	[936, 535], [936, 466], [936, 408]]
 
 collection = []
-print(points_room1)
-for elem in points_room1:
+all_points = points_room1
+for n in points_room2:
+	all_points.append(n)
+
+for elem in all_points:
     for i in range(4):
             collection.append(elem)
 
@@ -30,3 +33,5 @@ dictonary["length"]=length
 dictonary["points"]=collection
 with open('points.json', 'w') as output_file:
     json.dump(dictonary,output_file,indent=2,sort_keys=False)
+
+print(collection)

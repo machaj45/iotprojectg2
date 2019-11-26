@@ -35,6 +35,7 @@ def subscribe_to_our_devices(client):
         client.subscribe("/d7/48363837002a0038/#")
 
 def on_message(client, userdata, message):
+	print("on message")
         #print("message received ", str(message.payload.decode("utf-8")))
         #print("message topic = ", message.topic)
 	topic = message.topic
@@ -44,6 +45,10 @@ def on_message(client, userdata, message):
 	data = bytearray(hexstring.decode("hex"))
 	parser = AlpParser()
 	parsed_values = parser.parse(ConstBitStream(data), len(data))
+	#print("-------")
+	#print(gw[gateway])
+	#print(parsed_values)
+	#print("-------")
 	parameters = parser.getData()
 	rxLevel = parser.getRxLevel()
 	tempGateway = gw[gateway]
@@ -64,7 +69,7 @@ def on_message(client, userdata, message):
 				messageOfValues['C'] = 120
 			if ('D' not in messageOfValues):
 				messageOfValues['D'] = 120
-			print(messageOfValues)
+		print(messageOfValues)
 
 		if(len(messageOfValues) == 4 and messageOfValues != 0):
 			global messages
@@ -103,6 +108,7 @@ def on_message(client, userdata, message):
 		print(message_number)
 		messageOfValues = {}
 		messageOfValues = {tempGateway : rxLevel}
+		print("first gateway")
 		#print(messageOfValues)
 		#print(type(messageOfValues))
 		#my_details = {'data1': parameters[0], 'data2' : parameters[1], 'data3' : parameters[2] }
@@ -116,6 +122,7 @@ def on_message(client, userdata, message):
 		#print(message_number)
 		#data = {}
 		messageOfValues[tempGateway] = rxLevel
+		print("next gateway")
 		#print(message_number)
 		#print(messageOfValues)
 		#print(message_number)
