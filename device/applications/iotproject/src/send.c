@@ -58,8 +58,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     Murata_rxCallback();
     murata_data_ready = 1;
   }
-
   if (huart == &BLE_UART) {
-    printf("got some ble callback");
+    button=6;
   }
 }
