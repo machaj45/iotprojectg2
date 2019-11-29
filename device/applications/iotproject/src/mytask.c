@@ -2,20 +2,29 @@
 #include "mytask.h"
 #include "send.h"
 #include "other.h"
+#include <math.h>
+#include "S25FL256.h"
+
 
 #define BlueButton 3
 #define Button1 1
 #define Button2 2
-
 volatile uint8_t murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
 uint64_t         short_UID;
-uint8_t          buffer[30];
+uint8_t          buffer[13];
 uint8_t          murata_init;
 uint8_t          murata_joined = 0;
 uint8_t          data[1];
+uint8_t          datainble[SIZEOFBLEBUFFER];
+uint8_t          charCounter = 0;
+static uint8_t   tx[SIZE];
+static uint8_t   rx[SIZE];
+extern float cotlevels;
 
+uint8_t dash7_Mycounter=0;
+uint8_t lora_Mycounter=0;
 void Initialize_OS(void) {
 
 
@@ -34,8 +43,11 @@ void Initialize_OS(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 }
 
-void onBlueButton() {
+uint8_t vc = 0;
+void    onBlueButton() {
   printf("Blue Button pressed\n\r");
+  vc = 1;
+  validCommandg(1, 5);
   /*
   if (murata_init) {
     if (murata_joined == 0) {
@@ -47,19 +59,120 @@ void onBlueButton() {
   }
   */
 }
+uint32_t value = 0;
+
+void validCommand(uint8_t start, uint8_t stop) {
+  printf("Valid Command: ");
+  for (int i = start + 1; i <= stop; i++) {
+    printf("%c", datainble[i]);
+    uint32_t a = pow(10, stop - i);
+    value += a * (datainble[i] - 48);
+  }
+  printf("\n\r");
+  // printf("%d\n\t", value);
+  for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+    datainble[i] = 0;
+  }
+  charCounter = 0;
+  vc          = 1;
+}
+void validCommandg(uint8_t start, uint8_t stop) {
+  if (vc == 1) {
+
+    vc = 0;
+
+    uint32_t newData = 0;
+
+    for (int i = start + 1; i <= stop; i++) {
+      printf("%c", datainble[i]);
+      uint32_t a = pow(10, stop - i);
+      newData += a * (datainble[i] - 48);
+    }
+    printf("\n\r");
+
+
+    printf("Write to %d and saved value of %d\n\r", value, newData);
+    S25FL256_read((uint8_t *)rx, SIZE);
+    for (int i = 0; i < SIZE; i++) {
+      tx[i] = 1;
+    }
+    S25FL256_open(BLOCK_ID);
+    S25FL256_write((uint8_t *)tx, SIZE);
+
+    while (S25FL256_isWriteInProgress()) {
+      HAL_Delay(50);
+    }
+    printf("Written\n\r");
+    for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+      datainble[i] = 0;
+    }
+    charCounter = 0;
+    S25FL256_read((uint8_t *)rx, SIZE);
+    printf("%d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3]);
+  }
+}
+void onBLE() {
+  datainble[charCounter] = data[0];
+
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+  printf("Received data from BLE\n\r");
+  // printf("Received byte is %d\n\r", datainble[charCounter]);
+  charCounter++;
+  for (int i = 0; i < charCounter; i++) {
+    uint8_t correctCount = i;
+    switch (datainble[i]) {
+      case 115:
+        for (int j = 1 + i; j < charCounter; j++) {
+          if (datainble[j] >= 48 && datainble[j] <= 57) {
+            correctCount++;
+          }
+          if (correctCount == j - 1 && datainble[j] == 115)
+            validCommand(i, correctCount);
+          // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+        };
+        break;
+      case 103:
+        for (int j = 1 + i; j < charCounter; j++) {
+          if (datainble[j] >= 48 && datainble[j] <= 57) {
+            correctCount++;
+          }
+          if (correctCount == j - 1 && datainble[j] == 103)
+            validCommandg(i, correctCount);
+          // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+        };
+        break;
+    }
+  }
+  if (charCounter > SIZEOFBLEBUFFER) {
+    charCounter = 0;
+  }
+}
 void onButton1() {
   printf("BTN1 pressed\n\r");
-  buffer[2]++;
+  float g [2];
+  SHT31_get_temp_hum(g);
+  float2byte(g[0], buffer, 0);
+  float2byte(g[1], buffer, 4);
+  float2byte(cotlevels, buffer, 8);
+  buffer[12] = (uint8_t)dash7_Mycounter;
+  dash7_Mycounter++;
   Dash7_send(buffer, sizeof(buffer));
   printf("BTN1 end\n\r");
 }
 void onButton2() {
   printf("BTN2 pressed\n\r");
+  float g [2];
+  SHT31_get_temp_hum(g);
+  float2byte(g[0], buffer, 0);
+  float2byte(g[1], buffer, 4);
+  float2byte(cotlevels, buffer, 8);
+  buffer[12] = (uint8_t)lora_Mycounter;
+  lora_Mycounter++;
   LoRaWAN_send(buffer, sizeof(buffer));
   printf("BTN2 end\n\r");
 }
 void StartDefaultTask(void const *argument) {
-  printf("Start the device!\n\r");
+  printf("|||||||||||||||||| Start! |||||||||||||||||| \n\r");
   HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while (1) {
     if (acc_int == 1) {
@@ -80,14 +193,8 @@ void StartDefaultTask(void const *argument) {
         button = 0;
         break;
       case 6:
-        printf("Received data from BLE\n\r");
-        printf("Received byte is %d\n\r", data[0]);
+        onBLE();
         button = 0;
-        uint8_t adata[2];
-        adata[0] = 0x00;
-        adata[1] = 0x60;
-        HAL_UART_Transmit(&BLE_UART, adata, sizeof(adata), 0xFFF);
-        HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
         break;
     }
     IWDG_feed(NULL);
@@ -113,8 +220,8 @@ void murata_process_rx_response(void const *argument) {
       Murata_process_fifo();
     }
     osDelay(1);
-
     startProcessing = 0;
+
   }
   osThreadTerminate(NULL);
 }

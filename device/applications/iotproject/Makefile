@@ -7,7 +7,12 @@ PRINT_FLOATS = 1
 
 SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 1
+
 Device = 1
+# 1 jan
+# 2 jola
+# 3 ruben
+
 USE_BOOTLOADER=1
 SPG30_CONNECTOR = 3
 LORAWAN_APPLICATION = lpiot

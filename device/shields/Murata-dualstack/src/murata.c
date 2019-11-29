@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 uint8_t use_scheduler = 0;
+volatile uint8_t murata_successful;
 struct OCTA_header murataHeader;
 
 session_config_t session_config_lora =
@@ -75,7 +76,7 @@ void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t* da
                                                                                                             interface_status.error_state, 
                                                                                                             interface_status.duty_cycle_wait_time);
         switch (interface_status.error_state){
-          case 0 :printf("OK\n\r");break;
+          case 0 :printf("OK\n\r");murata_successful=0;break;
           case 1 :printf("NOT_JOINED\n\r");break;
           case 2 :printf("TX_NOT_POSSIBLE\n\r");break;
           case 3 :printf("UNKNOWN\n\r");break;
@@ -83,7 +84,7 @@ void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t* da
           case 5 :printf("JOIN_FAILED\n\r");break;
           case 6 :printf("DUTY_CYCLE_DELAY\n\r");break;
           case 7 :printf("RETRY_TRANSMISSION\n\r");break;
-          case 8 :printf("JOINED\n\r");break;
+          case 8 :printf("JOINED\n\r");murata_successful=3;break;
         }
     }
     else if(interface_type==ALP_ITF_ID_D7ASP)
@@ -109,12 +110,12 @@ void on_modem_reboot_callback(void)
 {
     printf("Murata murata-dual modem has rebooted \r\n");
     modem_reinit();
+    murata_successful=0;
 }
 
 //TODO: use_scheduler in makefiles
 uint8_t Murata_Initialize(uint64_t octa_UID, uint8_t use_RTOS)
 {    
-    printf("***Initializing murata dualstack modem driver***\r\n");
 
     #ifndef MURATA_CONNECTOR
         printf("No MURATA_CONNECTOR provided in Makefile\r\n");
@@ -127,10 +128,8 @@ uint8_t Murata_Initialize(uint64_t octa_UID, uint8_t use_RTOS)
             return 0;  
         }
         else
-            printf("Murata on P%d, initializing UART\r\n", (uint8_t)MURATA_CONNECTOR);
     #endif
     #ifdef LORAWAN_APP_NAME
-        printf("Using LoRaWAN keys of %s application \r\n", LORAWAN_APP_NAME);
     #endif
 
     //copy OCTA UID into lorawan otaa DEV EUI
@@ -147,7 +146,7 @@ uint8_t Murata_Initialize(uint64_t octa_UID, uint8_t use_RTOS)
 
     use_scheduler = use_RTOS;
 
-    printf("Murata module init OK \r\n\r\n");
+    //printf("Murata module init OK \r\n\r\n");
     return 1;
 }
 
@@ -179,7 +178,7 @@ uint8_t Murata_LoRaWAN_Join(void)
 {
     uint8_t status = 0;
     status = modem_send_unsolicited_response(0x40, 0, 0, 0, &session_config_lora);
-    printf("Joining the LoRaWAN Network\r\n");
+    //printf("Joining the LoRaWAN Network\r\n");
     return status;
 }
 
@@ -187,7 +186,7 @@ uint8_t Murata_LoRaWAN_Send(uint8_t *buffer, uint8_t length)
 {
     uint8_t status = 0;
     status = modem_send_unsolicited_response(0x40, 0, length, (uint8_t *)buffer, &session_config_lora);
-    printf("Sending LoRaWAN message with payload size %d\r\n", length);
+    //printf("Sending LoRaWAN message with payload size %d\r\n", length);
     return status;
 }
 
@@ -197,7 +196,7 @@ uint8_t Murata_Dash7_Send(uint8_t *buffer, uint8_t length)
 {
     uint8_t status = 0;
     status = modem_send_unsolicited_response(0x40, 0, length, (uint8_t *)buffer, &session_config_d7);
-    printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x] and status is %d\r\n", length,buffer[0],buffer[1],buffer[2],status);
+    //printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x] and status is %d\r\n", length,buffer[0],buffer[1],buffer[2],status);
     return status;
 }
 

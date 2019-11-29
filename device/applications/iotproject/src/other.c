@@ -11,7 +11,16 @@ uint16_t tvoc_ppb, co2_eq_ppm;
 uint32_t iaq_baseline;
 uint16_t scaled_ethanol_signal, scaled_h2_signal;
 uint32_t measurement_counter = 0;
-uint8_t  enable_SGP          = 0;
+uint8_t  enable_SGP          = 1;
+
+uint8_t float2byte(float input, uint8_t* output, uint8_t offset) {
+  float*   floatPtr    = &input;
+  uint8_t* dataPointer = (uint8_t*)floatPtr;
+  output[0 + offset]   = *dataPointer;
+  output[1 + offset]   = *(dataPointer + 1);
+  output[2 + offset]   = *(dataPointer + 2);
+  output[3 + offset]   = *(dataPointer + 3);
+}
 
 uint8_t SPG30_Initialize(void) {
   struct OCTA_header SPG30_Header = platform_getHeader(SPG30_CONNECTOR);
@@ -52,13 +61,15 @@ void Initialize_Sensors(void) {
     SPG30_Initialize();
   }
 }
+float cotlevels = 0;
 void SPG30_measure(void) {
 
   if (enable_SGP) {
     err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
     if (err == STATUS_OK) {
       measurement_counter++;
-      printf("tVOC Concentration: %5d [ppb]\t CO2eq Concentration: %5d [ppm]\t measurement no.: %10lu \r\n", tvoc_ppb, co2_eq_ppm, measurement_counter);
+      //printf("tVOC Concentration: %5d [ppb]\t CO2eq Concentration: %5d [ppm]\t measurement no.: %10lu \r\n", tvoc_ppb, co2_eq_ppm, measurement_counter);
+      cotlevels = co2_eq_ppm;
     } else {
       printf("error reading IAQ values\r\n");
     }

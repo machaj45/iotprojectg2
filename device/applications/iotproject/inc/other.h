@@ -16,6 +16,7 @@ void Error_Handler(void);
 void decodeError (int status);
 void SPG30_measure(void);
 void IWDG_feed(void const *argument);
+uint8_t float2byte(float input, uint8_t* output, uint8_t offset);
 #ifdef __cplusplus
 }
 #endif
