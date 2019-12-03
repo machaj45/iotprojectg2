@@ -6,6 +6,8 @@
 #include "S25FL256.h"
 
 
+#define SIZE 256
+#define BLOCK_ID 0
 #define BlueButton 3
 #define Button1 1
 #define Button2 2
@@ -19,12 +21,11 @@ uint8_t          murata_joined = 0;
 uint8_t          data[1];
 uint8_t          datainble[SIZEOFBLEBUFFER];
 uint8_t          charCounter = 0;
-static uint8_t   tx[SIZE];
-static uint8_t   rx[SIZE];
-extern float cotlevels;
+extern float     cotlevels;
 
-uint8_t dash7_Mycounter=0;
-uint8_t lora_Mycounter=0;
+uint8_t dash7_Mycounter = 0;
+uint8_t lora_Mycounter  = 0;
+
 void Initialize_OS(void) {
 
 
@@ -44,20 +45,44 @@ void Initialize_OS(void) {
 }
 
 uint8_t vc = 0;
-void    onBlueButton() {
+
+void onBlueButton() {
   printf("Blue Button pressed\n\r");
-  vc = 1;
-  validCommandg(1, 5);
-  /*
-  if (murata_init) {
-    if (murata_joined == 0) {
-      printf("Command Join\r\n");
-      Murata_LoRaWAN_Join();
-    } else {
-      printf("Device is already joined!\r\n");
-    }
+
+  static uint8_t tx[SIZE];
+  static uint8_t rx[SIZE];
+  static uint8_t ndata;
+
+  osMutexWait(txMutexId, osWaitForever);
+  S25FL256_open(BLOCK_ID);
+
+  S25FL256_read((uint8_t *)rx, SIZE);
+  printf("Data from flash\n\r");
+  printf("%d %d %d %d %d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7]);
+  for (int i = 0; i < SIZE; i++) {
+    tx[i] = rx[i];
   }
-  */
+
+  ndata = 6;
+  tx[4] = ndata;
+
+  printf("Data to send to flash\n\r");
+  printf("%d %d %d %d %d %d %d %d\n\r", tx[0], tx[1], tx[2], tx[3], tx[4], tx[5], tx[6], tx[7]);
+
+  S25FL256_open(BLOCK_ID);
+  S25FL256_write((uint8_t *)tx, SIZE);
+
+  while (S25FL256_isWriteInProgress()) {
+    HAL_Delay(51);
+  }
+  printf("Written\n\r");
+  for (int i = 0; i < SIZE; i++) {
+     rx[i]=0;
+  }
+  printf("Data to read from flash\n\r");
+  S25FL256_read((uint8_t *)rx, SIZE);
+  osMutexRelease(txMutexId);
+  printf("%d %d %d %d %d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7]);
 }
 uint32_t value = 0;
 
@@ -92,12 +117,12 @@ void validCommandg(uint8_t start, uint8_t stop) {
 
 
     printf("Write to %d and saved value of %d\n\r", value, newData);
-    S25FL256_read((uint8_t *)rx, SIZE);
-    for (int i = 0; i < SIZE; i++) {
-      tx[i] = 1;
-    }
-    S25FL256_open(BLOCK_ID);
-    S25FL256_write((uint8_t *)tx, SIZE);
+    // S25FL256_read((uint8_t *)rx, SIZE);
+    // for (int i = 0; i < SIZE; i++) {
+    //   tx[i] = 1;
+    //  }
+    //  S25FL256_open(BLOCK_ID);
+    //  S25FL256_write((uint8_t *)tx, SIZE);
 
     while (S25FL256_isWriteInProgress()) {
       HAL_Delay(50);
@@ -107,8 +132,6 @@ void validCommandg(uint8_t start, uint8_t stop) {
       datainble[i] = 0;
     }
     charCounter = 0;
-    S25FL256_read((uint8_t *)rx, SIZE);
-    printf("%d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3]);
   }
 }
 void onBLE() {
@@ -149,7 +172,7 @@ void onBLE() {
 }
 void onButton1() {
   printf("BTN1 pressed\n\r");
-  float g [2];
+  float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
   float2byte(g[1], buffer, 4);
@@ -161,7 +184,7 @@ void onButton1() {
 }
 void onButton2() {
   printf("BTN2 pressed\n\r");
-  float g [2];
+  float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
   float2byte(g[1], buffer, 4);
@@ -221,7 +244,6 @@ void murata_process_rx_response(void const *argument) {
     }
     osDelay(1);
     startProcessing = 0;
-
   }
   osThreadTerminate(NULL);
 }

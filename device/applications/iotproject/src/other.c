@@ -22,30 +22,6 @@ uint8_t float2byte(float input, uint8_t* output, uint8_t offset) {
   output[3 + offset]   = *(dataPointer + 3);
 }
 
-uint8_t SPG30_Initialize(void) {
-  struct OCTA_header SPG30_Header = platform_getHeader(SPG30_CONNECTOR);
-  if (!SPG30_Header.active) {
-    printf("Invalid SPG30_CONNECTOR provided in Makefile\r\n");
-    return 0;
-  } else
-    printf("SPG30 sensor on P%d, initializing I2C\r\n", SPG30_CONNECTOR);
-  while (sgp_probe() != STATUS_OK) {
-    printf("SGP sensor probing failed ... check SGP30 I2C connection and power\r\n");
-    HAL_Delay(500);
-  }
-
-  printf("SGP sensor probing successful\r\n");
-  err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
-  if (err == STATUS_OK) {
-    printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
-    printf("H2 signal: %.2f \r\n", scaled_h2_signal / 512.0);
-  } else {
-    printf("error reading Ethanol and H2 signals\r\n");
-  }
-  err = sgp_iaq_init();
-
-  return 1;
-}
 void Initialize_Sensors(void) {
   LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
@@ -58,8 +34,19 @@ void Initialize_Sensors(void) {
   SHT31_begin();
   if (enable_SGP) {
     HAL_Delay(300);
-    SPG30_Initialize();
+    SPG30_Initialize(platform_getHeader(SPG30_CONNECTOR));
   }
+}
+
+void measureEthanolLevel(){
+  err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+  if (err == STATUS_OK) {
+    printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+    printf("H2 signal: %.2f \r\n", scaled_h2_signal / 512.0);
+  } else {
+    printf("error reading Ethanol and H2 signals\r\n");
+  }
+  err = sgp_iaq_init();
 }
 float cotlevels = 0;
 void SPG30_measure(void) {
