@@ -50,7 +50,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "SPG30-sensor-example.h"
-#include "SPG30.h"
+//#include "SPG30.h"
 #include "sensirion_common.h"
 #include "sgp30.h"
 /* Private includes ----------------------------------------------------------*/
@@ -77,6 +77,9 @@
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
+
+//RTC 
+RTC_HandleTypeDef hrtc;
 
 /**
   * @brief  The application entry point.
@@ -136,13 +139,13 @@ int main(void)
     uint16_t tvoc_ppb, co2_eq_ppm;
     uint32_t iaq_baseline;
     uint16_t scaled_ethanol_signal, scaled_h2_signal;
-    uint32_t measurement_counter = 0;
+    uint32_t measurement_counter = 1;
 
     printf("\r\n");
 
     while(sgp_probe() != STATUS_OK)
     {
-    	printf("SGP sensor probing failed ... check SGP30 I2C connection and power\r\n");
+    	printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
     	HAL_Delay(500); // delay retry
     }
     
@@ -156,7 +159,7 @@ int main(void)
 			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
 
 			// Print H2 signal with floating point support
-			printf("H2 signal: %.2f \r\n",scaled_h2_signal / 512.0);
+			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
 
     }
     else
@@ -196,7 +199,7 @@ int main(void)
 			}
 
 			// set green LED LD2
-			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_RESET);
+//			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_RESET);
 
 			/* Print the current baseline values every 10 minutes */
       if (measurement_counter % 600 == 0)
@@ -222,7 +225,7 @@ int main(void)
 			/* The IAQ measurement must be triggered nearly once per second (SGP30) to get accurate values.*/
 			HAL_Delay(147); // 200 - code execution time
 			// set green LED LD2
-			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin, GPIO_PIN_SET);
 			HAL_Delay(800);
     }
   }

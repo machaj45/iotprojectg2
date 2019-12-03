@@ -33,6 +33,9 @@
 #include "sensirion_common.h"
 #include "sgp_featureset.h"
 #include "sgp30.h"
+// #include "stm32l4xx_hal.h" 
+
+// #define SPG30_ADDR      0x58
 
 
 #define SGP_DRV_VERSION_STR             "2.2.2"
@@ -49,6 +52,33 @@
  * eng. bit not set        0x0100,
  * major version matches   0x00E0,
  * ignore minor version    0x001F if major version > 0 */
+// #include "platform.h"
+
+
+// extern struct OCTA_header SPG30_Header;
+
+// uint8_t SPG30_Initialize(void) {
+//     printf("****_____Initalize SPG30 now!!____****\r\n");
+//     #ifndef SPG30_CONNECTOR
+//         printf("No SPG30_CONNECTOR provided in Makefile \r\n");
+//         return 0;
+//     #else
+//         SPG30_Header = platform_getHeader((uint8_t)SPG30_CONNECTOR); //this connector is specified in de makeFile of the application (in this case 1)
+//         if (!SPG30_Header.active) {
+//             printf("Invalid SPG30_CONNECTOR provided in Makefile\r\n");
+//             return 0; 
+//         }
+//         else 
+//             printf("SPG30 sensor on P%d, initializing I2C\r\n", (uint8_t)SPG30_CONNECTOR);
+//     #endif
+//     return 1;
+
+// }
+
+
+
+
+
 #define SGP_FS_COMPAT(chip_fs, drv_fs)  ( \
         ( /* major version > 0, ignore minor version */ \
           (((drv_fs) & 0x00E0) > 0) && \
