@@ -32,6 +32,8 @@ uint16_t DASH7_Counter = 0;
 uint8_t murata_init = 0;
 uint64_t short_UID;
 uint8_t murata_data_ready = 0;
+  RTC_HandleTypeDef hrtc;
+
 /* USER CODE END 0 */
 
 /**
@@ -116,6 +118,8 @@ int main(void)
   /* Infinite loop */
   uint8_t counter = 0;
   uint8_t use_lora = 1;
+
+
   /* USER CODE BEGIN WHILE */
   while (1)
   { 

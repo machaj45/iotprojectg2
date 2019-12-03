@@ -55,6 +55,8 @@
 #include <stdio.h>
 #include "murata.h"
 
+#include "send.h"
+
 //#include "platform.h"
 #include "LSM303AGRSensor.h"
 #include "sht31.h"
@@ -100,6 +102,8 @@ volatile uint8_t DangerCounter = 0;
 volatile uint8_t EmergencyCounter = 0;
 volatile _Bool NormalMode = 1;
 
+uint8_t murata_init = 0;
+
 static uint8_t maxSafeCounter = 5;
 static uint8_t maxDangerCounter = 5;
 static uint8_t maxEmergencyCounter = 5;
@@ -116,7 +120,6 @@ volatile uint16_t TemperatureTreshold[2] = {18,30};
 volatile uint16_t HumidityTreshold[2] =  { 0 , 40};
 volatile uint16_t CO2Treshold[2] = {0 , 600};
 volatile uint16_t TVOCTreshold[2] = {0 , 50};
-volatile uint16_t EthanolTreshold[2] = {0 , 1000};
 
 
  uint16_t i = 0;
@@ -195,10 +198,12 @@ int main(void)
 //LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
   SHT31_begin(); 
+
+  LorawanInit();
+
 //  LSM303AGR_init();
 
   printWelcome();
-  uint8_t data; 
 
 // // TX MUTEX ensuring no transmits are happening at the same time
 //   osMutexDef(txMutex);
@@ -212,10 +217,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */   
-
+uint8_t data[3] = {5,10,15}; 
  
-
+Dash7_send(data , sizeof(data));
         printf("\r\n");
+        HAL_Delay(3000);
 
     while(sgp_probe() != STATUS_OK)
     {
@@ -285,7 +291,7 @@ int main(void)
           printf("enter emergency mode on next wake up\r\n");
         }
         else {
-          //SEND data
+          // TODO: SEND data only on dash 7.
           printf("send danger data\r\n");
         }
       }
@@ -347,7 +353,7 @@ int main(void)
         danger = calculateDanger();
 
         if (danger){
-          //send data
+          // TODO: send data on lora & DASH7
           printf("recalculated emergengy data is dangerous\r\n");
         } 
         else{
@@ -357,7 +363,7 @@ int main(void)
       }
 
       else{
-        //send data
+        // TODO: send data on lora & dash7
 
         printf("SEND STORED EMERGENCY DATA\r\n");
       }
@@ -548,6 +554,10 @@ void do_measurement(void){
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  if (huart == &P1_UART) {
+    Murata_rxCallback();
+    //murata_data_ready = 1;
+  }
 	#if USE_BOOTLOADER
     if(huart == &BLE_UART);
     {
