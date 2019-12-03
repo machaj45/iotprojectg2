@@ -59,6 +59,10 @@
 #include "LSM303AGRSensor.h"
 #include "sht31.h"
 
+// GAS sensor
+#include "sensirion_common.h"
+#include "sgp30.h"
+
 // Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -105,6 +109,24 @@ static uint16_t EmergencySleepCounter = 0x0005;
 static uint16_t OneMinute = 0x003C;
 static uint16_t fiveMinute = 0x012C;
 static uint16_t halfMinute = 0x001E;
+static uint16_t tenSeconds = 0x000A;
+static uint16_t fiveSeconds = 0x0005;
+
+volatile uint16_t TemperatureTreshold[2] = {18,30};
+volatile uint16_t HumidityTreshold[2] =  { 0 , 40};
+volatile uint16_t CO2Treshold[2] = {0 , 600};
+volatile uint16_t TVOCTreshold[2] = {0 , 50};
+volatile uint16_t EthanolTreshold[2] = {0 , 1000};
+
+
+ uint16_t i = 0;
+    int16_t err;
+    uint16_t tvoc_ppb, co2_eq_ppm;
+    uint32_t iaq_baseline;
+    uint16_t scaled_ethanol_signal, scaled_h2_signal;
+    volatile _Bool danger;
+
+
 
 //RTC 
 RTC_HandleTypeDef hrtc;
@@ -117,6 +139,8 @@ void sleep(uint16_t time);
 void testBlink(void);
 
 void quickBlink(void);
+
+bool calculateDanger();
 
 //*/
 /* USER CODE END 0 */
@@ -165,6 +189,9 @@ int main(void)
   // get Unique ID of Octa
  // short_UID = get_UID(); 
 
+//init for gas sensor
+  SPG30_Initialize();
+  P3_I2C_Init();
 //LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
   SHT31_begin(); 
@@ -186,8 +213,40 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */   
 
+ 
+
+        printf("\r\n");
+
+    while(sgp_probe() != STATUS_OK)
+    {
+    	printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
+    	HAL_Delay(500); // delay retry
+    }
+    
+    printf("SGP sensor probing successful\r\n");
+
+    /* Read gas signals */
+    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+    if(err == STATUS_OK)
+    {
+			// Print ethanol signal with floating point support
+			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+
+			// Print H2 signal with floating point support
+			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
+
+    }
+    else
+    {
+    	printf("error reading Ethanol and H2 signals\r\n");
+    }
+        err = sgp_iaq_init();
+
+
+
   while (1)
   {
+    
 
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
@@ -197,45 +256,116 @@ int main(void)
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
-        printf("Session %d\r\n", ++safeCounter);
+        printf("Session %d\r\n",safeCounter);
       interruptFlag=0; 
     }
 
+///////////////////////////  NORMAL MODE  ////////////////////////////////////
+    if (NormalMode){
+      
+      quickBlink();
 
-  // operating in normal mode
-  if (NormalMode){
-    //check for BLE config
+      do_measurement();
 
-    //do environment measurements & check for danger
+      danger =  calculateDanger();
+
+      if (danger){
+        printf("DANGER\r\n");
+        //update danger counter & reset safe counter
+        DangerCounter++;
+        safeCounter = 0;
+
+        // check if in danger for too long -> if so, enable emergency mode
+        if (DangerCounter >= maxDangerCounter){
+          //reset counter
+          DangerCounter = 0;
+
+          //enter emergency mode on next wake up
+          NormalMode = 0;
+          printf("enter emergency mode on next wake up\r\n");
+        }
+        else {
+          //SEND data
+          printf("send danger data\r\n");
+        }
+      }
+
+      else {
+        printf("clear\r\n");
+        // update safe counter & reset danger counter
+        safeCounter++;
+        DangerCounter = 0;
+
+          //check if server needs to update safe values
+        if (safeCounter >= maxSafeCounter){
+          //reset counter
+          safeCounter = 0;
+          printf("send safe server update\r\n");
+          
+        }
+
+      }      
+      printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
+      sleep(tenSeconds);
+  // // operating in normal mode
+  // if (NormalMode){
+  //   //check for BLE config
+
+  //   //do environment measurements & check for danger
 
 
-    // if no danger:
-    ++safeCounter;
+  //   // if no danger:
+  //   ++safeCounter;
 
-    if (safeCounter == maxSafeCounter){
-      //send data
-      printf("safe update to the server \r\n");
-      safeCounter = 0;
+  //   if (safeCounter == maxSafeCounter){
+  //     //send data
+  //     printf("safe update to the server \r\n");
+  //     safeCounter = 0;
+  //   }
+
+    
+  // }
+  // // operating in emergency mode
+  // else {
+
+  // }
     }
 
-    
-  }
-  // operating in emergency mode
-  else {
+///////////////////////  EMERGENCY MODE /////////////////////////////
+    else{
 
-  }
+      //update emergency counter
+      EmergencyCounter++;
 
- 
+      if (EmergencyCounter >= maxEmergencyCounter){
+        EmergencyCounter = 0;
 
-  quickBlink();
+        //do measurements & calculate danger.
+        //if there is still is danger, remain in emergency mode
 
-  temp_hum_measurement();
-    
+        do_measurement();
+        danger = calculateDanger();
 
-    
+        if (danger){
+          //send data
+          printf("recalculated emergengy data is dangerous\r\n");
+        } 
+        else{
+          NormalMode = 1;
+        }
 
-    sleep(OneMinute);
+      }
 
+      else{
+        //send data
+
+        printf("SEND STORED EMERGENCY DATA\r\n");
+      }
+
+    printf("emergency counter: %d\r\n",EmergencyCounter);
+    sleep(fiveSeconds);
+
+    }
 
     /* USER CODE BEGIN 3 */
   }
@@ -243,6 +373,36 @@ int main(void)
 }
 
 
+
+bool calculateDanger(){
+  //SHT 0 = temp, SHT1 = humid
+  // tvoc_ppb , co2_ppm
+
+    if ((SHTData[0] < TemperatureTreshold[0]) || (SHTData[0] > TemperatureTreshold[1]) ){
+      printf("temp\r\n");
+      return true;
+    }
+
+    if ((SHTData[1] < HumidityTreshold[0]) || (SHTData[1] > HumidityTreshold[1]) ){
+            printf("humid\r\n");
+             return true;
+    }
+
+    if ((tvoc_ppb < TVOCTreshold[0]) || (tvoc_ppb > TVOCTreshold[1]) ){
+     
+           printf("TVOC\r\n");
+           return true;
+    }
+
+    if ((co2_eq_ppm < CO2Treshold[0]) || (co2_eq_ppm > CO2Treshold[1]) ){
+            printf("CO2\r\n");
+            return true;
+    }
+
+    return false;
+
+    
+}
 
 void printWelcome(void)
 {
@@ -363,17 +523,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   } 
 }
 
-void print_temp_hum(void){
+void print_data(void){
   printf("\r\n");
   printf("Temperature: %.2f %cC  \r\n", SHTData[0],'°');
   printf("Humidity: %.2f %% \r\n", SHTData[1]);
-  printf("\r\n");
+  printf("TVOC: %5d ppb\r\n",tvoc_ppb);
+  printf("CO2: %5d ppm\r\n",co2_eq_ppm);
 }
 
-void temp_hum_measurement(void){
+void do_measurement(void){
 
   SHT31_get_temp_hum(SHTData);
-  print_temp_hum();
+  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  if (err == STATUS_OK){
+    print_data();
+  }
+  else{
+    printf("error while reading data\r\n");
+  }
 }
 
 
@@ -469,7 +636,6 @@ void testBlink(void){
 void quickBlink(void){
   HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
  //   printf("\33[2K");
-    printf("RED\r\n");
     HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
 }
