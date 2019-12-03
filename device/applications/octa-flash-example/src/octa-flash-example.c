@@ -79,6 +79,7 @@
   * @brief  The application entry point.
   * @retval int
   */
+RTC_HandleTypeDef hrtc;
 int main(void)
 {
   /* USER CODE BEGIN 1 */

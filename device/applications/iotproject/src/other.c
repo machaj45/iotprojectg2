@@ -1,8 +1,6 @@
 #include "iotproject.h"
 #include "other.h"
-#include "sensirion_common.h"
 #include "sgp30.h"
-
 volatile uint8_t acc_int = 0;
 
 uint16_t i = 0;
@@ -11,8 +9,78 @@ uint16_t tvoc_ppb, co2_eq_ppm;
 uint32_t iaq_baseline;
 uint16_t scaled_ethanol_signal, scaled_h2_signal;
 uint32_t measurement_counter = 0;
-uint8_t  enable_SGP          = 0;
+uint8_t  enable_SGP          = 1;
 
+uint8_t float2byte(float input, uint8_t* output, uint8_t offset) {
+  float*   floatPtr    = &input;
+  uint8_t* dataPointer = (uint8_t*)floatPtr;
+  output[0 + offset]   = *dataPointer;
+  output[1 + offset]   = *(dataPointer + 1);
+  output[2 + offset]   = *(dataPointer + 2);
+  output[3 + offset]   = *(dataPointer + 3);
+}
+
+uint8_t uint322byte(uint32_t input, uint8_t* output, uint8_t offset) {
+  uint32_t* floatPtr    = &input;
+  uint8_t*  dataPointer = (uint8_t*)floatPtr;
+  output[0 + offset]    = *dataPointer;
+  output[1 + offset]    = *(dataPointer + 1);
+  output[2 + offset]    = *(dataPointer + 2);
+  output[3 + offset]    = *(dataPointer + 3);
+}
+
+uint8_t byte2uint32(uint8_t* input, uint32_t output) {
+  output = input[0] + input[1]*256 + input[2]*256*256 + input[3]*256*256*256;
+}
+void Initialize_Sensors(void) {
+  LSM303AGR_setI2CInterface(&common_I2C);
+  setI2CInterface_SHT31(&common_I2C);
+  LSM303AGR_ACC_reset();
+  acc_int = 0;
+  LSM303AGR_MAG_reset();
+  HAL_Delay(50);
+  LSM303AGR_init();
+  HAL_Delay(50);
+  SHT31_begin();
+  if (enable_SGP) {
+    HAL_Delay(300);
+    SPG30_Initialize();
+  }
+}
+void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
+  static uint8_t tx[256];
+  static uint8_t rx[256];
+  S25FL256_open(0);
+  S25FL256_read((uint8_t*)rx, 256);
+  for (int i = 0; i < 256; i++) {
+    tx[i] = rx[i];
+  }
+  int j = 0;
+  for (int i = addres; i < size; i++) {
+    tx[i] = data[j];
+    j++;
+  }
+  S25FL256_eraseSectorFromBlock(0);
+  while (S25FL256_isWriteInProgress()) {
+    HAL_Delay(51);
+  }
+  S25FL256_open(0);
+  S25FL256_write((uint8_t*)tx, 256);
+  while (S25FL256_isWriteInProgress()) {
+    HAL_Delay(51);
+  }
+}
+void readInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
+  static uint8_t rx[256];
+  S25FL256_open(0);
+  S25FL256_read((uint8_t*)rx, 256);
+  int j = 0;
+  for (int i = addres; i < size; i++) {
+    data[j] = rx[i];
+    j++;
+  }
+}
+/*
 uint8_t SPG30_Initialize(void) {
   struct OCTA_header SPG30_Header = platform_getHeader(SPG30_CONNECTOR);
   if (!SPG30_Header.active) {
@@ -37,28 +105,17 @@ uint8_t SPG30_Initialize(void) {
 
   return 1;
 }
-void Initialize_Sensors(void) {
-  LSM303AGR_setI2CInterface(&common_I2C);
-  setI2CInterface_SHT31(&common_I2C);
-  LSM303AGR_ACC_reset();
-  acc_int = 0;
-  LSM303AGR_MAG_reset();
-  HAL_Delay(50);
-  LSM303AGR_init();
-  HAL_Delay(50);
-  SHT31_begin();
-  if (enable_SGP) {
-    HAL_Delay(300);
-    SPG30_Initialize();
-  }
-}
+*/
+float cotlevels = 0;
+
 void SPG30_measure(void) {
 
   if (enable_SGP) {
     err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
     if (err == STATUS_OK) {
       measurement_counter++;
-      printf("tVOC Concentration: %5d [ppb]\t CO2eq Concentration: %5d [ppm]\t measurement no.: %10lu \r\n", tvoc_ppb, co2_eq_ppm, measurement_counter);
+      // printf("tVOC Concentration: %5d [ppb]\t CO2eq Concentration: %5d [ppm]\t measurement no.: %10lu \r\n", tvoc_ppb, co2_eq_ppm, measurement_counter);
+      cotlevels = co2_eq_ppm;
     } else {
       printf("error reading IAQ values\r\n");
     }
