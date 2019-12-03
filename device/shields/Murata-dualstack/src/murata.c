@@ -211,6 +211,6 @@ void Murata_rxCallback(void)
     if(use_scheduler)
     {
         //start rx processing thread
-        RTOS_Send_Notification(threadToNotify);
+    //    RTOS_Send_Notification(threadToNotify);
     }
 }

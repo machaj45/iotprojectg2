@@ -205,6 +205,8 @@ int main(void)
 
   printWelcome();
 
+  
+
 // // TX MUTEX ensuring no transmits are happening at the same time
 //   osMutexDef(txMutex);
 //   txMutexId = osMutexCreate(osMutex(txMutex));
@@ -219,7 +221,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */   
 uint8_t data[3] = {5,10,15}; 
  
-Dash7_send(data , sizeof(data));
+//Dash7_send(data , sizeof(data));
+
+LoRaWAN_send(data,sizeof(data));
         printf("\r\n");
         HAL_Delay(3000);
 

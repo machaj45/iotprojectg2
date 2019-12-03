@@ -14,8 +14,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define IWDG_INTERVAL           5    //seconds
-#define LORAWAN_INTERVAL        60   //seconds
-#define DASH7_INTERVAL          20  //seconds
+#define LORAWAN_INTERVAL        10   //seconds
+#define DASH7_INTERVAL          200  //seconds
 #define MODULE_CHECK_INTERVAL   3600 //seconds
 
 /* USER CODE END PD */
@@ -125,6 +125,9 @@ int main(void)
   { 
     IWDG_feed(NULL);
 
+
+          LoRaWAN_send(NULL);
+
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
@@ -173,7 +176,7 @@ int main(void)
     
     /* USER CODE BEGIN 3 */
 
-    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
+  //  HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
   }
   /* USER CODE END 3 */
 }
