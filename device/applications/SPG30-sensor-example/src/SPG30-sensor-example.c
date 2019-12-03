@@ -139,7 +139,7 @@ int main(void)
     uint16_t tvoc_ppb, co2_eq_ppm;
     uint32_t iaq_baseline;
     uint16_t scaled_ethanol_signal, scaled_h2_signal;
-    uint32_t measurement_counter = 1;
+    uint32_t measurement_counter = 0;
 
     printf("\r\n");
 
