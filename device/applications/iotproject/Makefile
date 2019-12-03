@@ -14,7 +14,9 @@ Device = 1
 # 3 ruben
 
 USE_BOOTLOADER=1
+SHIELDS += SPG30
 SPG30_CONNECTOR = 3
+
 LORAWAN_APPLICATION = lpiot
 # Path to the octa-stack base directory:
 STACKBASE ?= ../..

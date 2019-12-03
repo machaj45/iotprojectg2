@@ -12,8 +12,8 @@ extern "C" {
 #include "murata.h"
 #include "LSM303AGRSensor.h"
 #include "sht31.h"
-#include "sensirion_common.h"
-#include "sgp30.h"
+//#include "sensirion_common.h"
+//#include "sgp30.h"
 // Me
 #define IWDG_INTERVAL 50            // seconds
 #define MODULE_CHECK_INTERVAL 5000  // seconds

@@ -11,6 +11,7 @@
 #define BlueButton 3
 #define Button1 1
 #define Button2 2
+
 volatile uint8_t murata_data_ready = 0;
 volatile uint8_t button;
 uint8_t          lora_init;
@@ -48,41 +49,9 @@ uint8_t vc = 0;
 
 void onBlueButton() {
   printf("Blue Button pressed\n\r");
-
-  static uint8_t tx[SIZE];
-  static uint8_t rx[SIZE];
-  static uint8_t ndata;
-
-  osMutexWait(txMutexId, osWaitForever);
-  S25FL256_open(BLOCK_ID);
-
-  S25FL256_read((uint8_t *)rx, SIZE);
-  printf("Data from flash\n\r");
-  printf("%d %d %d %d %d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7]);
-  for (int i = 0; i < SIZE; i++) {
-    tx[i] = rx[i];
-  }
-
-  ndata = 6;
-  tx[4] = ndata;
-
-  printf("Data to send to flash\n\r");
-  printf("%d %d %d %d %d %d %d %d\n\r", tx[0], tx[1], tx[2], tx[3], tx[4], tx[5], tx[6], tx[7]);
-
-  S25FL256_open(BLOCK_ID);
-  S25FL256_write((uint8_t *)tx, SIZE);
-
-  while (S25FL256_isWriteInProgress()) {
-    HAL_Delay(51);
-  }
-  printf("Written\n\r");
-  for (int i = 0; i < SIZE; i++) {
-     rx[i]=0;
-  }
-  printf("Data to read from flash\n\r");
-  S25FL256_read((uint8_t *)rx, SIZE);
-  osMutexRelease(txMutexId);
-  printf("%d %d %d %d %d %d %d %d\n\r", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7]);
+  uint8_t data2[4];
+  readInFlash(0, data2, sizeof(data2));
+  printf("%d %d %d %d\n\r", data2[0], data2[1],data2[2], data2[3]);
 }
 uint32_t value = 0;
 
@@ -94,7 +63,6 @@ void validCommand(uint8_t start, uint8_t stop) {
     value += a * (datainble[i] - 48);
   }
   printf("\n\r");
-  // printf("%d\n\t", value);
   for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
     datainble[i] = 0;
   }
@@ -103,9 +71,7 @@ void validCommand(uint8_t start, uint8_t stop) {
 }
 void validCommandg(uint8_t start, uint8_t stop) {
   if (vc == 1) {
-
     vc = 0;
-
     uint32_t newData = 0;
 
     for (int i = start + 1; i <= stop; i++) {
@@ -114,20 +80,15 @@ void validCommandg(uint8_t start, uint8_t stop) {
       newData += a * (datainble[i] - 48);
     }
     printf("\n\r");
-
-
-    printf("Write to %d and saved value of %d\n\r", value, newData);
-    // S25FL256_read((uint8_t *)rx, SIZE);
-    // for (int i = 0; i < SIZE; i++) {
-    //   tx[i] = 1;
-    //  }
-    //  S25FL256_open(BLOCK_ID);
-    //  S25FL256_write((uint8_t *)tx, SIZE);
-
-    while (S25FL256_isWriteInProgress()) {
-      HAL_Delay(50);
-    }
-    printf("Written\n\r");
+    uint8_t data [4];
+    uint322byte(newData,data,0);
+    writeInFlash(value,data,sizeof(data));
+    
+    uint8_t data2 [4];
+    readInFlash(value,data2,sizeof(data));
+    uint32_t olddata;
+    byte2uint32(data2,olddata);
+    printf("Data are %d",olddata);
     for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
       datainble[i] = 0;
     }
@@ -221,7 +182,7 @@ void StartDefaultTask(void const *argument) {
         break;
     }
     IWDG_feed(NULL);
-    SPG30_measure();
+    // SPG30_measure();
     osDelay(1000);
   }
 }
