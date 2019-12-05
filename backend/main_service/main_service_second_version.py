@@ -81,7 +81,10 @@ class mainservice:
                 time1 = (datetime.datetime.now().time().minute*60) + datatime.datetime.now().time().second
                 print("time (min, sec) in sec: ", time1)
                 print("difference : ", time1 - self.times[len(self.times)-1])
-                if
+                if( (time1 - self.times[len(self.times)-1]) = 0):
+                    print("difference == 0")
+                else
+                    print("difference != 0")
 		# check time difference
 		#print(datetime.datetime.now().time().second)
 		#print(len(self.times))
