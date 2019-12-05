@@ -52,84 +52,8 @@ def on_message(client, userdata, message):
 	parameters = parser.getData()
 	rxLevel = parser.getRxLevel()
 	tempGateway = gw[gateway]
-	global old_parameters
-
-
-	if((old_parameters == []) or (parameters != old_parameters)):
-		global dataForMessages
-		global messageOfValues
-		if(len(messageOfValues) < 4 and len(messageOfValues) > 0):
-			#print("Missing messages from gateways")
-			#print(messageOfValues)
-			if ('A' not in messageOfValues):
-				messageOfValues['A'] = 120
-			if ('B' not in messageOfValues):
-				messageOfValues['B'] = 120
-			if ('C' not in messageOfValues):
-				messageOfValues['C'] = 120
-			if ('D' not in messageOfValues):
-				messageOfValues['D'] = 120
-		print(messageOfValues)
-
-		if(len(messageOfValues) == 4 and messageOfValues != 0):
-			global messages
-			tempMessage = []
-			tempMessage.append(messageOfValues.get('A'))
-			tempMessage.append(messageOfValues.get('B'))
-			tempMessage.append(messageOfValues.get('C'))
-			tempMessage.append(messageOfValues.get('D'))
-			messages.append(tempMessage)
-			with open('database_test3.json', 'w') as output_file:
-				temp = {}
-				temp["messages"] = messages
-				json.dump(temp, output_file, indent=2, sort_keys=True)
-			print("data added to database")
-			print("  ")
-			global move_on
-			global first_time
-			if (first_time == 1):
-				move_on = move_on + 1
-				if (move_on == 5):
-					move_on = 0
-					first_time = first_time + 1
-					print("----- Go to another place!!")
-			else:
-				move_on = move_on + 1
-				if(move_on == 6):
-					move_on = 0
-					print("----- Go to another place!!")
-
-		#print("--------first case")
-		old_parameters = []
-		old_parameters = parameters
-		global counter_of_messages
-		counter_of_messages = counter_of_messages + 1
-		message_number = 'message ' + str(counter_of_messages - 1)
-		print(message_number)
-		messageOfValues = {}
-		messageOfValues = {tempGateway : rxLevel}
-		print("first gateway")
-		#print(messageOfValues)
-		#print(type(messageOfValues))
-		#my_details = {'data1': parameters[0], 'data2' : parameters[1], 'data3' : parameters[2] }
-		#print(type(my_details))
-		#dataForMessage.clear()
-		#dataForMessage[message_number] = [my_details]
-		#dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-	else:
-		#print("!!!!!     another case")
-		message_number = 'message ' + str(counter_of_messages - 1)
-		#print(message_number)
-		#data = {}
-		messageOfValues[tempGateway] = rxLevel
-		print("next gateway")
-		#print(message_number)
-		#print(messageOfValues)
-		#print(message_number)
-		#dataForMessage[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-
-
-
+	print(tempGateway)
+	print(rxLevel)
 	#my_details = {'topic': message.topic, 'message-alp_command': message1, 'rxLevel' : rxLevel, 'data1' : parameters[0], 'data2' : parameters[1], 'data3' : parameters[2]}
 	#data = {}
 	#message_number = 'message' + str(counter_of_messages)

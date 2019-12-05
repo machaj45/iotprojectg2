@@ -133,7 +133,6 @@ void onBLE() {
 }
 void onButton1() {
   printf("BTN1 pressed\n\r");
-  /*
   float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
@@ -141,20 +140,12 @@ void onButton1() {
   float2byte(cotlevels, buffer, 8);
   buffer[12] = (uint8_t)dash7_Mycounter;
   dash7_Mycounter++;
-  */
-  uint8_t test [1];
-  test[0]=dash7_Mycounter;
-  dash7_Mycounter+=6;
-  //Dash7_send(buffer, sizeof(buffer));
-  Dash7_send(test, sizeof(test));
-  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-  HAL_Delay(2000);
-  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+  Dash7_send(buffer, sizeof(buffer));
   printf("BTN1 end\n\r");
 }
 void onButton2() {
   printf("BTN2 pressed\n\r");
-  /*float g[2];
+  float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
   float2byte(g[1], buffer, 4);
@@ -162,11 +153,7 @@ void onButton2() {
   printOCTAID();
   buffer[12] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
-  LoRaWAN_send(buffer, sizeof(buffer));*/
-
-  uint8_t test [1];
-  test[0]=255;
-  Murata_Dash7_Send(test, 1);
+  LoRaWAN_send(buffer, sizeof(buffer));
   printf("BTN2 end\n\r");
 }
 void StartDefaultTask(void const *argument) {

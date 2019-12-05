@@ -1,0 +1,14 @@
+name: jlink
+root: ./
+pre_window: 
+startup_window: jlink
+windows:
+  - jlink:
+      layout: even-horizontal
+      panes:
+        - cd ~/git/iotprojectg2/device/applications/iotproject;sleep 1; tmux split-window -d ;tmux resize-pane -U 21; cu -l /dev/ttyACM* -s 115200
+        - tmux resize-pane -R 70; jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1 
+  - service:
+      layout: even-vertical
+      panes:
+        - read && tmux detach && tmux kill-window -t service

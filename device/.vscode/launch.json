@@ -35,6 +35,16 @@
             "interface": "swd",
         },
         {
+            "cwd": "${workspaceRoot}/applications/iotproject",
+            "executable": "./build/iotproject.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "name": "iotproject",
+            "device": "STM32L496ZG",
+            "interface": "swd",
+        },
+        {
             "cwd": "${workspaceRoot}/applications/acc-mag-sensor",
             "executable": "./build/acc-mag-sensor.elf",
             "request": "launch",
