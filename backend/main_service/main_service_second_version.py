@@ -77,41 +77,46 @@ class mainservice:
     def checking(self):
 	while True:
 		print("------ start thread---")
+		print("index: ", self.old_index)
+                time1 = (datetime.datetime.now().time().minute*60) + datatime.datetime.now().time().second
+                print("time (min, sec) in sec: ", time1)
+                print("difference : ", time1 - self.times[len(self.times)-1])
+                if
 		# check time difference
 		#print(datetime.datetime.now().time().second)
 		#print(len(self.times))
 		#print(len(self.times)-1)
 
-		if( (self.old_index > 0) and ((math.fabs(datetime.datetime.now().time().second - self.times[len(self.times)-1])) > 3)):
-			print("neeed to add missing gateways")
+#		if( (self.old_index > 0) and ((math.fabs(datetime.datetime.now().time().second - self.times[len(self.times)-1])) > 3)):
+#			print("neeed to add missing gateways")
 
-                	if(len(self.messageOfValues) < 4 and len(self.messageOfValues) > 0):
-                        	print("Missing messages from gateways")
-                        	message_number = 'message' + str(self.counter_of_messages)
-                        	if ('A' not in self.messageOfValues):
-                                	self.messageOfValues['A'] = 120
-                                	self.dataForMessage[message_number].append({ 'gateway' : self.A, 'rxLevel' : 120 })
-                        	if ('B' not in self.messageOfValues):
-                                	self.messageOfValues['B'] = 120
-                                	self.dataForMessage[message_number].append({ 'gateway' : self.B, 'rxLevel' : 120 })
-                        	if ('C' not in self.messageOfValues):
-                                	self.messageOfValues['C'] = 120
-                                	self.dataForMessage[message_number].append({ 'gateway' : self.C, 'rxLevel' : 120 })
-                        	if ('D' not in self.messageOfValues):
-                                	self.messageOfValues['D'] = 120
-                                	self.dataForMessage[message_number].append({ 'gateway' : self.D, 'rxLevel' : 120 })
+#                	if(len(self.messageOfValues) < 4 and len(self.messageOfValues) > 0):
+#                        	print("Missing messages from gateways")
+#                        	message_number = 'message' + str(self.counter_of_messages)
+#                        	if ('A' not in self.messageOfValues):
+#                                	self.messageOfValues['A'] = 120
+#                                	self.dataForMessage[message_number].append({ 'gateway' : self.A, 'rxLevel' : 120 })
+#                        	if ('B' not in self.messageOfValues):
+#                                	self.messageOfValues['B'] = 120
+#                                	self.dataForMessage[message_number].append({ 'gateway' : self.B, 'rxLevel' : 120 })
+#                        	if ('C' not in self.messageOfValues):
+#                                	self.messageOfValues['C'] = 120
+#                                	self.dataForMessage[message_number].append({ 'gateway' : self.C, 'rxLevel' : 120 })
+#                        	if ('D' not in self.messageOfValues):
+#                                	self.messageOfValues['D'] = 120
+#                                	self.dataForMessage[message_number].append({ 'gateway' : self.D, 'rxLevel' : 120 })
 
 
-		if (len(self.messageOfValues) == 4 and self.messageOfValues != 0):
-			with open('measurements.json', 'a') as json_file:
-				json.dump(self.dataForMessage, json_file, indent=2, sort_keys=True)
-			print("Data added to database")
+#		if (len(self.messageOfValues) == 4 and self.messageOfValues != 0):
+#			with open('measurements.json', 'a') as json_file:
+#				json.dump(self.dataForMessage, json_file, indent=2, sort_keys=True)
+#			print("Data added to database")
 
-			self.publish_info_to_things_board(self.parameters_to_send_with_dash7) #maybe in a$
+#			self.publish_info_to_things_board(self.parameters_to_send_with_dash7) #maybe in a$
 
-                	self.fingerprinting(self.messageOfValues)
+#                	self.fingerprinting(self.messageOfValues)
 
-                	self.times = []
+#                	self.times = []
 
 		print("ending work in that thread")
 
