@@ -14,8 +14,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define IWDG_INTERVAL           5    //seconds
-#define LORAWAN_INTERVAL        60   //seconds
-#define DASH7_INTERVAL          20  //seconds
+#define LORAWAN_INTERVAL        10   //seconds
+#define DASH7_INTERVAL          200  //seconds
 #define MODULE_CHECK_INTERVAL   3600 //seconds
 
 /* USER CODE END PD */
@@ -32,6 +32,8 @@ uint16_t DASH7_Counter = 0;
 uint8_t murata_init = 0;
 uint64_t short_UID;
 uint8_t murata_data_ready = 0;
+  RTC_HandleTypeDef hrtc;
+
 /* USER CODE END 0 */
 
 /**
@@ -116,10 +118,15 @@ int main(void)
   /* Infinite loop */
   uint8_t counter = 0;
   uint8_t use_lora = 1;
+
+
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
     IWDG_feed(NULL);
+
+
+          LoRaWAN_send(NULL);
 
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_Delay(1000);
@@ -169,7 +176,7 @@ int main(void)
     
     /* USER CODE BEGIN 3 */
 
-    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
+  //  HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON,PWR_SLEEPENTRY_WFI);
   }
   /* USER CODE END 3 */
 }

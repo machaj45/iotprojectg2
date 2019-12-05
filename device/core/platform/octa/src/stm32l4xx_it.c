@@ -76,7 +76,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
-extern RTC_HandleTypeDef RTCHandle;
+extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN EV */
 
@@ -201,11 +201,7 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 0 */
 
   /* USER CODE END USART2_IRQn 0 */
-  #if USE_BOOTLOADER
     HAL_UART_IRQHandler(&BLE_UART);
-  #else
-    HAL_UART_IRQHandler(&P2_UART);
-  #endif
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */
@@ -295,7 +291,7 @@ void SPI3_IRQHandler(void)
  
 void RTC_WKUP_IRQHandler(void)
 {
- // HAL_RTCEx_WakeUpTimerIRQHandler(&RTCHandle);
+  HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
   
 }
 

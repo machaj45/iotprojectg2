@@ -1,5 +1,5 @@
 # name of your application
-APPLICATION = iotproject
+APPLICATION = iotproject_no_os
 
 # platform for which the application will be built
 PLATFORM ?= octa

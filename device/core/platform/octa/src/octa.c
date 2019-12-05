@@ -6,6 +6,10 @@ void OCTA_NVIC_Initialize() {
   HAL_NVIC_SetPriority(23, 2, 0);
   HAL_NVIC_EnableIRQ(23);  // 23 is interrupt line 5 - 9
 
+//  HAL_NVIC_SetPriority(RTC_WKUP_IRQn, 0x0, 0);
+//  HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
+
+
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
@@ -14,6 +18,7 @@ void OCTA_NVIC_Initialize() {
 
   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);  // 7 is interrupt line 1
+
 }
 void OCTA_Initialize_Platform(void) {
   // GPIO, IWDG, USB_UART(Logging)

@@ -10,9 +10,13 @@ SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 1
 LORAWAN_APPLICATION = lpiot
 
+Device = 3
+
 LOW_POWER = 1
 
 # Path to the octa-stack base directory:
 STACKBASE ?= ../..
+
+SHIELD_DEFINES += -DDevice=$(Device)
 
 include $(STACKBASE)/core/Makefile.core

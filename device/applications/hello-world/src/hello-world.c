@@ -221,13 +221,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	#if USE_BOOTLOADER
     if(huart == &BLE_UART);
     {
           printf("BLE UART INTERRUPT\r\n");
           bootloader_parse_data();        
     }
-  #endif
 }
 
 /**

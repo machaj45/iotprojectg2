@@ -1,5 +1,0 @@
-# SGP30 sources
-C_SOURCES += $(wildcard $(DRIVERS_DIR)/SGP30/src/*.c)
-
-# SGP30 includes
-C_INCLUDES += -I$(DRIVERS_DIR)/SGP30/inc

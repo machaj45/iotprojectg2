@@ -49,16 +49,21 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#define HAL_RTC_MODULE_ENABLED
 
 
 #include "no-scheduler-example.h"
 #include <stdio.h>
 #include "murata.h"
 
+#include "send.h"
+
 //#include "platform.h"
 #include "LSM303AGRSensor.h"
 #include "sht31.h"
+
+// GAS sensor
+#include "sensirion_common.h"
+#include "sgp30.h"
 
 // Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -92,14 +97,53 @@ volatile _Bool interruptFlag=0;
 uint16_t LoRaWAN_Counter = 0;
 uint8_t lora_init = 0;
 uint64_t short_UID;
-uint16_t rep_counter = 0; 
-volatile uint8_t counter = 0;
+volatile uint8_t safeCounter = 0;
+volatile uint8_t DangerCounter = 0;
+volatile uint8_t EmergencyCounter = 0;
+volatile _Bool NormalMode = 1;
+
+uint8_t murata_init = 0;
+
+static uint8_t maxSafeCounter = 5;
+static uint8_t maxDangerCounter = 5;
+static uint8_t maxEmergencyCounter = 5;
+
+static uint16_t NormalSleepCounter = 0x000A;
+static uint16_t EmergencySleepCounter = 0x0005;
+static uint16_t OneMinute = 0x003C;
+static uint16_t fiveMinute = 0x012C;
+static uint16_t halfMinute = 0x001E;
+static uint16_t tenSeconds = 0x000A;
+static uint16_t fiveSeconds = 0x0005;
+
+volatile uint16_t TemperatureTreshold[2] = {18,30};
+volatile uint16_t HumidityTreshold[2] =  { 0 , 40};
+volatile uint16_t CO2Treshold[2] = {0 , 600};
+volatile uint16_t TVOCTreshold[2] = {0 , 50};
+
+
+ uint16_t i = 0;
+    int16_t err;
+    uint16_t tvoc_ppb, co2_eq_ppm;
+    uint32_t iaq_baseline;
+    uint16_t scaled_ethanol_signal, scaled_h2_signal;
+    volatile _Bool danger;
+
+
 
 //RTC 
+RTC_HandleTypeDef hrtc;
 
+// static void SystemPower_Config(void);
+static void MX_RTC_Init(void);
 
-RTC_HandleTypeDef RTCHandle;
-static void SystemPower_Config(void);
+void sleep(uint16_t time);
+
+void testBlink(void);
+
+void quickBlink(void);
+
+bool calculateDanger();
 
 //*/
 /* USER CODE END 0 */
@@ -130,27 +174,12 @@ int main(void)
   SystemClock_Config();
 
     /* Enable Power Clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
+//  __HAL_RCC_PWR_CLK_ENABLE();
   
   /* Ensure that MSI is wake-up system clock */ 
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+//  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
 
-  SystemPower_Config();
-
-
-//////////////////////////////////////////////////
-
-  /* ENable Power clock */
-  //__HAL_RCC_PWR_CLK_ENABLE();
-
-  // See this for longer periods.
-  /* Ensure that MSI is wake-up system clock */ 
-  //__HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-
-  //SystemPower_Config();
-
-
-  ///////////////////////////////////////
+  MX_RTC_Init();
 
   /* USER CODE BEGIN SysInit */
 
@@ -163,13 +192,20 @@ int main(void)
   // get Unique ID of Octa
  // short_UID = get_UID(); 
 
-LSM303AGR_setI2CInterface(&common_I2C);
+//init for gas sensor
+  SPG30_Initialize();
+  P3_I2C_Init();
+//LSM303AGR_setI2CInterface(&common_I2C);
   setI2CInterface_SHT31(&common_I2C);
   SHT31_begin(); 
-  LSM303AGR_init();
+
+  LorawanInit();
+
+//  LSM303AGR_init();
 
   printWelcome();
-  uint8_t data; 
+
+  
 
 // // TX MUTEX ensuring no transmits are happening at the same time
 //   osMutexDef(txMutex);
@@ -183,9 +219,44 @@ LSM303AGR_setI2CInterface(&common_I2C);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */   
+uint8_t data[3] = {5,10,15}; 
+ 
+//Dash7_send(data , sizeof(data));
+
+LoRaWAN_send(data,sizeof(data));
+        printf("\r\n");
+        HAL_Delay(3000);
+
+    while(sgp_probe() != STATUS_OK)
+    {
+    	printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
+    	HAL_Delay(500); // delay retry
+    }
+    
+    printf("SGP sensor probing successful\r\n");
+
+    /* Read gas signals */
+    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+    if(err == STATUS_OK)
+    {
+			// Print ethanol signal with floating point support
+			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+
+			// Print H2 signal with floating point support
+			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
+
+    }
+    else
+    {
+    	printf("error reading Ethanol and H2 signals\r\n");
+    }
+        err = sgp_iaq_init();
+
+
 
   while (1)
   {
+    
 
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
@@ -195,92 +266,116 @@ LSM303AGR_setI2CInterface(&common_I2C);
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
-        printf("Session %d\r\n", ++counter);
+        printf("Session %d\r\n",safeCounter);
       interruptFlag=0; 
     }
- 
 
-    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
- //   printf("\33[2K");
-    printf("RED\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-  //  printf("\33[2K");
-    printf("GREEN\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-//    printf("\33[2K");
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+///////////////////////////  NORMAL MODE  ////////////////////////////////////
+    if (NormalMode){
+      
+      quickBlink();
 
-    HAL_Delay(1000);
+      do_measurement();
 
-HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-//    printf("\33[2K");
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+      danger =  calculateDanger();
 
-    HAL_Delay(1000);
+      if (danger){
+        printf("DANGER\r\n");
+        //update danger counter & reset safe counter
+        DangerCounter++;
+        safeCounter = 0;
 
-    printf("going in sleep mode\r\n");
+        // check if in danger for too long -> if so, enable emergency mode
+        if (DangerCounter >= maxDangerCounter){
+          //reset counter
+          DangerCounter = 0;
 
-    HAL_Delay(200);
+          //enter emergency mode on next wake up
+          NormalMode = 0;
+          printf("enter emergency mode on next wake up\r\n");
+        }
+        else {
+          // TODO: SEND data only on dash 7.
+          printf("send danger data\r\n");
+        }
+      }
 
+      else {
+        printf("clear\r\n");
+        // update safe counter & reset danger counter
+        safeCounter++;
+        DangerCounter = 0;
 
-//    HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
+          //check if server needs to update safe values
+        if (safeCounter >= maxSafeCounter){
+          //reset counter
+          safeCounter = 0;
+          printf("send safe server update\r\n");
+          
+        }
 
+      }      
+      printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
+      sleep(tenSeconds);
+  // // operating in normal mode
+  // if (NormalMode){
+  //   //check for BLE config
 
-    HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle,0x02710,RTC_WAKEUPCLOCK_RTCCLK_DIV16);
-
-
-
-/* Re-enable wakeup source */
-    /* ## Setting the Wake up time ############################################*/
-    /* RTC Wakeup Interrupt Generation: 
-      the wake-up counter is set to its maximum value to yield the longuest
-      stop time to let the current reach its lowest operating point.
-      The maximum value is 0xFFFF, corresponding to about 33 sec. when 
-      RTC_WAKEUPCLOCK_RTCCLK_DIV = RTCCLK_Div16 = 16
-
-      Wakeup Time Base = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI))
-      Wakeup Time = Wakeup Time Base * WakeUpCounter 
-        = (RTC_WAKEUPCLOCK_RTCCLK_DIV /(LSI)) * WakeUpCounter
-        ==> WakeUpCounter = Wakeup Time / Wakeup Time Base
-  
-      To configure the wake up timer to 60s the WakeUpCounter is set to 0xFFFF:
-      Wakeup Time Base = 16 /(~32.000KHz) = ~0.5 ms
-      Wakeup Time = 0.5 ms  * WakeUpCounter
-      Therefore, with wake-up counter =  0xFFFF  = 65,535 
-         Wakeup Time =  0,5 ms *  65,535 = 32,7675 s ~ 33 sec. */
- //*******   HAL_RTCEx_SetWakeUpTimer_IT(&RTCHandle, 0x0FFFF, RTC_WAKEUPCLOCK_RTCCLK_DIV16);
-  
-
-//go to stop mode with frozen IWDG-timer
-//HAL_SuspendTick();
-HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-//HAL_ResumeTick();
-//printf("lalla\r\n");
-
-//Initialize_Platform();
-//reset the right clock config.
-SystemClock_Config();
- // SystemClock_Config();
-
-    /* Enable Power Clock */
- // __HAL_RCC_PWR_CLK_ENABLE();
-  
-  /* Ensure that MSI is wake-up system clock */ 
- // __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
-
-  //SystemPower_Config();
+  //   //do environment measurements & check for danger
 
 
-/* Disable all used wakeup source */
-//******** HAL_RTCEx_DeactivateWakeUpTimer(&RTCHandle);
+  //   // if no danger:
+  //   ++safeCounter;
+
+  //   if (safeCounter == maxSafeCounter){
+  //     //send data
+  //     printf("safe update to the server \r\n");
+  //     safeCounter = 0;
+  //   }
+
+    
+  // }
+  // // operating in emergency mode
+  // else {
+
+  // }
+    }
+
+///////////////////////  EMERGENCY MODE /////////////////////////////
+    else{
+
+      //update emergency counter
+      EmergencyCounter++;
+
+      if (EmergencyCounter >= maxEmergencyCounter){
+        EmergencyCounter = 0;
+
+        //do measurements & calculate danger.
+        //if there is still is danger, remain in emergency mode
+
+        do_measurement();
+        danger = calculateDanger();
+
+        if (danger){
+          // TODO: send data on lora & DASH7
+          printf("recalculated emergengy data is dangerous\r\n");
+        } 
+        else{
+          NormalMode = 1;
+        }
+
+      }
+
+      else{
+        // TODO: send data on lora & dash7
+
+        printf("SEND STORED EMERGENCY DATA\r\n");
+      }
+
+    printf("emergency counter: %d\r\n",EmergencyCounter);
+    sleep(fiveSeconds);
+
+    }
 
     /* USER CODE BEGIN 3 */
   }
@@ -288,6 +383,36 @@ SystemClock_Config();
 }
 
 
+
+bool calculateDanger(){
+  //SHT 0 = temp, SHT1 = humid
+  // tvoc_ppb , co2_ppm
+
+    if ((SHTData[0] < TemperatureTreshold[0]) || (SHTData[0] > TemperatureTreshold[1]) ){
+      printf("temp\r\n");
+      return true;
+    }
+
+    if ((SHTData[1] < HumidityTreshold[0]) || (SHTData[1] > HumidityTreshold[1]) ){
+            printf("humid\r\n");
+             return true;
+    }
+
+    if ((tvoc_ppb < TVOCTreshold[0]) || (tvoc_ppb > TVOCTreshold[1]) ){
+     
+           printf("TVOC\r\n");
+           return true;
+    }
+
+    if ((co2_eq_ppm < CO2Treshold[0]) || (co2_eq_ppm > CO2Treshold[1]) ){
+            printf("CO2\r\n");
+            return true;
+    }
+
+    return false;
+
+    
+}
 
 void printWelcome(void)
 {
@@ -314,30 +439,48 @@ void printWelcome(void)
   * @retval None
   */
 
- 
-static void SystemPower_Config(void)
-{
 
-  /* Configure RTC */
-  RTCHandle.Instance = RTC;
-  /* Set the RTC time base to 1s */
-  /* Configure RTC prescaler and RTC data registers as follow:
-    - Hour Format = Format 24
-    - Asynch Prediv = Value according to source clock
-    - Synch Prediv = Value according to source clock
-    - OutPut = Output Disable
-    - OutPutPolarity = High Polarity
-    - OutPutType = Open Drain */
-  RTCHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-  RTCHandle.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
-  RTCHandle.Init.SynchPrediv = RTC_SYNCH_PREDIV;
-  RTCHandle.Init.OutPut = RTC_OUTPUT_WAKEUP;
-  RTCHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  RTCHandle.Init.OutPutType = RTC_OUTPUT_TYPE_PUSHPULL;
-  if(HAL_RTC_Init(&RTCHandle) != HAL_OK)
+ /* RTC init function */
+static void MX_RTC_Init(void)
+{
+  /* USER CODE BEGIN RTC_Init 0 */
+  /* USER CODE END RTC_Init 0 */
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+  /* USER CODE BEGIN RTC_Init 1 */
+  /* USER CODE END RTC_Init 1 */
+    /**Initialize RTC Only 
+    */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
-    /* Initialization Error */
-    Error_Handler(); 
+    Error_Handler();
+  }
+    /**Initialize RTC and set the Time and Date 
+    */
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = RTC_MONTH_JANUARY;
+  sDate.Date = 0x1;
+  sDate.Year = 0x0;
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
   }
 }
 
@@ -345,17 +488,24 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hrtc);
+  interruptFlag = 1; 
 
-  printf("interrupt handled\r\n");
-
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
-   */
 }
 
+void sleep(uint16_t timer)
+{
+  printf("going in sleep mode\r\n");
+  if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, timer,RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_IT();
 
-
-
+  HAL_SuspendTick();
+  HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+  HAL_ResumeTick();
+  SystemClock_Config();
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -383,24 +533,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   } 
 }
 
-
-
-
-
-
-
-
-void print_temp_hum(void){
+void print_data(void){
   printf("\r\n");
-  printf("Temperature: %.2f °C  \r\n", SHTData[0]);
+  printf("Temperature: %.2f %cC  \r\n", SHTData[0],'°');
   printf("Humidity: %.2f %% \r\n", SHTData[1]);
-  printf("\r\n");
+  printf("TVOC: %5d ppb\r\n",tvoc_ppb);
+  printf("CO2: %5d ppm\r\n",co2_eq_ppm);
 }
 
-void temp_hum_measurement(void){
+void do_measurement(void){
 
   SHT31_get_temp_hum(SHTData);
-  print_temp_hum();
+  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  if (err == STATUS_OK){
+    print_data();
+  }
+  else{
+    printf("error while reading data\r\n");
+  }
 }
 
 
@@ -408,6 +558,10 @@ void temp_hum_measurement(void){
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  if (huart == &P1_UART) {
+    Murata_rxCallback();
+    //murata_data_ready = 1;
+  }
 	#if USE_BOOTLOADER
     if(huart == &BLE_UART);
     {
@@ -468,6 +622,36 @@ void Error_Handler(void)
 
   /* USER CODE END Error_Handler_Debug */
 
+}
+
+void testBlink(void){
+  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    printf("RED\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    printf("GREEN\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
+    HAL_Delay(1000);
+
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    printf("BLUE\r\n");
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+
+    HAL_Delay(1000);
+}
+
+void quickBlink(void){
+  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+ //   printf("\33[2K");
+    HAL_Delay(500);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
 }
 
 
