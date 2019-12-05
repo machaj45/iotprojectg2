@@ -31,7 +31,7 @@ length = len (collection)
 dictonary={}
 dictonary["length"]=length
 dictonary["points"]=collection
-with open('points.json', 'w') as output_file:
+with open('temp_points.json', 'w') as output_file:
     json.dump(dictonary,output_file,indent=2,sort_keys=False)
 
 print(collection)

@@ -79,7 +79,7 @@ def on_message(client, userdata, message):
 			tempMessage.append(messageOfValues.get('C'))
 			tempMessage.append(messageOfValues.get('D'))
 			messages.append(tempMessage)
-			with open('database_test3.json', 'w') as output_file:
+			with open('temp_database.json', 'w') as output_file:
 				temp = {}
 				temp["messages"] = messages
 				json.dump(temp, output_file, indent=2, sort_keys=True)
