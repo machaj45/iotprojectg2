@@ -89,13 +89,13 @@ def on_message(client, userdata, message):
 			global first_time
 			if (first_time == 1):
 				move_on = move_on + 1
-				if (move_on == 3):
+				if (move_on == 5):
 					move_on = 0
 					first_time = first_time + 1
 					print("----- Go to another place!!")
 			else:
 				move_on = move_on + 1
-				if(move_on == 4):
+				if(move_on == 6):
 					move_on = 0
 					print("----- Go to another place!!")
 
