@@ -55,8 +55,8 @@
 #include <stdio.h>
 #include "murata.h"
 
-//#include "send.h"
-// #include "other.h"
+#include "send.h"
+#include "other.h"
 
 //#include "platform.h"
 #include "LSM303AGRSensor.h"
@@ -230,6 +230,9 @@ readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
 readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
 readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
 
+uint8_t lora_Mycounter  = 0;
+
+
 
 
   
@@ -246,27 +249,14 @@ readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */   
-uint8_t data[3] = {5,10,15}; 
  
 Murata_LoRaWAN_Join(); 
+uint8_t          buffer[13];
 
-while(1){
 
-  IWDG_feed(NULL);
 
-    if(murata_data_ready)
-    {
-      printf("processing murata fifo\r\n");
-      murata_data_ready = !Murata_process_fifo();
-    }
-  LoRa_send(NULL);
-  HAL_Delay(10000);
-}
 //Dash7_send(data , sizeof(data));
 
-//LoRaWAN_send(data,sizeof(data));
-        printf("\r\n");
-        HAL_Delay(3000);
 
     while(sgp_probe() != STATUS_OK)
     {
@@ -293,7 +283,30 @@ while(1){
     }
         err = sgp_iaq_init();
 
-uint8_t lora_Mycounter  = 0;
+        while (1){
+IWDG_feed(NULL);
+
+    if(murata_data_ready)
+    {
+      printf("processing murata fifo\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
+
+do_measurement();
+  float2byte(SHTData[0], buffer, 0);
+  float2byte(SHTData[1], buffer, 4);
+ // float2byte(cotlevels, buffer, 8);
+ uint162byte(co2_eq_ppm,buffer,8 );
+  uint162byte(tvoc_ppb,buffer,10 );
+
+
+  //printOCTAID();
+  buffer[12] = (uint8_t)lora_Mycounter;
+  lora_Mycounter++;
+  Dash7_send(buffer,sizeof(buffer));
+  HAL_Delay(5000);
+}
+
 
 
   while (1)
@@ -303,26 +316,9 @@ uint8_t lora_Mycounter  = 0;
 
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
-uint8_t          buffer[11];
-while (1){
-     float g[2];
-  SHT31_get_temp_hum(g);
-  float2byte(g[0], buffer, 0);
-  float2byte(g[1], buffer, 4);
- // float2byte(cotlevels, buffer, 8);
- uint162byte(co2_eq_ppm,buffer,8 );
-
-  //printOCTAID();
-  buffer[10] = (uint8_t)lora_Mycounter;
-  lora_Mycounter++;
-  //Dash7_send(buffer, sizeof(buffer));
 
 
 
- //   lorawan_send(buffer, sizeof(buffer))
-    HAL_Delay(10000);
-
-}
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
     if (interruptFlag==1) {
           printf("\033[2J");
