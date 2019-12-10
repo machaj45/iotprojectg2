@@ -190,14 +190,6 @@ uint8_t Murata_process_fifo(void) {
   return modem_process_fifo();
 }
 
-<<<<<<< HEAD
-void Murata_rxCallback(void) {
-  uart_rx_cb();
-  if (use_scheduler) {
-    // start rx processing thread
-    RTOS_Send_Notification(threadToNotify);
-  }
-=======
 void Murata_rxCallback(void)
 {
     uart_rx_cb();
@@ -206,5 +198,4 @@ void Murata_rxCallback(void)
         //start rx processing thread
     //    RTOS_Send_Notification(threadToNotify);
     }
->>>>>>> ee40482a6bd042fe1b589297d4f1ed34ea54dfc2
 }
