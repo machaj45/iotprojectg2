@@ -28,9 +28,23 @@ uint8_t uint322byte(uint32_t input, uint8_t* output, uint8_t offset) {
   output[2 + offset]    = *(dataPointer + 2);
   output[3 + offset]    = *(dataPointer + 3);
 }
+uint8_t uint162byte(uint16_t input, uint8_t* output, uint8_t offset) {
+  uint16_t* floatPtr    = &input;
+  uint8_t*  dataPointer = (uint8_t*)floatPtr;
+  output[0 + offset]    = *dataPointer;
+  output[1 + offset]    = *(dataPointer + 1);
+}
 
-uint8_t byte2uint32(uint8_t* input, uint32_t output) {
-  output = input[0] + input[1]*256 + input[2]*256*256 + input[3]*256*256*256;
+uint16_t byte2uint16(uint8_t* input, uint8_t offset) {
+  uint16_t output;
+  output = input[0+offset] + input[1+offset] * 256;
+  return output;
+}
+
+uint32_t byte2uint32(uint8_t* input, uint8_t offset) {
+  uint32_t output;
+  output = input[0+offset] + input[1+offset] * 256 + input[2+offset] * 256 * 256 + input[3+offset] * 256 * 256 * 256;
+  return output;
 }
 void Initialize_Sensors(void) {
   LSM303AGR_setI2CInterface(&common_I2C);
@@ -46,6 +60,26 @@ void Initialize_Sensors(void) {
     HAL_Delay(300);
     SPG30_Initialize();
   }
+}
+void setUpDefaultValuesforTresholds() {
+  uint8_t data[16];
+  data[0]  = 0x00;
+  data[1]  = 0x12;
+  data[2]  = 0x00;
+  data[3]  = 0x1E;
+  data[4]  = 0x00;
+  data[5]  = 0x00;
+  data[6]  = 0x00;
+  data[7]  = 0x28;
+  data[8]  = 0x00;
+  data[9]  = 0x00;
+  data[10] = 0x02;
+  data[11] = 0x58;
+  data[12] = 0x00;
+  data[13] = 0x00;
+  data[14] = 0x00;
+  data[15] = 0x32;
+  writeInFlash(0, data, sizeof(data));
 }
 void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
   static uint8_t tx[256];
