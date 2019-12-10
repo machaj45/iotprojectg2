@@ -8,7 +8,7 @@ PLATFORM ?= octa
 BOOTLOADER ?= 0
 SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 1
-LORAWAN_APPLICATION = lpiot
+LORAWAN_APPLICATION = theultimateapplication
 
 # LORAWAN_APPLICATION = lpiot
 

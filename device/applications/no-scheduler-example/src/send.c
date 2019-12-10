@@ -4,6 +4,7 @@
 
 extern uint16_t            LoRaWAN_Counter;
 extern uint8_t      murata_init;
+extern uint64_t short_UID;
 uint16_t            DASH7_Counter   = 0;
 uint8_t             lastsendlora    = 0;
 uint8_t             lastsenddash    = 1;
@@ -12,7 +13,7 @@ UART_HandleTypeDef *murata_uart;
 
 
 void LorawanInit() {
-int  short_UID               = get_UID();
+  short_UID               = get_UID();
   murata_init             = Murata_Initialize(short_UID, 0);
   struct OCTA_header temp = platform_getHeader(MURATA_CONNECTOR);
   // platform_initialize_I2C(temp);  // it was init I2C
@@ -23,9 +24,9 @@ int  short_UID               = get_UID();
   }
 
   if (murata_init) {
-//    printf("Murata dualstack module init OK\r\n\r\n");
+    printf("Murata dualstack module init OK\r\n\r\n");
  //   printOCTAID();
-    HAL_Delay(1000);
+ //   HAL_Delay(1000);
     //    Murata_LoRaWAN_Join();
   } else {
     printf("ERROR murata is not initialized properly\r\n\r\n");
