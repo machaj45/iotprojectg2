@@ -55,8 +55,8 @@
 #include <stdio.h>
 #include "murata.h"
 
-#include "send.h"
-#include "other.h"
+//#include "send.h"
+// #include "other.h"
 
 //#include "platform.h"
 #include "LSM303AGRSensor.h"
@@ -133,6 +133,9 @@ volatile uint16_t TVOCTreshold[2];
     uint16_t scaled_ethanol_signal, scaled_h2_signal;
     volatile _Bool danger;
 
+    uint8_t murata_data_ready = 0;
+
+
 
 
 //RTC 
@@ -198,7 +201,7 @@ int main(void)
   S25FL256_Initialize(&FLASH_SPI);
 
   // get Unique ID of Octa
- // short_UID = get_UID(); 
+  short_UID = get_UID(); 
 
 //init for gas sensor
   SPG30_Initialize();
@@ -245,6 +248,20 @@ readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
   /* USER CODE BEGIN WHILE */   
 uint8_t data[3] = {5,10,15}; 
  
+Murata_LoRaWAN_Join(); 
+
+while(1){
+
+  IWDG_feed(NULL);
+
+    if(murata_data_ready)
+    {
+      printf("processing murata fifo\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
+  LoRa_send(NULL);
+  HAL_Delay(10000);
+}
 //Dash7_send(data , sizeof(data));
 
 //LoRaWAN_send(data,sizeof(data));
@@ -299,8 +316,10 @@ while (1){
   buffer[10] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
   //Dash7_send(buffer, sizeof(buffer));
-  Dash7_send(NULL);
- //   lorawan_send()
+
+
+
+ //   lorawan_send(buffer, sizeof(buffer))
     HAL_Delay(10000);
 
 }
@@ -423,6 +442,38 @@ while (1){
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
+}
+
+void LoRa_send(void const *argument)
+{
+  if (murata_init)
+  {
+    uint8_t loraMessage[5];
+    uint8_t i = 0;
+    //uint16 counter to uint8 array (little endian)
+    //counter (large) type byte
+    loraMessage[i++] = 0x14;
+    loraMessage[i++] = LoRaWAN_Counter;
+    loraMessage[i++] = LoRaWAN_Counter >> 8;
+    //osMutexWait(txMutexId, osWaitForever);
+    if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
+    {
+      murata_init++;
+      if(murata_init == 10)
+        murata_init == 0;
+    }
+    else
+    {
+      murata_init = 1;
+    }
+    //BLOCK TX MUTEX FOR 3s
+    //osDelay(3000);
+    //osMutexRelease(txMutexId);
+    LoRaWAN_Counter++;
+  }
+  else{
+    printf("murata not initialized, not sending\r\n");
+  }
 }
 
 
@@ -603,7 +654,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart == &P1_UART) {
     Murata_rxCallback();
-    //murata_data_ready = 1;
+    murata_data_ready = 1;
   }
 	#if USE_BOOTLOADER
     if(huart == &BLE_UART);
