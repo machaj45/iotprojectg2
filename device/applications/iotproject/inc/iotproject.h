@@ -17,8 +17,19 @@ extern "C" {
 // Me
 #define IWDG_INTERVAL 50            // seconds
 #define MODULE_CHECK_INTERVAL 5000  // seconds
+  //FLASH COPY
 #define SIZE 256
 #define BLOCK_ID 0
+#define SIZE_OF_TH 2
+#define TEMP_TH_LOW 0
+#define TEMP_TH_HIGH 2
+#define HUMI_TH_LOW 4
+#define HUMI_TH_HIGH 6
+#define CO2_TH_LOW 8
+#define CO2_TH_HIGH 10
+#define TVOC_TH_LOW 12
+#define TVOC_TH_HIGH 14
+  //FLASH COPY
 
 osThreadId defaultTaskHandle;
 osThreadId GSPmeasuerTaskHandle;

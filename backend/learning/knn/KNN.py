@@ -21,7 +21,7 @@ class KNN:
         A = []
         for message in data.get("messages"):
             A.append(message)
-        self.neigh = KNeighborsRegressor(n_neighbors=20,radius=10, metric='euclidean',n_jobs=2)
+        self.neigh = KNeighborsRegressor(n_neighbors=20,radius=10, metric='euclidean',n_jobs=1)
 
         with open (filename2,"r") as readfile:
             data = json.load(readfile)
@@ -31,14 +31,14 @@ class KNN:
     def getpoint(self,signal):
         point = self.neigh.predict(signal)
         return point
-        
+
     def plotmap(self,data):
         #if len(data)!=2:
             #data = self.neigh.predict(data)
         if os.environ.get('DISPLAY','') == '':
             print('No display found! TRY ssh -X student@student-ect')
         else:
-            self.img=mpimg.imread('map.png')
+            self.img=mpimg.imread('/home/student/git/iotprojectg2/backend/learning/knn/map.png')
             self.imgplot = plt.imshow(self.img)
             X = []
             Y = []

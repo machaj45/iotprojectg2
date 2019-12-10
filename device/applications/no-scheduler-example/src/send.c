@@ -46,9 +46,11 @@ void LoRaWAN_send(uint8_t *loraMessage, uint8_t size) {
   if (lastsenddash == 1) {
     lastsenddash      = 0;
     murata_successful = 1;
-    while (murata_successful == 1) {
-      HAL_Delay(50);
-    };
+    // while (murata_successful == 1) {
+    //   HAL_Delay(50);
+    // };
+
+    HAL_Delay(2000);
 
     if (murata_init) {
       lastsendlora = 1;

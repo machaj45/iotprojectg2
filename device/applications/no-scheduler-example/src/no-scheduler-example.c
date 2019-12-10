@@ -56,6 +56,7 @@
 #include "murata.h"
 
 #include "send.h"
+#include "other.h"
 
 //#include "platform.h"
 #include "LSM303AGRSensor.h"
@@ -95,7 +96,7 @@ osTimerId temp_hum_timer_id;
 float SHTData[2];
 volatile _Bool interruptFlag=0; 
 uint16_t LoRaWAN_Counter = 0;
-uint8_t lora_init = 0;
+//uint8_t lora_init = 0;
 uint64_t short_UID;
 volatile uint8_t safeCounter = 0;
 volatile uint8_t DangerCounter = 0;
@@ -116,10 +117,13 @@ static uint16_t halfMinute = 0x001E;
 static uint16_t tenSeconds = 0x000A;
 static uint16_t fiveSeconds = 0x0005;
 
-volatile uint16_t TemperatureTreshold[2] = {18,30};
-volatile uint16_t HumidityTreshold[2] =  { 0 , 40};
-volatile uint16_t CO2Treshold[2] = {0 , 600};
-volatile uint16_t TVOCTreshold[2] = {0 , 50};
+volatile uint16_t TemperatureTreshold[2];
+volatile uint16_t HumidityTreshold[2];
+volatile uint16_t CO2Treshold[2];
+volatile uint16_t TVOCTreshold[2];
+
+
+
 
 
  uint16_t i = 0;
@@ -136,6 +140,8 @@ RTC_HandleTypeDef hrtc;
 
 // static void SystemPower_Config(void);
 static void MX_RTC_Init(void);
+
+
 
 void sleep(uint16_t time);
 
@@ -189,6 +195,8 @@ int main(void)
   Initialize_Platform();
   /* USER CODE BEGIN 2 */
 
+  S25FL256_Initialize(&FLASH_SPI);
+
   // get Unique ID of Octa
  // short_UID = get_UID(); 
 
@@ -201,9 +209,25 @@ int main(void)
 
   LorawanInit();
 
+  //setUpDefaultValuesforTresholds();
+
 //  LSM303AGR_init();
 
   printWelcome();
+
+  readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
+readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
+
+readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
+readInFlash(HUMI_TH_HIGH,HumidityTreshold+1,2);
+
+readInFlash(CO2_TH_LOW,CO2Treshold,2);
+readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
+
+readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
+readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+
+
 
   
 
@@ -223,7 +247,7 @@ uint8_t data[3] = {5,10,15};
  
 //Dash7_send(data , sizeof(data));
 
-LoRaWAN_send(data,sizeof(data));
+//LoRaWAN_send(data,sizeof(data));
         printf("\r\n");
         HAL_Delay(3000);
 
@@ -252,15 +276,34 @@ LoRaWAN_send(data,sizeof(data));
     }
         err = sgp_iaq_init();
 
+uint8_t lora_Mycounter  = 0;
 
 
   while (1)
   {
     
 
+
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
+uint8_t          buffer[11];
+while (1){
+     float g[2];
+  SHT31_get_temp_hum(g);
+  float2byte(g[0], buffer, 0);
+  float2byte(g[1], buffer, 4);
+ // float2byte(cotlevels, buffer, 8);
+ uint162byte(co2_eq_ppm,buffer,8 );
 
+  //printOCTAID();
+  buffer[10] = (uint8_t)lora_Mycounter;
+  lora_Mycounter++;
+  //Dash7_send(buffer, sizeof(buffer));
+  Dash7_send(NULL);
+ //   lorawan_send()
+    HAL_Delay(10000);
+
+}
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
     if (interruptFlag==1) {
           printf("\033[2J");
@@ -576,7 +619,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void LoRaWAN_send_self()
 {
-  if (lora_init)
+  if (murata_init)
   {
     uint8_t loraMessage[5];
     uint8_t i = 0;
@@ -591,13 +634,13 @@ void LoRaWAN_send_self()
     if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
     {
       printf("tis ni gelukt :( ");
-      lora_init++;
-      if(lora_init == 10)
-        lora_init == 0;
+      murata_init++;
+      if(murata_init == 10)
+        murata_init == 0;
     }
     else
     {
-      lora_init = 1;
+      murata_init = 1;
     }
     //BLOCK TX MUTEX FOR 3s
     // osDelay(3000);
@@ -615,14 +658,7 @@ void LoRaWAN_send_self()
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
 
-  /* USER CODE END Error_Handler_Debug */
-
-}
 
 void testBlink(void){
   HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);

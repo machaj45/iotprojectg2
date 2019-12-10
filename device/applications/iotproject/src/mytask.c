@@ -49,9 +49,14 @@ uint8_t vc = 0;
 
 void onBlueButton() {
   printf("Blue Button pressed\n\r");
-  uint8_t data2[4];
+  uint8_t data2[16];
   readInFlash(0, data2, sizeof(data2));
-  printf("%d %d %d %d\n\r", data2[0], data2[1],data2[2], data2[3]);
+  printf("<------ Printing tresholds ------>\n\r");
+  printf("Tempriture is between %d and %d\n\r",byte2uint16(data2,TEMP_TH_LOW),byte2uint16(data2,TEMP_TH_HIGH));
+  printf("Humidity is between %d and %d\n\r",byte2uint16(data2,HUMI_TH_LOW),byte2uint16(data2,HUMI_TH_HIGH));
+  printf("CO2 is between %d and %d\n\r",byte2uint16(data2,CO2_TH_LOW),byte2uint16(data2,CO2_TH_HIGH));
+  printf("TOV is between %d and %d\n\r",byte2uint16(data2,TVOC_TH_LOW),byte2uint16(data2,TVOC_TH_HIGH));
+  printf("<------        END         ------>\n\r");
 }
 uint32_t value = 0;
 
@@ -133,6 +138,7 @@ void onBLE() {
 }
 void onButton1() {
   printf("BTN1 pressed\n\r");
+  /*
   float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
@@ -140,12 +146,20 @@ void onButton1() {
   float2byte(cotlevels, buffer, 8);
   buffer[12] = (uint8_t)dash7_Mycounter;
   dash7_Mycounter++;
-  Dash7_send(buffer, sizeof(buffer));
+  */
+  uint8_t test [1];
+  test[0]=dash7_Mycounter;
+  dash7_Mycounter+=6;
+  //Dash7_send(buffer, sizeof(buffer));
+  Dash7_send(test, sizeof(test));
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+  HAL_Delay(2000);
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
   printf("BTN1 end\n\r");
 }
 void onButton2() {
   printf("BTN2 pressed\n\r");
-  float g[2];
+  /*float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
   float2byte(g[1], buffer, 4);
@@ -153,7 +167,11 @@ void onButton2() {
   printOCTAID();
   buffer[12] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
-  LoRaWAN_send(buffer, sizeof(buffer));
+  LoRaWAN_send(buffer, sizeof(buffer));*/
+setUpDefaultValuesforTresholds();
+  uint8_t test [1];
+  test[0]=255;
+  Murata_Dash7_Send(test, 1);
   printf("BTN2 end\n\r");
 }
 void StartDefaultTask(void const *argument) {
@@ -183,8 +201,17 @@ void StartDefaultTask(void const *argument) {
         break;
     }
     IWDG_feed(NULL);
-     SPG30_measure();
-    osDelay(1000);
+//     SPG30_measure();
+     float g[2];
+  SHT31_get_temp_hum(g);
+  float2byte(g[0], buffer, 0);
+  float2byte(g[1], buffer, 4);
+  float2byte(cotlevels, buffer, 8);
+  printOCTAID();
+  buffer[12] = (uint8_t)lora_Mycounter;
+  lora_Mycounter++;
+  LoRaWAN_send(buffer, sizeof(buffer));
+    osDelay(10000);
   }
 }
 
