@@ -7,7 +7,7 @@ extern uint8_t      murata_init;
 uint16_t            DASH7_Counter   = 0;
 uint8_t             lastsendlora    = 0;
 uint8_t             lastsenddash    = 1;
-volatile uint8_t    murata_successful;
+extern volatile uint8_t    murata_successful;
 UART_HandleTypeDef *murata_uart;
 
 

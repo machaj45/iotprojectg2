@@ -34,6 +34,8 @@ uint64_t short_UID;
 uint8_t murata_data_ready = 0;
   RTC_HandleTypeDef hrtc;
 
+
+
 /* USER CODE END 0 */
 
 /**
@@ -126,7 +128,17 @@ int main(void)
     IWDG_feed(NULL);
 
 
-          LoRaWAN_send(NULL);
+     //     LoRaWAN_send(NULL);
+
+     LoRaWAN_send(NULL);
+     murata_successful = 1;
+     while(murata_successful== 1){
+       HAL_Delay(50);
+      
+     }
+     LoRaWAN_send(NULL);
+     murata_successful=0;
+
 
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_Delay(1000);

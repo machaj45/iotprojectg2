@@ -77,7 +77,7 @@ void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t* da
                                                                                                             interface_status.duty_cycle_wait_time);
         switch (interface_status.error_state){
           case 0 :printf("OK\n\r");murata_successful=0;break;
-          case 1 :printf("NOT_JOINED\n\r");break;
+          case 1 :printf("NOT_JOINED\n\r"); murata_successful=10; break;
           case 2 :printf("TX_NOT_POSSIBLE\n\r");break;
           case 3 :printf("UNKNOWN\n\r");break;
           case 4 :printf("NACK\n\r");break;
@@ -86,6 +86,7 @@ void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t* da
           case 7 :printf("RETRY_TRANSMISSION\n\r");break;
           case 8 :printf("JOINED\n\r");murata_successful=3;break;
         }
+        murata_successful=0;
     }
     else if(interface_type==ALP_ITF_ID_D7ASP)
     {
