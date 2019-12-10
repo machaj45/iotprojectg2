@@ -251,7 +251,7 @@ uint8_t lora_Mycounter  = 0;
   /* USER CODE BEGIN WHILE */   
  
 Murata_LoRaWAN_Join(); 
-uint8_t          buffer[13];
+uint8_t          buffer[14];
 
 
 
@@ -298,12 +298,20 @@ do_measurement();
  // float2byte(cotlevels, buffer, 8);
  uint162byte(co2_eq_ppm,buffer,8 );
   uint162byte(tvoc_ppb,buffer,10 );
+  bool danger = calculateDanger();
+  if (danger){
+    buffer[12] = 1;
+  }
+  else{
+    buffer[12] = 0;
+  }
+  
 
 
   //printOCTAID();
-  buffer[12] = (uint8_t)lora_Mycounter;
+  buffer[13] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
-  Dash7_send(buffer,sizeof(buffer));
+  LoRaWAN_send(buffer,sizeof(buffer));
   HAL_Delay(5000);
 }
 
