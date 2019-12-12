@@ -273,6 +273,23 @@ uint8_t buffer[14] = {};
     	printf("error reading Ethanol and H2 signals\r\n");
     }
         err = sgp_iaq_init();
+
+
+
+
+        ////////////// while test wake up
+
+        while (1){
+              IWDG_feed(NULL); 
+            quickBlink();
+            printf("wake\r\n");
+            printf("going in sleep mode\r\n");
+            sleep(fiveSeconds);
+        }
+
+
+
+        /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
 //         while (1){
 // IWDG_feed(NULL);
@@ -378,7 +395,7 @@ uint8_t buffer[14] = {};
 
       else {
         printf("clear\r\n");
-        // update safe counter & reset danger counter
+        // update safe counter & resHAL_RTCEx_WakeUpTimerEventCallbacket danger counter
         safeCounter++;
         DangerCounter = 0;
 
@@ -522,18 +539,18 @@ bool calculateDanger(){
     
 }
 
-void UpdateThresholdsFromFlashBLE(void){
-    readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
-readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
+void UpdateThresholdsFromFlashBLE(void)
+{    readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
+  readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
 
-readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
-readInFlash(HUMI_TH_HIGH,HumidityTreshold+1,2);
+  readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
+  readInFlash(HUMI_TH_HIGH,HumidityTreshold+1,2);
 
-readInFlash(CO2_TH_LOW,CO2Treshold,2);
-readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
+  readInFlash(CO2_TH_LOW,CO2Treshold,2);
+  readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
 
-readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
-readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+  readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
+  readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
 }
 
 void printWelcome(void)

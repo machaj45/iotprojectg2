@@ -79,6 +79,8 @@ extern volatile uint8_t murata_successful;
 /* USER CODE BEGIN PFP */
 void printWelcome(void);
 
+void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc);
+
 
 /* USER CODE END PFP */
 
