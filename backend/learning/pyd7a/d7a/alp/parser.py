@@ -66,12 +66,16 @@ from d7a.alp.operations.file_management import CreateNewFile
 class Parser(object):
   rxLevel =  -1
   parameterValues = []
+  device_id = ""
 
   def getData(self):
     return parameterValues
 
   def getRxLevel(self):
     return rxLevel
+
+  def getDeviceId(self):
+      return device_id 
 
   def parse(self, s, cmd_length):
     actions = []
@@ -108,7 +112,7 @@ class Parser(object):
     except KeyError:
       raise ParseError("alp_action " + str(op) + " is not implemented")
 
-  def parse_alp_read_file_data_action(self, b7, b6, s):
+  def parse_alp_read_file_data_action(self, b7, b6, s): 
     operand = self.parse_alp_file_data_request_operand(s)
     return RegularAction(group=b7,
                   resp=b6,
@@ -116,6 +120,7 @@ class Parser(object):
 
   def parse_alp_write_file_data_action(self, b7, b6, s):
     operand = self.parse_alp_return_file_data_operand(s)
+    length = Length.parse(s)
     return RegularAction(group=b7,
                   resp=b6,
                   operation=WriteFileData(operand=operand))
@@ -153,7 +158,7 @@ class Parser(object):
 
     global parameterValues
     parameterValues = map(ord,data)
-
+    
     return Data(offset=offset, data=map(ord,data))
 
   def parse_alp_return_status_action(self, b7, b6, s):
@@ -167,8 +172,14 @@ class Parser(object):
           0x00 :  self.parse_alp_interface_status_host,
           0xd7 :  self.parse_alp_interface_status_d7asp,
         }[interface_id](s)
-        return StatusAction(operation=interface_status_operation,
+        
+        statusAction = StatusAction(operation=interface_status_operation,
                             status_operand_extension=StatusActionOperandExtensions.INTERFACE_STATUS)
+        index = statusAction.__str__().find("id=520340822835")
+        global device_id
+        device_id = statusAction.__str__()[index+3:index+22]
+        
+        return statusAction
       except KeyError:
         raise ParseError("Received ALP Interface status for interface " + str(interface_id) + " which is not implemented")
     else: # action status
@@ -192,7 +203,7 @@ class Parser(object):
     if overload:
       # TODO we are assuming D7ASP interface here
       overload_config = Addressee.parse(s)
-
+ 
     return IndirectForwardAction(overload=overload, resp=b6, operation=IndirectForward(
       operand=IndirectInterfaceOperand(interface_file_id=interface_file_id, interface_configuration_overload=overload_config)))
 

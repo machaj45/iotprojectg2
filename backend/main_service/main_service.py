@@ -96,7 +96,8 @@ class mainservice:
 	#self.client_pub.on_publish = on_publish
 	self.client_pub.username_pw_set(access_token)
 	self.client_pub.connect(broker, keepalive=20)
-	message_to_send = {"temperature" : data[0], "humidity" : data[1], "CO2" : data[2]}
+	message_to_send = {"temperature" : data[0], "humidity" : data[2], "CO2" : data[2]}
+	#message_to_send = {"x" : 300, "y" : 400, "CO2" : data[2]}
 	result = json.dumps(message_to_send)
 	self.client_pub.publish(topic, result)
 	print("Data = ", message_to_send)
