@@ -8,7 +8,7 @@ PLATFORM ?= octa
 # Murata
 SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 1
-LORAWAN_APPLICATION = lpiot
+LORAWAN_APPLICATION = theultimateapplication
 
 Device = 3
 
@@ -20,3 +20,5 @@ STACKBASE ?= ../..
 SHIELD_DEFINES += -DDevice=$(Device)
 
 include $(STACKBASE)/core/Makefile.core
+
+

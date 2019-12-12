@@ -201,8 +201,17 @@ void StartDefaultTask(void const *argument) {
         break;
     }
     IWDG_feed(NULL);
-     SPG30_measure();
-    osDelay(1000);
+//     SPG30_measure();
+     float g[2];
+  SHT31_get_temp_hum(g);
+  float2byte(g[0], buffer, 0);
+  float2byte(g[1], buffer, 4);
+  float2byte(cotlevels, buffer, 8);
+  printOCTAID();
+  buffer[12] = (uint8_t)lora_Mycounter;
+  lora_Mycounter++;
+  LoRaWAN_send(buffer, sizeof(buffer));
+    osDelay(10000);
   }
 }
 

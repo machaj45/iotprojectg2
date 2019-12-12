@@ -8,7 +8,7 @@ PRINT_FLOATS = 1
 SHIELDS += Murata-dualstack
 MURATA_CONNECTOR = 1
 
-Device = 1
+Device = 3
 # 1 jan
 # 2 jola
 # 3 ruben

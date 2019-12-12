@@ -292,7 +292,7 @@ void SPI3_IRQHandler(void)
 void RTC_WKUP_IRQHandler(void)
 {
   HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
-  
+ 
 }
 
 
