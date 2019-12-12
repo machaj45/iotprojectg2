@@ -107,6 +107,7 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc);
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

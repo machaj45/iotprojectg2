@@ -81,6 +81,7 @@
 /* USER CODE BEGIN PD */
 #define HAL_EXTI_MODULE_ENABLED
 
+#define SIZEOFBLEBUFFER 100
 #define temp_hum_timer    3
 //#define LOW_POWER
 /* USER CODE END PD */
@@ -95,6 +96,7 @@
 osTimerId temp_hum_timer_id;
 float SHTData[2];
 volatile _Bool interruptFlag=0; 
+volatile uint8_t interruptFlagBle=0; 
 uint16_t LoRaWAN_Counter = 0;
 //uint8_t lora_init = 0;
 uint64_t short_UID;
@@ -123,6 +125,9 @@ volatile uint16_t CO2Treshold[2];
 volatile uint16_t TVOCTreshold[2];
 
 
+uint8_t datainble[SIZEOFBLEBUFFER];
+uint8_t data[1];
+uint8_t charCounter;
 
 
 
@@ -276,9 +281,9 @@ uint8_t buffer[14] = {};
 
 
 
-
+/*
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
         ////////////// while test wake up
-
         while (1){
               IWDG_feed(NULL); 
             quickBlink();
@@ -286,8 +291,7 @@ uint8_t buffer[14] = {};
             printf("going in sleep mode\r\n");
             sleep(fiveSeconds);
         }
-
-
+*/
 
         /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
@@ -334,6 +338,7 @@ uint8_t buffer[14] = {};
 //////////////////////// end small while loop   ////////////////////////////
 
 
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while (1)
   {
     
@@ -358,7 +363,16 @@ uint8_t buffer[14] = {};
       
       quickBlink();
 
+
       //////////////////  if BLE, commincate  
+      printf("Testing\n\r");
+
+      if(interruptFlag!=0){
+       printf("BLE MODE START\n\r"); 
+       onBLE();
+       interruptFlagBle=0;
+       printf("BLE MODE STOP\n\r"); 
+      }
 
       ////////////// end BLE
 
@@ -644,6 +658,8 @@ void sleep(uint16_t timer)
   HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
   HAL_ResumeTick();
   SystemClock_Config();
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+  HAL_Delay(200);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -697,17 +713,15 @@ void do_measurement(void){
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  if(huart == &BLE_UART){
+    interruptFlagBle++;
+    printf("BLE UART INTERRUPT\r\n");
+        //bootloader_parse_data();        
+  }
   if (huart == &P1_UART) {
     Murata_rxCallback();
     murata_data_ready = 1;
   }
-	#if USE_BOOTLOADER
-    if(huart == &BLE_UART);
-    {
-          printf("BLE UART INTERRUPT\r\n");
-          bootloader_parse_data();        
-    }
-  #endif
 }
 
 
@@ -830,3 +844,87 @@ void assert_failed(char *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+uint8_t  vc    = 0;
+uint32_t value = 0;
+
+void validCommand(uint8_t start, uint8_t stop) {
+  printf("Valid Command: ");
+  for (int i = start + 1; i <= stop; i++) {
+    printf("%c", datainble[i]);
+    uint32_t a = pow(10, stop - i);
+    value += a * (datainble[i] - 48);
+  }
+  printf("\n\r");
+  for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+    datainble[i] = 0;
+  }
+  charCounter = 0;
+  vc          = 1;
+}
+void validCommandg(uint8_t start, uint8_t stop) {
+  if (vc == 1) {
+    vc               = 0;
+    uint32_t newData = 0;
+
+    for (int i = start + 1; i <= stop; i++) {
+      printf("%c", datainble[i]);
+      uint32_t a = pow(10, stop - i);
+      newData += a * (datainble[i] - 48);
+    }
+    printf("\n\r");
+    uint8_t data[4];
+    uint322byte(newData, data, 0);
+    writeInFlash(value, data, sizeof(data));
+
+    uint8_t data2[4];
+    readInFlash(value, data2, sizeof(data));
+    uint32_t olddata;
+    byte2uint32(data2, olddata);
+    printf("Data are %d", olddata);
+    for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+      datainble[i] = 0;
+    }
+    charCounter = 0;
+  }
+}
+void onBLE() {
+  while ( data[0]!=113) {
+    IWDG_feed(NULL);
+    if (interruptFlagBle != 0) {
+      interruptFlagBle       = 0;
+      datainble[charCounter] = data[0];
+      HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+      printf("Received data from BLE\n\r");
+      charCounter++;
+      for (int i = 0; i < charCounter; i++) {
+        uint8_t correctCount = i;
+        switch (datainble[i]) {
+          case 115:
+            for (int j = 1 + i; j < charCounter; j++) {
+              if (datainble[j] >= 48 && datainble[j] <= 57) {
+                correctCount++;
+              }
+              if (correctCount == j - 1 && datainble[j] == 115)
+                validCommand(i, correctCount);
+              // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+            };
+            break;
+          case 103:
+            for (int j = 1 + i; j < charCounter; j++) {
+              if (datainble[j] >= 48 && datainble[j] <= 57) {
+                correctCount++;
+              }
+              if (correctCount == j - 1 && datainble[j] == 103)
+                validCommandg(i, correctCount);
+              // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+            };
+            break;
+        }
+        quickBlink();
+      }
+    }
+  }
+  if (charCounter >= SIZEOFBLEBUFFER) {
+    charCounter = 0;
+  }
+}
