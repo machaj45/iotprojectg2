@@ -74,7 +74,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
-extern volatile uint8_t murata_successful;
+volatile uint8_t murata_successful;
 
 /* USER CODE BEGIN PFP */
 void printWelcome(void);

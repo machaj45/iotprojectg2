@@ -6,6 +6,8 @@ uint8_t            use_scheduler = 0;
 volatile uint8_t   murata_successful;
 struct OCTA_header murataHeader;
 
+extern volatile activeSending;
+
 session_config_t session_config_lora = {.interface_type              = LORAWAN_OTAA,
                                         .lorawan_session_config_otaa = {.devEUI           = LORAWAN_DEV_EUI,
                                                                         .appEUI           = LORAWAN_APP_EUI,
@@ -41,12 +43,15 @@ modem_callbacks_t modem_callbacks = {
 
 void on_modem_command_completed_callback(bool with_error, uint8_t tag_id) {
   printf("Murata modem command with tag %i completed (success = %i)\r\n", tag_id, !with_error);
-  if (!with_error == 1)
+  if (!with_error)
+  {
     murata_successful = 0;
+    activeSending = 0;
   // tag_id=0;
   // Murata_toggleResetPin();
   // HAL_Delay(500);
   // Murata_LoRaWAN_Join();
+  } 
 }
 
 void on_modem_return_file_data_callback(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t *output_buffer) {
