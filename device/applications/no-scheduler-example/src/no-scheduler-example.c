@@ -198,6 +198,7 @@ int main(void)
   Initialize_Platform();
   /* USER CODE BEGIN 2 */
 
+//needed for flash
   S25FL256_Initialize(&FLASH_SPI);
 
   // get Unique ID of Octa
@@ -218,17 +219,7 @@ int main(void)
 
   printWelcome();
 
-  readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
-readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
-
-readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
-readInFlash(HUMI_TH_HIGH,HumidityTreshold+1,2);
-
-readInFlash(CO2_TH_LOW,CO2Treshold,2);
-readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
-
-readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
-readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+UpdateThresholdsFromFlashBLE();
 
 uint8_t lora_Mycounter  = 0;
 
@@ -251,7 +242,7 @@ uint8_t lora_Mycounter  = 0;
   /* USER CODE BEGIN WHILE */   
  
 Murata_LoRaWAN_Join(); 
-uint8_t          buffer[14];
+uint8_t buffer[14] = {};
 
 
 
@@ -282,46 +273,55 @@ uint8_t          buffer[14];
     	printf("error reading Ethanol and H2 signals\r\n");
     }
         err = sgp_iaq_init();
+////////////////////////  small while test loop   //////////////////////////////
+//         while (1){
+// IWDG_feed(NULL);
 
-        while (1){
-IWDG_feed(NULL);
+//     if(murata_data_ready)
+//     {
+//       printf("processing murata fifo\r\n");
+//       murata_data_ready = !Murata_process_fifo();
+//     }
 
-    if(murata_data_ready)
-    {
-      printf("processing murata fifo\r\n");
-      murata_data_ready = !Murata_process_fifo();
-    }
+// NormalMode = !NormalMode;
+// do_measurement();
+//   float2byte(SHTData[0], buffer, 0);
+//   float2byte(SHTData[1], buffer, 4);
+//  // float2byte(cotlevels, buffer, 8);
+//  uint162byte(co2_eq_ppm,buffer,8 );
+//   uint162byte(tvoc_ppb,buffer,10 );
+//   bool danger = calculateDanger();
+//   if (danger){
+//     buffer[12] |= 0x01;
+//   }
+//   else{
+//     buffer[12] &= 0x0E;
+//   }
 
-do_measurement();
-  float2byte(SHTData[0], buffer, 0);
-  float2byte(SHTData[1], buffer, 4);
- // float2byte(cotlevels, buffer, 8);
- uint162byte(co2_eq_ppm,buffer,8 );
-  uint162byte(tvoc_ppb,buffer,10 );
-  bool danger = calculateDanger();
-  if (danger){
-    buffer[12] = 1;
-  }
-  else{
-    buffer[12] = 0;
-  }
+//   if (NormalMode){
+//     buffer[12] &= 0x0D;
+//   }
+//   else{
+//     buffer[12] |= 0x02;
+//   }
   
+  
+//   buffer[13] = (uint8_t)lora_Mycounter;
+//   lora_Mycounter++;
+//   //LoRaWAN_send(buffer,sizeof(buffer));
+//   Dash7_send(buffer, sizeof(buffer));
+//   HAL_Delay(5000);
+// }
 
 
-  //printOCTAID();
-  buffer[13] = (uint8_t)lora_Mycounter;
-  lora_Mycounter++;
-  LoRaWAN_send(buffer,sizeof(buffer));
-  HAL_Delay(5000);
-}
-
+//////////////////////// end small while loop   ////////////////////////////
 
 
   while (1)
   {
     
 
-
+      // feed watchdog tmer
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
 
@@ -340,6 +340,11 @@ do_measurement();
     if (NormalMode){
       
       quickBlink();
+
+      //////////////////  if BLE, commincate  
+
+      ////////////// end BLE
+
 
       do_measurement();
 
@@ -363,6 +368,11 @@ do_measurement();
         else {
           // TODO: SEND data only on dash 7.
           printf("send danger data\r\n");
+
+          //LOAD data in buffer 
+
+          //send DASH7
+
         }
       }
 
@@ -510,6 +520,20 @@ bool calculateDanger(){
     return false;
 
     
+}
+
+void UpdateThresholdsFromFlashBLE(void){
+    readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
+readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
+
+readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
+readInFlash(HUMI_TH_HIGH,HumidityTreshold+1,2);
+
+readInFlash(CO2_TH_LOW,CO2Treshold,2);
+readInFlash(CO2_TH_HIGH,CO2Treshold+1,2);
+
+readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
+readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
 }
 
 void printWelcome(void)
