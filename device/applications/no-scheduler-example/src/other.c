@@ -63,6 +63,9 @@ void setUpDefaultValuesforTresholds() {
   data[15] = 0x00;
   data[14] = 0x32;
   writeInFlash(0, data, sizeof(data));
+  while (S25FL256_isWriteInProgress()) {
+    HAL_Delay(51);
+  }
 }
 void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
   static uint8_t tx[256];
@@ -73,7 +76,7 @@ void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
     tx[i] = rx[i];
   }
   int j = 0;
-  for (int i = addres; i < size; i++) {
+  for (int i = addres; i < size+addres; i++) {
     tx[i] = data[j];
     j++;
   }

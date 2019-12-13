@@ -127,7 +127,7 @@ int main(void)
 
   LorawanInit();
 
-  //setUpDefaultValuesforTresholds();
+ // setUpDefaultValuesforTresholds();
 
 //  LSM303AGR_init();
 
@@ -135,15 +135,8 @@ int main(void)
 
 UpdateThresholdsFromFlashBLE();
 
-
-
-
-
-  
-
  
 Murata_LoRaWAN_Join(); 
-
 
 
 //Dash7_send(data , sizeof(data));
@@ -250,13 +243,14 @@ NormalMode = !NormalMode;
 
 
       //////////////////  if BLE, commincate  
-      printf("Testing\n\r");
+      //printf("Testing\n\r");
+      //printf("INter flag is: %d\n\r",interruptFlagBle);
 
-      if(interruptFlag!=0){
-       printf("BLE MODE START\n\r"); 
+      if(interruptFlagBle!=0){
+       printf("BLE MODE START\r\n"); 
        onBLE();
        interruptFlagBle=0;
-       printf("BLE MODE STOP\n\r"); 
+       printf("BLE MODE STOP\r\n"); 
       }
 
       ////////////// end BLE
@@ -423,7 +417,8 @@ if(murata_data_ready)
 }
 
 void UpdateThresholdsFromFlashBLE(void)
-{    readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
+{    
+  readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
   readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
 
   readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
@@ -434,6 +429,18 @@ void UpdateThresholdsFromFlashBLE(void)
 
   readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
   readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+  
+  printf("\033[2J");
+  printf("\033[H");
+  printf("\r\n");
+  printf("************************************************\r\n");
+  printf("Tempriture treshlod is between %d and %d\r\n",TemperatureTreshold[0],TemperatureTreshold[1]);
+  printf("Humidity treshlod is between %d and %d\r\n",HumidityTreshold[0],HumidityTreshold[1]);
+  printf("CO2Treshold treshlod is between %d and %d\r\n",CO2Treshold[0],CO2Treshold[1]);
+  printf("TVOCTreshold treshlod is between %d and %d\r\n",TVOCTreshold[0],TVOCTreshold[1]);
+  printf("************************************************\r\n");
+  printf("\r\n");
+  HAL_Delay(1000);
 }
 
 void printWelcome(void)
@@ -442,7 +449,7 @@ void printWelcome(void)
   printf("\033[H");
   printf("\r\n");
   printf("*****************************************\r\n");
-  printf("noo scheduler example\r\n");
+  printf("************ Ultimate Gard **************\r\n");
   printf("*****************************************\r\n");
   printf("\r\n");
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
@@ -584,8 +591,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if(huart == &BLE_UART){
     interruptFlagBle++;
-    printf("BLE UART INTERRUPT\r\n");
-        //bootloader_parse_data();        
+    //bootloader_parse_data();        
   }
   if (huart == &P1_UART) {
     Murata_rxCallback();
@@ -670,22 +676,17 @@ void validCommandg(uint8_t start, uint8_t stop) {
   if (vc == 1) {
     vc               = 0;
     uint32_t newData = 0;
-
+    printf("\r\n");
     for (int i = start + 1; i <= stop; i++) {
       printf("%c", datainble[i]);
-      uint32_t a = pow(10, stop - i);
+      uint16_t a = pow(10, stop - i);
       newData += a * (datainble[i] - 48);
     }
-    printf("\n\r");
-    uint8_t data[4];
-    uint322byte(newData, data, 0);
-    writeInFlash(value, data, sizeof(data));
-
-    uint8_t data2[4];
-    readInFlash(value, data2, sizeof(data));
-    uint32_t olddata;
-    byte2uint32(data2, olddata);
-    printf("Data are %d", olddata);
+    printf("\r\n");
+    uint8_t data[2];
+    uint162byte(newData, data, 0);
+    printf("New data %d has been written to addres %d\r\n",newData,value);
+    writeInFlash(value*sizeof(data), data, sizeof(data));
     for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
       datainble[i] = 0;
     }
@@ -695,11 +696,15 @@ void validCommandg(uint8_t start, uint8_t stop) {
 void onBLE() {
   while ( data[0]!=113) {
     IWDG_feed(NULL);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(80);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(80);
     if (interruptFlagBle != 0) {
       interruptFlagBle       = 0;
       datainble[charCounter] = data[0];
       HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
-      printf("Received data from BLE\n\r");
+      printf("Data has been received\r\n");
       charCounter++;
       for (int i = 0; i < charCounter; i++) {
         uint8_t correctCount = i;
@@ -725,7 +730,6 @@ void onBLE() {
             };
             break;
         }
-        quickBlink();
       }
     }
   }
