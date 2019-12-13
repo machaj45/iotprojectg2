@@ -1,0 +1,30 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{Jan Machalek, Jolanta Tadla, Ruben Joosen}
+\title{User Guide for Dummy's how to use BLE on our live saving device}
+\begin{document}
+\maketitle
+\section{The Connection}
+The first thing to do is to connect to ble using app on our phone nrxToolbox and the when you are connect the real task begins.
+\section{What you can set up?}
+In our guard device you can set up 8 values that are thresholds that determine status of device.
+The thresholds are maxs and mins of 4 values that can be adjust via BLE.
+\begin{itemize}
+\item Temperature \quad	TempritureMin \quad TempritureMax
+\item  Humidity \quad	HumidityMin \quad HumidityMax
+\item  C02 levels \quad	CO2Min \quad CO2Max
+\item  TVOL levles \quad	TVOLMin \quad TVOLMax
+\end{itemize}
+\section{How to set the values?}
+First you need to look to your device and when the led is red this is your opportunity for start communication with our device. You should send only one character at once otherwise our application will frizz. For establishing connection send any character except \textbf{q, s, g}. Then you can select address where you want to write. For example let's say that we want to change HumidityMax so we send after we are in ble mode indicated with fast blinking green led on device. \textbf{s} \textbf{4} \textbf{s} and now we can send value for new HumidityMax by \textbf{g} \textbf{6} \textbf{6} \textbf{6} \textbf{g} and now the new values has been written to flash memory. If you want to you can quit ble mode by \textbf{q} or you can continue with setting some other valuse by sending \textbf{s} again.
+
+
+\end{document}
