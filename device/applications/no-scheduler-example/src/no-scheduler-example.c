@@ -1,56 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2019 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-
-/* Includes ------------------------------------------------------------------*/
-
-
 #include "no-scheduler-example.h"
 #include <stdio.h>
 #include "murata.h"
@@ -66,33 +13,11 @@
 #include "sensirion_common.h"
 #include "sgp30.h"
 
-// Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
 #define HAL_EXTI_MODULE_ENABLED
 
 #define SIZEOFBLEBUFFER 100
 #define temp_hum_timer    3
-//#define LOW_POWER
-/* USER CODE END PD */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 osTimerId temp_hum_timer_id;
 float SHTData[2];
 volatile _Bool interruptFlag=0; 
@@ -106,6 +31,8 @@ volatile uint8_t EmergencyCounter = 0;
 volatile _Bool NormalMode = 1;
 
 uint8_t murata_init = 0;
+
+volatile activeSending = 0;
 
 static uint8_t maxSafeCounter = 5;
 static uint8_t maxDangerCounter = 5;
@@ -137,6 +64,11 @@ uint8_t charCounter;
     uint32_t iaq_baseline;
     uint16_t scaled_ethanol_signal, scaled_h2_signal;
     volatile _Bool danger;
+    uint8_t buffer[14] = {};
+    uint8_t Message_Counter  = 0;
+
+
+
 
     uint8_t murata_data_ready = 0;
 
@@ -159,13 +91,6 @@ void quickBlink(void);
 
 bool calculateDanger();
 
-//*/
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -173,18 +98,8 @@ int main(void)
   bootloader_SetVTOR();
 #endif
 
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
  
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
     /* Enable Power Clock */
@@ -195,15 +110,9 @@ int main(void)
 
   MX_RTC_Init();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize theplatform */
   Initialize_Platform();
-  /* USER CODE BEGIN 2 */
 
-//needed for flash
+  //needed for flash
   S25FL256_Initialize(&FLASH_SPI);
 
   // get Unique ID of Octa
@@ -226,28 +135,14 @@ int main(void)
 
 UpdateThresholdsFromFlashBLE();
 
-uint8_t lora_Mycounter  = 0;
 
 
 
 
   
 
-// // TX MUTEX ensuring no transmits are happening at the same time
-//   osMutexDef(txMutex);
-//   txMutexId = osMutexCreate(osMutex(txMutex));
-    
-//     // pass processing thread handle to murata driver
-//   Murata_SetProcessingThread(murata_rx_processing_handle);
-  /* USER CODE END 2 */
-
-  /* We should never get here as control is now taken by the scheduler */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */   
  
 Murata_LoRaWAN_Join(); 
-uint8_t buffer[14] = {};
 
 
 
@@ -281,9 +176,9 @@ uint8_t buffer[14] = {};
 
 
 
-/*
-  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
         ////////////// while test wake up
+
+/*
         while (1){
               IWDG_feed(NULL); 
             quickBlink();
@@ -295,44 +190,28 @@ uint8_t buffer[14] = {};
 
         /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
-//         while (1){
-// IWDG_feed(NULL);
+/*
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+         while (1){
+IWDG_feed(NULL);
 
-//     if(murata_data_ready)
-//     {
-//       printf("processing murata fifo\r\n");
-//       murata_data_ready = !Murata_process_fifo();
-//     }
 
-// NormalMode = !NormalMode;
-// do_measurement();
-//   float2byte(SHTData[0], buffer, 0);
-//   float2byte(SHTData[1], buffer, 4);
-//  // float2byte(cotlevels, buffer, 8);
-//  uint162byte(co2_eq_ppm,buffer,8 );
-//   uint162byte(tvoc_ppb,buffer,10 );
-//   bool danger = calculateDanger();
-//   if (danger){
-//     buffer[12] |= 0x01;
-//   }
-//   else{
-//     buffer[12] &= 0x0E;
-//   }
+    
 
-//   if (NormalMode){
-//     buffer[12] &= 0x0D;
-//   }
-//   else{
-//     buffer[12] |= 0x02;
-//   }
+NormalMode = !NormalMode;
+  do_measurement();
+  danger = calculateDanger();
+
+  LoadBuffer();
+
+  Murata_toggleResetPin();
   
-  
-//   buffer[13] = (uint8_t)lora_Mycounter;
-//   lora_Mycounter++;
-//   //LoRaWAN_send(buffer,sizeof(buffer));
-//   Dash7_send(buffer, sizeof(buffer));
-//   HAL_Delay(5000);
-// }
+  //LoRaWAN_send(buffer,sizeof(buffer));LoRaWAN_send
+  Dash7_send(buffer, sizeof(buffer));
+  WaitSend(5000);
+
+        
+} */
 
 
 //////////////////////// end small while loop   ////////////////////////////
@@ -347,6 +226,12 @@ uint8_t buffer[14] = {};
     IWDG_feed(NULL); 
     /* USER CODE END WHILE */
 
+/* if(murata_data_ready)
+    {
+      printf("processing murata fifo\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
+  } */
 
 
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
@@ -394,22 +279,25 @@ uint8_t buffer[14] = {};
 
           //enter emergency mode on next wake up
           NormalMode = 0;
+          LoadBuffer();
           printf("enter emergency mode on next wake up\r\n");
         }
         else {
           // TODO: SEND data only on dash 7.
-          printf("send danger data\r\n");
+          printf("send Dash7 data\r\n");
 
           //LOAD data in buffer 
+          LoadBuffer();
 
-          //send DASH7
-
+          Dash7_send(buffer,sizeof(buffer));
+         //LoRaWAN_send(buffer, sizeof(buffer));
+         WaitSend(5000);
+         
         }
       }
 
       else {
         printf("clear\r\n");
-        // update safe counter & resHAL_RTCEx_WakeUpTimerEventCallbacket danger counter
         safeCounter++;
         DangerCounter = 0;
 
@@ -417,38 +305,19 @@ uint8_t buffer[14] = {};
         if (safeCounter >= maxSafeCounter){
           //reset counter
           safeCounter = 0;
-          printf("send safe server update\r\n");
+          printf("send safe server LORA update\r\n");
+          LoadBuffer();
+          LoRaWAN_send(buffer, sizeof(buffer));
+          WaitSend(3375);
           
         }
 
       }      
       printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
-      sleep(tenSeconds);
-  // // operating in normal mode
-  // if (NormalMode){
-  //   //check for BLE config
-
-  //   //do environment measurements & check for danger
-
-
-  //   // if no danger:
-  //   ++safeCounter;
-
-  //   if (safeCounter == maxSafeCounter){
-  //     //send data
-  //     printf("safe update to the server \r\n");
-  //     safeCounter = 0;
-  //   }
-
-    
-  // }
-  // // operating in emergency mode
-  // else {
-
-  // }
+      sleep(fiveSeconds);
     }
 
-///////////////////////  EMERGENCY MODE /////////////////////////////
+///////////////////////  EMERfGENCY MODE /////////////////////////////
     else{
 
       //update emergency counter
@@ -465,8 +334,9 @@ uint8_t buffer[14] = {};
 
         if (danger){
           // TODO: send data on lora & DASH7
-          printf("recalculated emergengy data is dangerous\r\n");
-        } 
+          printf("recalculated emergengy data is dangerous DASH7\r\n");
+          LoadBuffer();
+       } 
         else{
           NormalMode = 1;
         }
@@ -476,7 +346,14 @@ uint8_t buffer[14] = {};
       else{
         // TODO: send data on lora & dash7
 
-        printf("SEND STORED EMERGENCY DATA\r\n");
+        printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
+
+          buffer[13] = (uint8_t)Message_Counter++;
+          Dash7_send(buffer,sizeof(buffer));
+          //LoRaWAN_send(buffer, sizeof(buffer));
+          WaitSend(5000);
+
+
       }
 
     printf("emergency counter: %d\r\n",EmergencyCounter);
@@ -489,39 +366,21 @@ uint8_t buffer[14] = {};
   /* USER CODE END 3 */
 }
 
-void LoRa_send(void const *argument)
-{
-  if (murata_init)
-  {
-    uint8_t loraMessage[5];
-    uint8_t i = 0;
-    //uint16 counter to uint8 array (little endian)
-    //counter (large) type byte
-    loraMessage[i++] = 0x14;
-    loraMessage[i++] = LoRaWAN_Counter;
-    loraMessage[i++] = LoRaWAN_Counter >> 8;
-    //osMutexWait(txMutexId, osWaitForever);
-    if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
-    {
-      murata_init++;
-      if(murata_init == 10)
-        murata_init == 0;
-    }
-    else
-    {
-      murata_init = 1;
-    }
-    //BLOCK TX MUTEX FOR 3s
-    //osDelay(3000);
-    //osMutexRelease(txMutexId);
-    LoRaWAN_Counter++;
-  }
-  else{
-    printf("murata not initialized, not sending\r\n");
-  }
+
+
+
+void LoadBuffer(void){
+  float2byte(SHTData[0], buffer, 0);
+  float2byte(SHTData[1], buffer, 4);
+  uint162byte(co2_eq_ppm,buffer,8 );
+  uint162byte(tvoc_ppb,buffer,10 );
+  buffer[12] = (buffer[12] & 0x0E )| danger;
+
+  buffer[12] = (buffer[12] & 0x0D) | (!NormalMode) << 1;
+  
+  
+  buffer[13] = (uint8_t)Message_Counter++;
 }
-
-
 
 bool calculateDanger(){
   //SHT 0 = temp, SHT1 = humid
@@ -551,6 +410,16 @@ bool calculateDanger(){
     return false;
 
     
+}
+
+void WaitSend(int miliseconds){
+  // trial and error defined delay needed for Lora to send coorectly
+    HAL_Delay(miliseconds);
+if(murata_data_ready)
+    {
+      printf("processing murata fifo\r\n");
+      murata_data_ready = !Murata_process_fifo();
+    }
 }
 
 void UpdateThresholdsFromFlashBLE(void)
@@ -724,74 +593,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   }
 }
 
-
-
-
-void LoRaWAN_send_self()
-{
-  if (murata_init)
-  {
-    uint8_t loraMessage[5];
-    uint8_t i = 0;
-    //uint16 counter to uint8 array (little endian)
-    //counter (large) type byte
-
-    //first data transfer works, but afterwards it stays in a kind of 'transmitted' loop. Find where we can reset the flag.
-    loraMessage[i++] = SHTData[0];
-    loraMessage[i++] = SHTData[1];
-    loraMessage[i++] = LoRaWAN_Counter >> 8;
-   // osMutexWait(txMutexId, osWaitForever);
-    if(!Murata_LoRaWAN_Send((uint8_t *)loraMessage, i))
-    {
-      printf("tis ni gelukt :( ");
-      murata_init++;
-      if(murata_init == 10)
-        murata_init == 0;
-    }
-    else
-    {
-      murata_init = 1;
-    }
-    //BLOCK TX MUTEX FOR 3s
-    // osDelay(3000);
-    // osMutexRelease(txMutexId);
-    LoRaWAN_Counter++;
-  }
-  else{
-    printf("murata not initialized, not sending\r\n");
-  }
-}
-
-
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-
-
-void testBlink(void){
-  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
-    printf("RED\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    printf("GREEN\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin); 
-    HAL_Delay(1000);
-
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-    printf("BLUE\r\n");
-    HAL_Delay(1000);
-    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-
-    HAL_Delay(1000);
-}
 
 void quickBlink(void){
   HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);

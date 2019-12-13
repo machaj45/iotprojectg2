@@ -21,7 +21,7 @@ class KNN:
         A = []
         for message in data.get("messages"):
             A.append(message)
-        self.neigh = KNeighborsRegressor(n_neighbors=20,radius=10, metric='euclidean',n_jobs=1)
+        self.neigh = KNeighborsRegressor(n_neighbors=30,radius=1000, metric='euclidean',n_jobs=1)
 
         with open (filename2,"r") as readfile:
             data = json.load(readfile)
@@ -45,5 +45,5 @@ class KNN:
             for x in data:
                 X.append(x[0])
                 Y.append(x[1])
-            plt.plot(X,Y,'r*')
+            plt.plot(X,Y,'b*')
             plt.show()

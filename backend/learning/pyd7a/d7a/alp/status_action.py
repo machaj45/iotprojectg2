@@ -39,6 +39,7 @@ class StatusActionOperandExtensions(object):
 
 
 class StatusAction(Action):
+  #device_id = ""
   SCHEMA = [{
     "status_operand_extension"    : Types.INTEGER(values=StatusActionOperandExtensions.ALL),
     "operation": Types.OBJECT(Operation),
@@ -55,7 +56,6 @@ class StatusAction(Action):
     byte |= self.status_operand_extension << 6
     byte += self.op
     yield byte
-
     for byte in self.operation: yield byte
 
   def __str__(self):

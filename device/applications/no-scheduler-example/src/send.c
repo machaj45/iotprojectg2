@@ -81,9 +81,11 @@ void Dash7_send(uint8_t *dash7Message, uint8_t size) {
       printf("murata not initialized, not sending\r\n");
     }
     murata_successful = 1;
-    while (murata_successful == 1) {
+/*     while (murata_successful == 1) {
       HAL_Delay(50);
-    };
+    }; */
+
+    
     if (murata_init) {
       //osMutexWait(txMutexId, osWaitForever);
       if (!Murata_Dash7_Send(dash7Message, size)) {
