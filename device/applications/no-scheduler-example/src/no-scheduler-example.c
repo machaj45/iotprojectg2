@@ -168,7 +168,6 @@ Murata_LoRaWAN_Join();
         err = sgp_iaq_init();
 
 
-
         ////////////// while test wake up
 
 /*
@@ -700,7 +699,12 @@ void onBLE() {
   ack[1]=0x0A;
   HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
   printf("Sending ACK\r\n");
+
+  value=0;
   charCounter = 0;
+  for(int i =0;i<SIZEOFBLEBUFFER;i++){
+    datainble[i]=0;
+  }
   HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while ( data[0]!=113) {
     IWDG_feed(NULL);
