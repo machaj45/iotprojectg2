@@ -216,7 +216,7 @@ NormalMode = !NormalMode;
     
 
       // feed watchdog tmer
-    IWDG_feed(NULL); 
+      IWDG_feed(NULL); 
     /* USER CODE END WHILE */
 
 /* if(murata_data_ready)
@@ -694,17 +694,25 @@ void validCommandg(uint8_t start, uint8_t stop) {
   }
 }
 void onBLE() {
+  
+  uint8_t ack[2];
+  ack[0]=0x70;
+  ack[1]=0x0A;
+  HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
+  printf("Sending ACK\r\n");
+  charCounter = 0;
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while ( data[0]!=113) {
     IWDG_feed(NULL);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    HAL_Delay(80);
-    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
-    HAL_Delay(80);
     if (interruptFlagBle != 0) {
       interruptFlagBle       = 0;
       datainble[charCounter] = data[0];
-      HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
-      printf("Data has been received\r\n");
+    HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(5);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(50);
+      printf("Data has been receivedi 0x%d\r\n",data[0]);
       charCounter++;
       for (int i = 0; i < charCounter; i++) {
         uint8_t correctCount = i;
