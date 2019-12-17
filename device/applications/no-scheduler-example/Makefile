@@ -12,11 +12,11 @@ LORAWAN_APPLICATION = theultimateapplication
 
 # LORAWAN_APPLICATION = lpiot
 
-Device = 1
+Device = 3
 
 SHIELDS += SPG30
 SPG30_CONNECTOR = 3
-#LOW_POWER = 1
+LOW_POWER = 1
 
 SHIELD_DEFINES += -DDevice=$(Device)
 

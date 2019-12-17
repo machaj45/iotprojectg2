@@ -53,7 +53,7 @@ void setUpDefaultValuesforTresholds() {
   data[4]  = 0x00;
   data[5]  = 0x00;
   data[7]  = 0x00;
-  data[6]  = 0x28;
+  data[6]  = 0x32;
   data[8]  = 0x00;
   data[9]  = 0x00;
   data[11] = 0x02;
