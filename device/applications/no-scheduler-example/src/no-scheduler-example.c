@@ -694,9 +694,13 @@ void validCommandg(uint8_t start, uint8_t stop) {
 }
 void onBLE() {
   
-  uint8_t ack[2];
-  ack[0]=0x70;
-  ack[1]=0x0A;
+  uint8_t ack[17];
+  readInFlash(0,ack,sizeof(ack));
+  for(int i = 0;i<sizeof(ack);i++){
+    ack[i]=ack[i]+11;
+  }
+  //ack[0]=0x70;
+  ack[16]=0x0A;
   HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
   printf("Sending ACK\r\n");
 
