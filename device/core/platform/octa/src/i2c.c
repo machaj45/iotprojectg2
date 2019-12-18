@@ -157,7 +157,7 @@ void P3_I2C_Init(void)
   P3_I2C.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
   P3_I2C.Init.OwnAddress2 = 0;
   P3_I2C.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  P3_I2C.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  P3_I2C.Init.GeneralCallMode = I2C_GENERALCALL_ENABLE;
   P3_I2C.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
   if (HAL_I2C_Init(&P3_I2C) != HAL_OK)
   {

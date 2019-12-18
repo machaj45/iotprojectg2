@@ -18,6 +18,8 @@
 #define SIZEOFBLEBUFFER 100
 #define temp_hum_timer    3
 
+const _Bool Print_SERIAL = 1;
+
 osTimerId temp_hum_timer_id;
 float SHTData[2];
 volatile _Bool interruptFlag=0; 
@@ -127,10 +129,11 @@ int main(void)
 
   LorawanInit();
 
- // setUpDefaultValuesforTresholds();
+//  setUpDefaultValuesforTresholds();
 
 //  LSM303AGR_init();
 
+if (Print_SERIAL)
   printWelcome();
 
 UpdateThresholdsFromFlashBLE();
@@ -141,44 +144,36 @@ Murata_LoRaWAN_Join();
 
 //Dash7_send(data , sizeof(data));
 
+SGP_Init();
 
-    while(sgp_probe() != STATUS_OK)
-    {
-    	printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
-    	HAL_Delay(500); // delay retry
-    }
-    
-    printf("SGP sensor probing successful\r\n");
+/*   SGP_Init();
 
-    /* Read gas signals */
-    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
-    if(err == STATUS_OK)
-    {
-			// Print ethanol signal with floating point support
-			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
 
-			// Print H2 signal with floating point support
-			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
+  //first do_meas is useless
+  do_measurement(2000); */
+//  sleep(15);
 
-    }
-    else
-    {
-    	printf("error reading Ethanol and H2 signals\r\n");
-    }
-        err = sgp_iaq_init();
 
 
         ////////////// while test wake up
 
-/*
-        while (1){
+
+/*         while (1){
               IWDG_feed(NULL); 
+              sgp_iaq_init();
             quickBlink();
-            printf("wake\r\n");
-            printf("going in sleep mode\r\n");
-            sleep(fiveSeconds);
-        }
-*/
+
+           // printf("wake\r\n");
+            //printf("going in sleep mode\r\n");
+            HAL_Delay(3000);
+
+            SGP_Sleep();
+
+            HAL_Delay(3000);
+
+            sleep(tenSeconds);
+        } */
+
 
         /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
@@ -206,6 +201,7 @@ NormalMode = !NormalMode;
 } */
 
 
+
 //////////////////////// end small while loop   ////////////////////////////
 
 
@@ -225,20 +221,32 @@ NormalMode = !NormalMode;
     }
   } */
 
+    
 
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
     if (interruptFlag==1) {
+      if (Print_SERIAL){
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
         printf("Session %d\r\n",safeCounter);
+      }
       interruptFlag=0; 
     }
 
+
+    //wake up SGP-sensor and wait for 15 seconds.
+  //  SGP_Init();
+
+ // Flash(); //wake up 
+
+   // do_measurement(0x000F);
+
 ///////////////////////////  NORMAL MODE  ////////////////////////////////////
     if (NormalMode){
-      
-      quickBlink();
+
+     if (Print_SERIAL) 
+         quickBlink();
 
 
       //////////////////  if BLE, commincate  
@@ -246,21 +254,32 @@ NormalMode = !NormalMode;
       //printf("INter flag is: %d\n\r",interruptFlagBle);
 
       if(interruptFlagBle!=0){
-       printf("BLE MODE START\r\n"); 
+
+        if (Print_SERIAL)
+          printf("BLE MODE START\r\n"); 
        onBLE();
        interruptFlagBle=0;
-       printf("BLE MODE STOP\r\n"); 
+
+       if (Print_SERIAL)
+          printf("BLE MODE STOP\r\n"); 
+
+       UpdateThresholdsFromFlashBLE();
+
       }
 
       ////////////// end BLE
 
 
-      do_measurement();
+      do_measurement(0x0002);
+
+    //  SGP_Sleep();
 
       danger =  calculateDanger();
 
       if (danger){
-        printf("DANGER\r\n");
+
+        if (Print_SERIAL)
+          printf("DANGER\r\n");
         //update danger counter & reset safe counter
         DangerCounter++;
         safeCounter = 0;
@@ -273,11 +292,14 @@ NormalMode = !NormalMode;
           //enter emergency mode on next wake up
           NormalMode = 0;
           LoadBuffer();
-          printf("enter emergency mode on next wake up\r\n");
+
+          if (Print_SERIAL)
+            printf("enter emergency mode on next wake up\r\n");
         }
         else {
           // TODO: SEND data only on dash 7.
-          printf("send Dash7 data\r\n");
+          if (Print_SERIAL)
+            printf("send Dash7 data\r\n");
 
           //LOAD data in buffer 
           LoadBuffer();
@@ -290,7 +312,8 @@ NormalMode = !NormalMode;
       }
 
       else {
-        printf("clear\r\n");
+        //if (Print_SERIAL)
+          printf("clear\r\n");
         safeCounter++;
         DangerCounter = 0;
 
@@ -298,36 +321,44 @@ NormalMode = !NormalMode;
         if (safeCounter >= maxSafeCounter){
           //reset counter
           safeCounter = 0;
-          printf("send safe server LORA update\r\n");
+          if (Print_SERIAL)
+            printf("send safe server LORA update\r\n");
           LoadBuffer();
           LoRaWAN_send(buffer, sizeof(buffer));
           WaitSend(3375);
           
         }
 
-      }      
-      printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
+      }     
+      if (Print_SERIAL) 
+        printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
       sleep(fiveSeconds);
     }
 
 ///////////////////////  EMERfGENCY MODE /////////////////////////////
     else{
 
+   // if (Print_SERIAL)
+      printf("Emergency");
+
+
       //update emergency counter
       EmergencyCounter++;
 
+      quickBlink();
       if (EmergencyCounter >= maxEmergencyCounter){
         EmergencyCounter = 0;
 
         //do measurements & calculate danger.
         //if there is still is danger, remain in emergency mode
 
-        do_measurement();
+        do_measurement(15000);
         danger = calculateDanger();
 
         if (danger){
           // TODO: send data on lora & DASH7
-          printf("recalculated emergengy data is dangerous DASH7\r\n");
+          if (Print_SERIAL)
+            printf("recalculated emergengy data is dangerous DASH7\r\n");
           LoadBuffer();
        } 
         else{
@@ -338,8 +369,8 @@ NormalMode = !NormalMode;
 
       else{
         // TODO: send data on lora & dash7
-
-        printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
+        if (Print_SERIAL)
+          printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
 
           buffer[13] = (uint8_t)Message_Counter++;
           Dash7_send(buffer,sizeof(buffer));
@@ -348,8 +379,8 @@ NormalMode = !NormalMode;
 
 
       }
-
-    printf("emergency counter: %d\r\n",EmergencyCounter);
+  if (Print_SERIAL)
+      printf("emergency counter: %d\r\n",EmergencyCounter);
     sleep(fiveSeconds);
 
     }
@@ -428,6 +459,8 @@ void UpdateThresholdsFromFlashBLE(void)
 
   readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
   readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+
+  if(Print_SERIAL){
   
   printf("\033[2J");
   printf("\033[H");
@@ -439,6 +472,7 @@ void UpdateThresholdsFromFlashBLE(void)
   printf("TVOCTreshold treshlod is between %d and %d\r\n",TVOCTreshold[0],TVOCTreshold[1]);
   printf("************************************************\r\n");
   printf("\r\n");
+  }
   HAL_Delay(1000);
 }
 
@@ -522,7 +556,8 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 void sleep(uint16_t timer)
 {
-  printf("going in sleep mode\r\n");
+  if (Print_SERIAL)
+    printf("going in sleep mode\r\n");
   if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, timer,RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
   {
     Error_Handler();
@@ -571,16 +606,31 @@ void print_data(void){
   printf("CO2: %5d ppm\r\n",co2_eq_ppm);
 }
 
-void do_measurement(void){
+void do_measurement(uint16_t delay){
 
   SHT31_get_temp_hum(SHTData);
-  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
-  if (err == STATUS_OK){
+
+//SGP_Init();
+
+  //sleep(0x0015);
+
+  //sleep (delay);
+
+
+   err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  if ((err == STATUS_OK) && Print_SERIAL){
     print_data();
   }
   else{
-    printf("error while reading data\r\n");
+    if (Print_SERIAL)
+      printf("error while reading data\r\n");
   }
+
+ /*  if (delay < 5){
+       // SGP_Sleep();
+       Flash();
+  }  */
+
 }
 
 
@@ -609,6 +659,14 @@ void quickBlink(void){
  //   printf("\33[2K");
     HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+}
+
+void Flash(void){
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+ //   printf("\33[2K");
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    HAL_Delay(10);
 }
 
 
@@ -753,4 +811,41 @@ void onBLE() {
   if (charCounter >= SIZEOFBLEBUFFER) {
     charCounter = 0;
   }
+}
+
+void SGP_Sleep(void){
+          uint8_t data[1] = {0x06};
+        sensirion_i2c_write(0x00,data,sizeof(data));
+}
+
+void SGP_Init(void){
+    while(sgp_probe() != STATUS_OK)
+    {
+      if (Print_SERIAL)
+    	  printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
+    	HAL_Delay(500); // delay retry
+    }
+    if (Print_SERIAL)
+      printf("SGP sensor probing successful\r\n");
+
+    /* Read gas signals */
+    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+    if((err == STATUS_OK) && (Print_SERIAL))
+    {
+      
+			// Print ethanol signal with floating point support
+			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+
+			// Print H2 signal with floating point support
+			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
+
+    }
+    else
+    {
+      if (Print_SERIAL)
+    	  printf("error reading Ethanol and H2 signals\r\n");
+    }
+        err = sgp_iaq_init();
+       // HAL_Delay(700);
+       // SGP_Sleep();
 }

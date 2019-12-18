@@ -65,6 +65,7 @@ void on_modem_write_file_data_callback(uint8_t file_id, uint32_t offset, uint32_
 void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t *data) {
   if ((interface_type == ALP_ITF_ID_LORAWAN_ABP) || (interface_type == ALP_ITF_ID_LORAWAN_OTAA)) {
     lorawan_session_result_t interface_status = *((lorawan_session_result_t *)data);
+    
     printf("LoRaWAN interface status: attemps = %d, error state = %d, duty cycle wait time = %d \r\n", interface_status.attempts, interface_status.error_state,
            interface_status.duty_cycle_wait_time);
     switch (interface_status.error_state) {
