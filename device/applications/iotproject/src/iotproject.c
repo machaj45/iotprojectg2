@@ -8,6 +8,7 @@ uint8_t           data[1];
 RTC_HandleTypeDef hrtc;
 
 int main(void) {
+
   HAL_Init();
   SystemClock_Config();
   Initialize_Platform();
