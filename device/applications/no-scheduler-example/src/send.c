@@ -11,6 +11,8 @@ uint8_t             lastsenddash    = 1;
 extern volatile uint8_t    murata_successful;
 UART_HandleTypeDef *murata_uart;
 
+extern _Bool Print_SERIAL;
+
 
 void LorawanInit() {
   short_UID               = get_UID();
@@ -18,17 +20,20 @@ void LorawanInit() {
   struct OCTA_header temp = platform_getHeader(MURATA_CONNECTOR);
   // platform_initialize_I2C(temp);  // it was init I2C
   if (temp.uartHandle == NULL) {
-    printf("Uart not avalable");
+    if(Print_SERIAL)
+      printf("Uart not avalable");
   } else {
     murata_uart = temp.uartHandle;
   }
 
   if (murata_init) {
+    if (Print_SERIAL)
     printf("Murata dualstack module init OK\r\n\r\n");
  //   printOCTAID();
  //   HAL_Delay(1000);
     //    Murata_LoRaWAN_Join();
   } else {
+    if (Print_SERIAL)
     printf("ERROR murata is not initialized properly\r\n\r\n");
   }
 }
@@ -38,10 +43,12 @@ void LoRaWAN_send(uint8_t *loraMessage, uint8_t size) {
     lastsendlora = 1;
  //   osMutexWait(txMutexId, osWaitForever);
     if (!Murata_LoRaWAN_Send(loraMessage, size)) {
+      if (Print_SERIAL)
       printf("Unsuccessful LoRaWAN send\n\r");
     }
   //  osMutexRelease(txMutexId);
   } else {
+    if (Print_SERIAL)
     printf("murata not initialized, not sending\r\n");
   }
   if (lastsenddash == 1) {
@@ -57,10 +64,12 @@ void LoRaWAN_send(uint8_t *loraMessage, uint8_t size) {
       lastsendlora = 1;
     //  osMutexWait(txMutexId, osWaitForever);
       if (!Murata_LoRaWAN_Send(loraMessage, size)) {
+        if (Print_SERIAL)
         printf("Unsuccessful LoRaWAN send\n\r");
       }
     //  osMutexRelease(txMutexId);
     } else {
+      if (Print_SERIAL)
       printf("murata not initialized, not sending\r\n");
     }
   }
@@ -73,11 +82,13 @@ void Dash7_send(uint8_t *dash7Message, uint8_t size) {
     if (murata_init) {
   //    osMutexWait(txMutexId, osWaitForever);
       if (!Murata_Dash7_Send(dash7Message, size)) {
+        if (Print_SERIAL)
         printf("Unsuccessful DASH7 send\n\r");
       }
       DASH7_Counter++;
     //  osMutexRelease(txMutexId);
     } else {
+      if (Print_SERIAL)
       printf("murata not initialized, not sending\r\n");
     }
     murata_successful = 1;
@@ -89,22 +100,26 @@ void Dash7_send(uint8_t *dash7Message, uint8_t size) {
     if (murata_init) {
       //osMutexWait(txMutexId, osWaitForever);
       if (!Murata_Dash7_Send(dash7Message, size)) {
+        if (Print_SERIAL)
         printf("Unsuccessful DASH7 send\n\r");
       }
       DASH7_Counter++;
      // osMutexRelease(txMutexId);
     } else {
+      if (Print_SERIAL)
       printf("murata not initialized, not sending\r\n");
     }
   } else {
     if (murata_init) {
  //     osMutexWait(txMutexId, osWaitForever);
       if (!Murata_Dash7_Send(dash7Message, size)) {
+        if (Print_SERIAL)
         printf("Unsuccessful DASH7 send\n\r");
       }
       DASH7_Counter++;
    //   osMutexRelease(txMutexId);
     } else {
+      if (Print_SERIAL)
       printf("murata not initialized, not sending\r\n");
     }
   }

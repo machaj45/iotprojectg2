@@ -45,7 +45,7 @@ uint32_t byte2uint32(uint8_t* input, uint8_t offset) {
 
 
 void setUpDefaultValuesforTresholds() {
-  uint8_t data[16];
+  uint8_t data[20];
   data[1]  = 0x00;
   data[0]  = 0x12;
   data[3]  = 0x00;
@@ -53,7 +53,7 @@ void setUpDefaultValuesforTresholds() {
   data[4]  = 0x00;
   data[5]  = 0x00;
   data[7]  = 0x00;
-  data[6]  = 0x28;
+  data[6]  = 0x38;
   data[8]  = 0x00;
   data[9]  = 0x00;
   data[11] = 0x02;
@@ -62,7 +62,14 @@ void setUpDefaultValuesforTresholds() {
   data[13] = 0x00;
   data[15] = 0x00;
   data[14] = 0x32;
+  data[17] = 0x00;
+  data[16] = 0x0A;
+  data[19] = 0x00;
+  data[18] = 0x0D;
   writeInFlash(0, data, sizeof(data));
+  while (S25FL256_isWriteInProgress()) {
+    HAL_Delay(51);
+  }
 }
 void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
   static uint8_t tx[256];
@@ -73,7 +80,7 @@ void writeInFlash(uint8_t addres, uint8_t* data, uint8_t size) {
     tx[i] = rx[i];
   }
   int j = 0;
-  for (int i = addres; i < size; i++) {
+  for (int i = addres; i < size+addres; i++) {
     tx[i] = data[j];
     j++;
   }

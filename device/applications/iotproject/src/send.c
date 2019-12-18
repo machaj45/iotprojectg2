@@ -12,7 +12,7 @@ UART_HandleTypeDef *murata_uart;
 
 void LorawanInit() {
   short_UID               = get_UID();
-  murata_init             = Murata_Initialize(short_UID, 1);
+  murata_init             = Murata_Initialize(short_UID, 0);
   struct OCTA_header temp = platform_getHeader(MURATA_CONNECTOR);
   // platform_initialize_I2C(temp);  // it was init I2C
   if (temp.uartHandle == NULL) {

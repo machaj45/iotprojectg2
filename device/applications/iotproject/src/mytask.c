@@ -168,16 +168,24 @@ void onButton2() {
   buffer[12] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
   LoRaWAN_send(buffer, sizeof(buffer));*/
-setUpDefaultValuesforTresholds();
-  uint8_t test [1];
-  test[0]=255;
-  Murata_Dash7_Send(test, 1);
+//setUpDefaultValuesforTresholds();
+  uint8_t test [13];
+  test[13]=255;
+  Murata_Dash7_Send(test, 13);
   printf("BTN2 end\n\r");
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+  HAL_Delay(100);
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
 }
 void StartDefaultTask(void const *argument) {
   printf("|||||||||||||||||| Start! |||||||||||||||||| \n\r");
   HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while (1) {
+     if(murata_data_ready)
+     {
+       printf("processing murata fifo\r\n");
+       murata_data_ready = !Murata_process_fifo();
+     }
     if (acc_int == 1) {
       acc_int = 0;
       // temp_hum_measurement();LoRaWAN_send(NULL);
@@ -201,7 +209,7 @@ void StartDefaultTask(void const *argument) {
         break;
     }
     IWDG_feed(NULL);
-//     SPG30_measure();
+/*     SPG30_measure();
      float g[2];
   SHT31_get_temp_hum(g);
   float2byte(g[0], buffer, 0);
@@ -210,8 +218,10 @@ void StartDefaultTask(void const *argument) {
   printOCTAID();
   buffer[12] = (uint8_t)lora_Mycounter;
   lora_Mycounter++;
-  LoRaWAN_send(buffer, sizeof(buffer));
-    osDelay(10000);
+  Dash7_send(buffer, sizeof(buffer));
+  //LoRaWAN_send(buffer, sizeof(buffer));
+  //*/
+    osDelay(100);
   }
 }
 

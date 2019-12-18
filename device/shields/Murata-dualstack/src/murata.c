@@ -65,6 +65,7 @@ void on_modem_write_file_data_callback(uint8_t file_id, uint32_t offset, uint32_
 void on_modem_interface_status_callback(alp_itf_id_t interface_type, uint8_t *data) {
   if ((interface_type == ALP_ITF_ID_LORAWAN_ABP) || (interface_type == ALP_ITF_ID_LORAWAN_OTAA)) {
     lorawan_session_result_t interface_status = *((lorawan_session_result_t *)data);
+    
     printf("LoRaWAN interface status: attemps = %d, error state = %d, duty cycle wait time = %d \r\n", interface_status.attempts, interface_status.error_state,
            interface_status.duty_cycle_wait_time);
     switch (interface_status.error_state) {
@@ -187,7 +188,7 @@ uint8_t Murata_LoRaWAN_Send(uint8_t *buffer, uint8_t length) {
 uint8_t Murata_Dash7_Send(uint8_t *buffer, uint8_t length) {
   uint8_t status = 0;
   status         = modem_send_unsolicited_response(0x40, 0, length, (uint8_t *)buffer, &session_config_d7);
-  // printf("Dash7 message of size: %d B and data [0x%x, 0x%x, 0x%x] and status is %d\r\n", length,buffer[0],buffer[1],buffer[2],status);
+  printf("Dash7 message of size: %d B and data: \n [0x%x, 0x%x, 0x%x 0x%x, 0x%x, 0x%x 0x%x, 0x%x, 0x%x 0x%x, 0x%x, 0x%x 0x%x 0x%x] and status is %d\r\n", length,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],status);
   return status;
 }
 

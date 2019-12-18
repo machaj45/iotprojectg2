@@ -71,6 +71,8 @@ extern "C" {
 #define CO2_TH_HIGH 10
 #define TVOC_TH_LOW 12
 #define TVOC_TH_HIGH 14
+#define EMTM 16
+#define NORM 18
 
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
@@ -107,6 +109,7 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc);
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

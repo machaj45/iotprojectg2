@@ -1,56 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2019 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-
-/* Includes ------------------------------------------------------------------*/
-
-
 #include "no-scheduler-example.h"
 #include <stdio.h>
 #include "murata.h"
@@ -66,35 +13,17 @@
 #include "sensirion_common.h"
 #include "sgp30.h"
 
-// Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
 #define HAL_EXTI_MODULE_ENABLED
 
+#define SIZEOFBLEBUFFER 100
 #define temp_hum_timer    3
-//#define LOW_POWER
-/* USER CODE END PD */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
+const _Bool Print_SERIAL = 1;
 
-/* USER CODE END PM */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 osTimerId temp_hum_timer_id;
 float SHTData[2];
 volatile _Bool interruptFlag=0; 
+volatile uint8_t interruptFlagBle=0; 
 uint16_t LoRaWAN_Counter = 0;
 //uint8_t lora_init = 0;
 uint64_t short_UID;
@@ -112,6 +41,8 @@ static uint8_t maxDangerCounter = 5;
 static uint8_t maxEmergencyCounter = 5;
 
 static uint16_t NormalSleepCounter = 0x000A;
+uint16_t NormalSleepTime = 0x000A;
+uint16_t EmergencySleepTime = 0x000A;
 static uint16_t EmergencySleepCounter = 0x0005;
 static uint16_t OneMinute = 0x003C;
 static uint16_t fiveMinute = 0x012C;
@@ -125,6 +56,9 @@ volatile uint16_t CO2Treshold[2];
 volatile uint16_t TVOCTreshold[2];
 
 
+uint8_t datainble[SIZEOFBLEBUFFER];
+uint8_t data[1];
+uint8_t charCounter;
 
 
 
@@ -161,13 +95,6 @@ void quickBlink(void);
 
 bool calculateDanger();
 
-//*/
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -175,18 +102,8 @@ int main(void)
   bootloader_SetVTOR();
 #endif
 
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
  
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
 
     /* Enable Power Clock */
@@ -197,15 +114,9 @@ int main(void)
 
   MX_RTC_Init();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize theplatform */
   Initialize_Platform();
-  /* USER CODE BEGIN 2 */
 
-//needed for flash
+  //needed for flash
   S25FL256_Initialize(&FLASH_SPI);
 
   // get Unique ID of Octa
@@ -224,80 +135,53 @@ int main(void)
 
 //  LSM303AGR_init();
 
+if (Print_SERIAL)
   printWelcome();
 
 UpdateThresholdsFromFlashBLE();
 
-
-
-
-
-  
-
-// // TX MUTEX ensuring no transmits are happening at the same time
-//   osMutexDef(txMutex);
-//   txMutexId = osMutexCreate(osMutex(txMutex));
-    
-//     // pass processing thread handle to murata driver
-//   Murata_SetProcessingThread(murata_rx_processing_handle);
-  /* USER CODE END 2 */
-
-  /* We should never get here as control is now taken by the scheduler */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */   
  
 Murata_LoRaWAN_Join(); 
 
 
-
 //Dash7_send(data , sizeof(data));
 
+SGP_Init();
 
-    while(sgp_probe() != STATUS_OK)
-    {
-    	printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
-    	HAL_Delay(500); // delay retry
-    }
-    
-    printf("SGP sensor probing successful\r\n");
+/*   SGP_Init();
 
-    /* Read gas signals */
-    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
-    if(err == STATUS_OK)
-    {
-			// Print ethanol signal with floating point support
-			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
 
-			// Print H2 signal with floating point support
-			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
-
-    }
-    else
-    {
-    	printf("error reading Ethanol and H2 signals\r\n");
-    }
-        err = sgp_iaq_init();
-
+  //first do_meas is useless
+  do_measurement(2000); */
+//  sleep(15);
 
 
 
         ////////////// while test wake up
 
-/*
-        while (1){
+
+/*         while (1){
               IWDG_feed(NULL); 
+              sgp_iaq_init();
             quickBlink();
-            printf("wake\r\n");
-            printf("going in sleep mode\r\n");
-            sleep(fiveSeconds);
-        }
-*/
+
+           // printf("wake\r\n");
+            //printf("going in sleep mode\r\n");
+            HAL_Delay(3000);
+
+            SGP_Sleep();
+
+            HAL_Delay(3000);
+
+            sleep(tenSeconds);
+        } */
 
 
         /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
-/*         while (1){
+/*
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+         while (1){
 IWDG_feed(NULL);
 
 
@@ -319,15 +203,17 @@ NormalMode = !NormalMode;
 } */
 
 
+
 //////////////////////// end small while loop   ////////////////////////////
 
 
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
   while (1)
   {
     
 
       // feed watchdog tmer
-    IWDG_feed(NULL); 
+      IWDG_feed(NULL); 
     /* USER CODE END WHILE */
 
 /* if(murata_data_ready)
@@ -337,32 +223,65 @@ NormalMode = !NormalMode;
     }
   } */
 
+    
 
     //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
     if (interruptFlag==1) {
+      if (Print_SERIAL){
           printf("\033[2J");
           printf("\033[H");
         printf("Back awake\r\n"); 
         printf("Session %d\r\n",safeCounter);
+      }
       interruptFlag=0; 
     }
 
+
+    //wake up SGP-sensor and wait for 15 seconds.
+  //  SGP_Init();
+
+ // Flash(); //wake up 
+
+   // do_measurement(0x000F);
+
 ///////////////////////////  NORMAL MODE  ////////////////////////////////////
     if (NormalMode){
-      
-      quickBlink();
+
+     if (Print_SERIAL) 
+         quickBlink();
+
 
       //////////////////  if BLE, commincate  
+      //printf("Testing\n\r");
+      //printf("INter flag is: %d\n\r",interruptFlagBle);
+
+      if(interruptFlagBle!=0){
+
+        if (Print_SERIAL)
+          printf("BLE MODE START\r\n"); 
+       onBLE();
+       interruptFlagBle=0;
+
+       if (Print_SERIAL)
+          printf("BLE MODE STOP\r\n"); 
+
+       UpdateThresholdsFromFlashBLE();
+
+      }
 
       ////////////// end BLE
 
 
-      do_measurement();
+      do_measurement(0x0002);
+
+    //  SGP_Sleep();
 
       danger =  calculateDanger();
 
       if (danger){
-        printf("DANGER\r\n");
+
+        if (Print_SERIAL)
+          printf("DANGER\r\n");
         //update danger counter & reset safe counter
         DangerCounter++;
         safeCounter = 0;
@@ -375,11 +294,14 @@ NormalMode = !NormalMode;
           //enter emergency mode on next wake up
           NormalMode = 0;
           LoadBuffer();
-          printf("enter emergency mode on next wake up\r\n");
+
+          if (Print_SERIAL)
+            printf("enter emergency mode on next wake up\r\n");
         }
         else {
           // TODO: SEND data only on dash 7.
-          printf("send Dash7 data\r\n");
+          if (Print_SERIAL)
+            printf("send Dash7 data\r\n");
 
           //LOAD data in buffer 
           LoadBuffer();
@@ -392,7 +314,8 @@ NormalMode = !NormalMode;
       }
 
       else {
-        printf("clear\r\n");
+        //if (Print_SERIAL)
+          printf("clear\r\n");
         safeCounter++;
         DangerCounter = 0;
 
@@ -400,36 +323,44 @@ NormalMode = !NormalMode;
         if (safeCounter >= maxSafeCounter){
           //reset counter
           safeCounter = 0;
-          printf("send safe server LORA update\r\n");
+          if (Print_SERIAL)
+            printf("send safe server LORA update\r\n");
           LoadBuffer();
           LoRaWAN_send(buffer, sizeof(buffer));
           WaitSend(3375);
           
         }
 
-      }      
-      printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
-      sleep(fiveSeconds);
+      }     
+      if (Print_SERIAL) 
+        printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
+      sleep(NormalSleepTime);
     }
 
 ///////////////////////  EMERfGENCY MODE /////////////////////////////
     else{
 
+   // if (Print_SERIAL)
+      printf("Emergency");
+
+
       //update emergency counter
       EmergencyCounter++;
 
+      quickBlink();
       if (EmergencyCounter >= maxEmergencyCounter){
         EmergencyCounter = 0;
 
         //do measurements & calculate danger.
         //if there is still is danger, remain in emergency mode
 
-        do_measurement();
+        do_measurement(15000);
         danger = calculateDanger();
 
         if (danger){
           // TODO: send data on lora & DASH7
-          printf("recalculated emergengy data is dangerous DASH7\r\n");
+          if (Print_SERIAL)
+            printf("recalculated emergengy data is dangerous DASH7\r\n");
           LoadBuffer();
        } 
         else{
@@ -440,8 +371,8 @@ NormalMode = !NormalMode;
 
       else{
         // TODO: send data on lora & dash7
-
-        printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
+        if (Print_SERIAL)
+          printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
 
           buffer[13] = (uint8_t)Message_Counter++;
           Dash7_send(buffer,sizeof(buffer));
@@ -450,9 +381,9 @@ NormalMode = !NormalMode;
 
 
       }
-
-    printf("emergency counter: %d\r\n",EmergencyCounter);
-    sleep(fiveSeconds);
+  if (Print_SERIAL)
+      printf("emergency counter: %d\r\n",EmergencyCounter);
+    sleep(EmergencySleepTime);
 
     }
 
@@ -518,7 +449,8 @@ if(murata_data_ready)
 }
 
 void UpdateThresholdsFromFlashBLE(void)
-{    readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
+{    
+  readInFlash(TEMP_TH_LOW,TemperatureTreshold,2);
   readInFlash(TEMP_TH_HIGH,TemperatureTreshold+1,2);
 
   readInFlash(HUMI_TH_LOW,HumidityTreshold,2);
@@ -529,6 +461,25 @@ void UpdateThresholdsFromFlashBLE(void)
 
   readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
   readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
+
+  readInFlash(EMTM,&EmergencySleepTime,2);
+  readInFlash(NORM,&NormalSleepTime,2);
+
+  if(Print_SERIAL){
+  
+  printf("\033[2J");
+  printf("\033[H");
+  printf("\r\n");
+  printf("************************************************\r\n");
+  printf("Tempriture treshlod is between %d and %d\r\n",TemperatureTreshold[0],TemperatureTreshold[1]);
+  printf("Humidity treshlod is between %d and %d\r\n",HumidityTreshold[0],HumidityTreshold[1]);
+  printf("CO2Treshold treshlod is between %d and %d\r\n",CO2Treshold[0],CO2Treshold[1]);
+  printf("TVOCTreshold treshlod is between %d and %d\r\n",TVOCTreshold[0],TVOCTreshold[1]);
+  printf("Timer Emergency is %d and Timer Normal %d\r\n",EmergencySleepTime,NormalSleepTime);
+  printf("************************************************\r\n");
+  printf("\r\n");
+  }
+  HAL_Delay(1000);
 }
 
 void printWelcome(void)
@@ -537,7 +488,7 @@ void printWelcome(void)
   printf("\033[H");
   printf("\r\n");
   printf("*****************************************\r\n");
-  printf("noo scheduler example\r\n");
+  printf("************ Ultimate Gard **************\r\n");
   printf("*****************************************\r\n");
   printf("\r\n");
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
@@ -611,7 +562,8 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 void sleep(uint16_t timer)
 {
-  printf("going in sleep mode\r\n");
+  if (Print_SERIAL)
+    printf("going in sleep mode\r\n");
   if (HAL_RTCEx_SetWakeUpTimer_IT(&hrtc, timer,RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
   {
     Error_Handler();
@@ -622,6 +574,8 @@ void sleep(uint16_t timer)
   HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
   HAL_ResumeTick();
   SystemClock_Config();
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+  HAL_Delay(200);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -658,16 +612,31 @@ void print_data(void){
   printf("CO2: %5d ppm\r\n",co2_eq_ppm);
 }
 
-void do_measurement(void){
+void do_measurement(uint16_t delay){
 
   SHT31_get_temp_hum(SHTData);
-  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
-  if (err == STATUS_OK){
+
+//SGP_Init();
+
+  //sleep(0x0015);
+
+  //sleep (delay);
+
+
+   err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  if ((err == STATUS_OK) && Print_SERIAL){
     print_data();
   }
   else{
-    printf("error while reading data\r\n");
+    if (Print_SERIAL)
+      printf("error while reading data\r\n");
   }
+
+ /*  if (delay < 5){
+       // SGP_Sleep();
+       Flash();
+  }  */
+
 }
 
 
@@ -675,17 +644,15 @@ void do_measurement(void){
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  if(huart == &BLE_UART){
+    interruptFlagBle++;
+    printf("BLE INT\r\n");
+    //bootloader_parse_data();        
+  }
   if (huart == &P1_UART) {
     Murata_rxCallback();
     murata_data_ready = 1;
   }
-	#if USE_BOOTLOADER
-    if(huart == &BLE_UART);
-    {
-          printf("BLE UART INTERRUPT\r\n");
-          bootloader_parse_data();        
-    }
-  #endif
 }
 
 /**
@@ -698,6 +665,14 @@ void quickBlink(void){
  //   printf("\33[2K");
     HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+}
+
+void Flash(void){
+  HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+ //   printf("\33[2K");
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+    HAL_Delay(10);
 }
 
 
@@ -744,3 +719,136 @@ void assert_failed(char *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+uint8_t  vc    = 0;
+uint32_t value = 0;
+
+void validCommand(uint8_t start, uint8_t stop) {
+  printf("Valid Command: ");
+  for (int i = start + 1; i <= stop; i++) {
+    printf("%c", datainble[i]);
+    uint32_t a = pow(10, stop - i);
+    value += a * (datainble[i] - 48);
+  }
+  printf("\n\r");
+  for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+    datainble[i] = 0;
+  }
+  charCounter = 0;
+  vc          = 1;
+}
+void validCommandg(uint8_t start, uint8_t stop) {
+  if (vc == 1) {
+    vc               = 0;
+    uint32_t newData = 0;
+    printf("\r\n");
+    for (int i = start + 1; i <= stop; i++) {
+      printf("%c", datainble[i]);
+      uint16_t a = pow(10, stop - i);
+      newData += a * (datainble[i] - 48);
+    }
+    printf("\r\n");
+    uint8_t data[2];
+    uint162byte(newData, data, 0);
+    printf("New data %d has been written to addres %d\r\n",newData,value);
+    writeInFlash(value*sizeof(data), data, sizeof(data));
+    for (int i = 0; i < SIZEOFBLEBUFFER; i++) {
+      datainble[i] = 0;
+    }
+    charCounter = 0;
+  }
+}
+void onBLE() {
+  
+  uint8_t ack[22];
+  ack[0]=0x00;
+  readInFlash(0,ack+1,sizeof(ack));
+  ack[21]=0x0A;
+  HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
+  printf("Sending ACK\r\n");
+
+  value=0;
+  charCounter = 0;
+  for(int i =0;i<SIZEOFBLEBUFFER;i++){
+    datainble[i]=0;
+  }
+  HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+  while ( data[0]!=113) {
+    IWDG_feed(NULL);
+    if (interruptFlagBle != 0) {
+      interruptFlagBle       = 0;
+      datainble[charCounter] = data[0];
+    HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(5);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(50);
+      printf("Data has been receivedi 0x%d\r\n",data[0]);
+      charCounter++;
+      for (int i = 0; i < charCounter; i++) {
+        uint8_t correctCount = i;
+        switch (datainble[i]) {
+          case 115:
+            for (int j = 1 + i; j < charCounter; j++) {
+              if (datainble[j] >= 48 && datainble[j] <= 57) {
+                correctCount++;
+              }
+              if (correctCount == j - 1 && datainble[j] == 115)
+                validCommand(i, correctCount);
+              // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+            };
+            break;
+          case 103:
+            for (int j = 1 + i; j < charCounter; j++) {
+              if (datainble[j] >= 48 && datainble[j] <= 57) {
+                correctCount++;
+              }
+              if (correctCount == j - 1 && datainble[j] == 103)
+                validCommandg(i, correctCount);
+              // printf("j-1 is %d and datainble[j] is %d\n\r",j-1,datainble[j]);
+            };
+            break;
+        }
+      }
+    }
+  }
+  if (charCounter >= SIZEOFBLEBUFFER) {
+    charCounter = 0;
+  }
+}
+
+void SGP_Sleep(void){
+          uint8_t data[1] = {0x06};
+        sensirion_i2c_write(0x00,data,sizeof(data));
+}
+
+void SGP_Init(void){
+    while(sgp_probe() != STATUS_OK)
+    {
+      if (Print_SERIAL)
+    	  printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
+    	HAL_Delay(500); // delay retry
+    }
+    if (Print_SERIAL)
+      printf("SGP sensor probing successful\r\n");
+
+    /* Read gas signals */
+    err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
+    if((err == STATUS_OK) && (Print_SERIAL))
+    {
+      
+			// Print ethanol signal with floating point support
+			printf("Ethanol signal: %.2f \r\n", scaled_ethanol_signal / 512.0);
+
+			// Print H2 signal with floating point support
+			printf("H2 signals: %.2f \r\n",scaled_h2_signal / 512.0);
+
+    }
+    else
+    {
+      if (Print_SERIAL)
+    	  printf("error reading Ethanol and H2 signals\r\n");
+    }
+        err = sgp_iaq_init();
+       // HAL_Delay(700);
+       // SGP_Sleep();
+}
