@@ -45,7 +45,7 @@ uint32_t byte2uint32(uint8_t* input, uint8_t offset) {
 
 
 void setUpDefaultValuesforTresholds() {
-  uint8_t data[16];
+  uint8_t data[20];
   data[1]  = 0x00;
   data[0]  = 0x12;
   data[3]  = 0x00;
@@ -62,6 +62,10 @@ void setUpDefaultValuesforTresholds() {
   data[13] = 0x00;
   data[15] = 0x00;
   data[14] = 0x32;
+  data[17] = 0x00;
+  data[16] = 0x0A;
+  data[19] = 0x00;
+  data[18] = 0x0D;
   writeInFlash(0, data, sizeof(data));
   while (S25FL256_isWriteInProgress()) {
     HAL_Delay(51);

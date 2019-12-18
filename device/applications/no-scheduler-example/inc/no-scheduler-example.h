@@ -71,6 +71,8 @@ extern "C" {
 #define CO2_TH_HIGH 10
 #define TVOC_TH_LOW 12
 #define TVOC_TH_HIGH 14
+#define EMTM 16
+#define NORM 18
 
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"

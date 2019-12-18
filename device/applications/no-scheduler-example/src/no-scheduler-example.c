@@ -41,6 +41,8 @@ static uint8_t maxDangerCounter = 5;
 static uint8_t maxEmergencyCounter = 5;
 
 static uint16_t NormalSleepCounter = 0x000A;
+uint16_t NormalSleepTime = 0x000A;
+uint16_t EmergencySleepTime = 0x000A;
 static uint16_t EmergencySleepCounter = 0x0005;
 static uint16_t OneMinute = 0x003C;
 static uint16_t fiveMinute = 0x012C;
@@ -129,7 +131,7 @@ int main(void)
 
   LorawanInit();
 
-//  setUpDefaultValuesforTresholds();
+  //setUpDefaultValuesforTresholds();
 
 //  LSM303AGR_init();
 
@@ -332,7 +334,7 @@ NormalMode = !NormalMode;
       }     
       if (Print_SERIAL) 
         printf("safecounter: %d, dangercounter: %d\r\n",safeCounter,DangerCounter);
-      sleep(fiveSeconds);
+      sleep(NormalSleepTime);
     }
 
 ///////////////////////  EMERfGENCY MODE /////////////////////////////
@@ -381,7 +383,7 @@ NormalMode = !NormalMode;
       }
   if (Print_SERIAL)
       printf("emergency counter: %d\r\n",EmergencyCounter);
-    sleep(fiveSeconds);
+    sleep(EmergencySleepTime);
 
     }
 
@@ -460,6 +462,9 @@ void UpdateThresholdsFromFlashBLE(void)
   readInFlash(TVOC_TH_LOW,TVOCTreshold,2);
   readInFlash(TVOC_TH_HIGH,TVOCTreshold+1,2);
 
+  readInFlash(EMTM,&EmergencySleepTime,2);
+  readInFlash(NORM,&NormalSleepTime,2);
+
   if(Print_SERIAL){
   
   printf("\033[2J");
@@ -470,6 +475,7 @@ void UpdateThresholdsFromFlashBLE(void)
   printf("Humidity treshlod is between %d and %d\r\n",HumidityTreshold[0],HumidityTreshold[1]);
   printf("CO2Treshold treshlod is between %d and %d\r\n",CO2Treshold[0],CO2Treshold[1]);
   printf("TVOCTreshold treshlod is between %d and %d\r\n",TVOCTreshold[0],TVOCTreshold[1]);
+  printf("Timer Emergency is %d and Timer Normal %d\r\n",EmergencySleepTime,NormalSleepTime);
   printf("************************************************\r\n");
   printf("\r\n");
   }
@@ -640,7 +646,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if(huart == &BLE_UART){
     interruptFlagBle++;
-    //printf("BLE INT\r\n");
+    printf("BLE INT\r\n");
     //bootloader_parse_data();        
   }
   if (huart == &P1_UART) {
@@ -753,13 +759,10 @@ void validCommandg(uint8_t start, uint8_t stop) {
 }
 void onBLE() {
   
-  uint8_t ack[17];
-  readInFlash(0,ack,sizeof(ack));
-  for(int i = 0;i<sizeof(ack);i++){
-    ack[i]=ack[i]+11;
-  }
-  //ack[0]=0x70;
-  ack[16]=0x0A;
+  uint8_t ack[22];
+  ack[0]=0x00;
+  readInFlash(0,ack+1,sizeof(ack));
+  ack[21]=0x0A;
   HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
   printf("Sending ACK\r\n");
 
