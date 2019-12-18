@@ -590,6 +590,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if(huart == &BLE_UART){
     interruptFlagBle++;
+    //printf("BLE INT\r\n");
     //bootloader_parse_data();        
   }
   if (huart == &P1_UART) {
