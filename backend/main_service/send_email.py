@@ -3,15 +3,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 class email_sender:
     def __init__(self): 
-        print("Emailer init")
+        #print("Emailer init")
     def send_email(self,alls,subject,message):
-        print("******************* Email Start **************")
+        print("Email start")
         mail_content =message
 #The mail addresses and password
         sender_addreses = []
         sender_address = 'lampicka92@gmail.com'
         sender_addreses.append(sender_address)
-        sender_address = 'jolantatadla33@gmail.com'
+        sender_address = 'jolatadla3@tlen.pl'
         sender_addreses.append(sender_address)
         sender_address = 'ruben.joosen@gmail.com'
         sender_addreses.append(sender_address)
@@ -33,11 +33,11 @@ class email_sender:
         if (alls == True):
             for add in sender_addreses:
                 session.sendmail(sender_address, add, text)
-                print('Mail Sent')
+                print('*** Mail sent ***')
             
             session.quit()
         else:
-            sender_address = 'lampicka92@gmail.com'
+            sender_address = 'jolatadla3@tlen.pl' #'lampicka92@gmail.com'
             session.sendmail(sender_address, sender_address, text)
             session.quit()
-            print('Mail Sent')
+            print('*** Mail sent ***')

@@ -37,7 +37,6 @@ class mainservice:
         self.messageOfValues_Jola = {}
         self.messageOfValues_Jan = {}
         self.messageOfValues_Ruben = {}
-        #self.nameOfDevice = '' # 'Jola'/'Jan'/'Ruben'
         self.A = "42373434002a0049"
         self.B = "4337313400210032"
         self.C = "433731340023003d"
@@ -76,16 +75,11 @@ class mainservice:
         try:
             self.client.connect(self.broker_address) # connect broker
         except:
-            print()
+            print("")
             print("Can not connect to the server!")
-       #     try:
-        #        self.client.connect(self.broker_address) # connect broker
-         #   except:
-          #      print()
-           #     print("Can not connect to the server!")
-            #    print()
+            print("")
             exit(1)
-        print("Connecting successful")
+        print("Server connection succeeded")
         self.client.loop_start() # start the loop # loop_forever()
         print("Subscribing to topic", "/d7/#")
         self.subscribe_to_our_devices()
@@ -113,22 +107,6 @@ class mainservice:
             self.t.join()
             print("Script interrupted!")
 
-    #def on_connect2(self, client, userdata, flags, rc):
-     #   print("...in on_connect")
-      #  if rc == 0:
-       #     self.client.connected_flag = True #set flag
-        #    print("connected ok")
-        #else:
-         #   print("bad connection, returned code", rc)
-
-    def on_connect1(self, client, userdata, flags, rc):
-        print(".....in on_connect ", rc)
-        if rc == 0:
-            self.client.connected_flag = True #set flag
-            print("Connected OK, returned code = ", rc)
-        else:
-            print("Bad connection, returned code = ", rc)
-
     def subscribe_to_our_devices(self):
         # This is device of Jan
         self.client.subscribe("/d7/483638370041003f/#")
@@ -141,18 +119,18 @@ class mainservice:
         while True:
             time1 = ((datetime.datetime.now().time().minute)*60) + datetime.datetime.now().time().second
             if(len(self.times_Jola) != 0):
-                if(( (time1 - self.times_Jola[len(self.times)-1]) > 6 or len(self.messageOfValues_Jola) == 4) and len(self.times_Jola) != 0): 
-                    print("=================!!!!!!!!!!! second thread Jola", time1)
+                if(( (time1 - self.times_Jola[len(self.times)-1]) > 8 or len(self.messageOfValues_Jola) == 4) and len(self.times_Jola) != 0): 
+                    #print("=================!!!!!!!!!!! second thread Jola", time1)
                     self.checking_missing_values('octa-jola')
                     self.saving_message('octa-jola')                
             if(len(self.times_Jan) != 0):
-                if(( (time1 - self.times_Jan[len(self.times)-1]) > 6 or len(self.messageOfValues_Jan) == 4) and len(self.times_Jan) != 0):
-                    print("=================!!!!!!!!!!! second thread Jan", time1)
+                if(( (time1 - self.times_Jan[len(self.times)-1]) > 8 or len(self.messageOfValues_Jan) == 4) and len(self.times_Jan) != 0):
+                    #print("=================!!!!!!!!!!! second thread Jan", time1)
                     self.checking_missing_values('octa-jan')
                     self.saving_message('octa-jan')                
             if(len(self.times_Ruben) != 0):
-                if( ((time1 - self.times_Ruben[len(self.times)-1]) > 6 or len(self.messageOfValues_Ruben) == 4) and len(self.times_Ruben) != 0):
-                    print("=================!!!!!!!!!!! second thread Ruben", time1)
+                if( ((time1 - self.times_Ruben[len(self.times)-1]) > 8 or len(self.messageOfValues_Ruben) == 4) and len(self.times_Ruben) != 0):
+                    #print("=================!!!!!!!!!!! second thread Ruben", time1)
                     self.checking_missing_values('octa-ruben')
                     self.saving_message('octa-ruben')                
 
@@ -161,6 +139,7 @@ class mainservice:
               break
 
     def checking_missing_values(self, tempDevId):
+        #print("in checking")
         self.main_message = {}
         self.dataForMessage = {}
         self.parameters_to_send_with_dash7 = {}
@@ -171,7 +150,7 @@ class mainservice:
             self.dataForMessage = self.dataForMessage_Jola
             self.parameters_to_send_with_dash7 = self.parameters_to_send_with_dash7_Jola
             self.times_Jola = []
-            print("msg number Jola", message_number)
+            #print(message_number)
         elif(tempDevId == 'octa-jan'):
             self.main_message = self.messageOfValues_Jan
             self.messageOfValues_Jan = {}
@@ -179,88 +158,64 @@ class mainservice:
             self.dataForMessage = self.dataForMessage_Jan
             self.parameters_to_send_with_dash7 = self.parameters_to_send_with_dash7_Jan
             self.times_Jan = []
-            print("msg number Jan", message_number)
+            #print(message_number)
         elif(tempDevId == 'octa-ruben'):
             self.main_message = self.messageOfValues_Ruben
             self.messageOfValues_Ruben = {}
             message_number = "Ruben's message" + str(self.counter_of_messages_Ruben)
             self.dataForMessage = self.dataForMessage_Ruben
             self.parameters_to_send_with_dash7 = self.parameters_to_send_with_dash7_Ruben
-            print("msg number Ruben", message_number)
+            #print(message_number)
             self.times_Ruben = []
 
-        print("checking main message in checking", self.main_message)
-        print("length", len(self.main_message))
+        #print("checking main message in checking", self.main_message)
+        #print("length", len(self.main_message))
         if(len(self.main_message) < 4 and len(self.main_message) > 0):
             print("Missing messages from gateways")
             if ('A' not in self.main_message):
-                print("missing a")
+                #print("missing a")
                 self.main_message['A'] = 120
-                print("before append", self.main_message)
-                print("message number", message_number)
+                #print("before append", self.main_message)
+                #print("message number", message_number)
                 self.dataForMessage[message_number].append({ 'gateway' : self.A, 'rxLevel' : 120 })
-                print("missing a _ main_message", self.main_message)
+                #print("missing a _ main_message", self.main_message)
             if ('B' not in self.main_message):
-                print("missing b")
+                #print("missing b")
                 self.main_message['B'] = 120
-                print("before append", self.main_message)
-                print("message number", message_number)
+                #print("before append", self.main_message)
+                #print("message number", message_number)
                 self.dataForMessage[message_number].append({ 'gateway' : self.B, 'rxLevel' : 120 })
-                print("missing b _ main_message", self.main_message)
+                #print("missing b _ main_message", self.main_message)
             if ('C' not in self.main_message):
-                print("missing c")
+                #print("missing c")
                 self.main_message['C'] = 120
-                print("before append", self.main_message)
-                print("message number", message_number)
+                #print("before append", self.main_message)
+                #print("message number", message_number)
                 self.dataForMessage[message_number].append({ 'gateway' : self.C, 'rxLevel' : 120 })
-                print("missing c _ main_message", self.main_message)
+                #print("missing c _ main_message", self.main_message)
             if ('D' not in self.main_message):
-                print("missing d")
+                #print("missing d")
                 self.main_message['D'] = 120
-                print("before append", self.main_message)
-                print("message number", message_number)
+                #print("before append", self.main_message)
+                #print("message number", message_number)
                 self.dataForMessage[message_number].append({ 'gateway' : self.D, 'rxLevel' : 120 })
-                print("missing d _ main_message", self.main_message)
-            print ("in if datas = ", self.main_message)
-        print("all datas - end of function _ main_message", self.main_message)
+                #print("missing d _ main_message", self.main_message)
+            #print ("in if datas = ", self.main_message)
+            print(message_number, self.main_message)
         
-        
-        #if(tempDevId == 'octa-jola'):
-        #	self.messageOfValues_Jola = {}
-        #	self.messageOfValues_Jola = main_message
-        #elif(tempDevId == 'octa-jan'):
-        #	self.messageOfValues_Jan = {}
-        #	self.messageOfValues_Jan = main_message
-        #elif(tempDevId == 'octa-ruben'):
-        #	self.messageOfValues_Ruben = {}
-        #	self.messageOfValues_Ruben = main_message
-
-    
     def saving_message(self, tempDevId):
-#	if(len(self.messageOfValues) == 4 and self.messageOfValues != 0):
-#		with open('measurements.json', 'a') as json_file:
-     #               	json.dump(self.dataForMessage, json_file, indent=2, sort_keys=True)
-      #              #print("Data added to database")
-#
-     #               self.fingerprinting(self.messageOfValues)
-#
-     #               self.publish_info_to_things_board(self.parameters_to_send_with_dash7, self.tempDevId, 'DASH7')
-
-      #              self.times = []
-       #             self.messageOfValues = {}
-        #            time.sleep(2)
-        print("in saving message")
+        #print("in saving message")
         if(len(self.main_message) == 4 and self.main_message != 0):
             with open('measurements.json', 'a') as json_file:
                 json.dump(self.dataForMessage, json_file, indent=2, sort_keys=True)
-            print("Data added to database")
+            print("Data from DASH7 added to database")
             self.fingerprinting(self.main_message)
             self.publish_info_to_things_board(self.parameters_to_send_with_dash7, self.tempDevId, 'DASH7')
             time.sleep(2)
     
     def uplink_callback(self,msg, client):
         print("Uplink started")
-        print("Received uplink from ", msg.dev_id)
+        #print("Received uplink from ", msg.dev_id)
         temp_lora = msg.payload_fields.temp
         humi_lora = msg.payload_fields.humid
         CO2_lora = msg.payload_fields.CO2
@@ -268,29 +223,23 @@ class mainservice:
         danger_lora = msg.payload_fields.Danger
         emergency_lora = msg.payload_fields.Emergency
         #print("counter: ", msg.counter)  
+        self.counter_of_messages = self.counter_of_messages + 1
+        message_number = self.counter_of_messages
         data_from_lora = [temp_lora, humi_lora, CO2_lora, TVOC_lora, danger_lora, emergency_lora] 
-        my_details_lora = {'temperature': temperature, 'humidity' : humidity, 'CO2 level' : CO2, 'TVOC level' : TVOC, 'danger' : danger, 'emergency' : emergency}
-        dataFromLora[message_number] = [my_details]
+        my_details_lora = {'temperature': temp_lora, 'humidity' : humi_lora, 'CO2 level' : CO2_lora, 'TVOC level' : TVOC_lora, 'danger' : danger_lora, 'emergency' : emergency_lora}
+        dataFromLora[message_number] = [my_details_lora]
+        print("data to save in database from lora", dataFromLora)
         with open('measurements.json', 'a') as json_file:
-            json.dump(self.dataFromLora, json_file, indent=2, sort_keys=True)
-        print("Data added to database")
+            json.dump(dataFromLora, json_file, indent=2, sort_keys=True)
+        print("Data from Lora added to database")
         self.publish_info_to_things_board(data_from_lora, msg.dev_id, 'Lora')
 
-#    def on_connect(client, userdata, flags, rc):
-#	print("Connection returned result: " + connack_string(rc))
-
-#    def on_publish(client, userdata, result):
-#	print("data published")
-
-#    def on_disconnect(client, userdata, rc):
-#	print("client disconnected ok")
-
     def publish_info_to_things_board(self, data, dev_id, typeOfMessage):
-        print("in publishing")
+        #print("in publishing")
         number_of_message = 0
         mail_message = ""
         if(dev_id == u'octa-ruben'):
-            print('ruben')
+            #print('ruben')
             access_token = 'P6S9p9cWsikzbqRNgQ7f' #Ruben
             mail_message = "Ruben in danger"
             self.emergency_messages[2] = self.emergency_messages[2] + 1
@@ -298,7 +247,7 @@ class mainservice:
             if(self.emergency_messages[2] >= 4):
                 self.emergency_messages[2] = 0
         if(dev_id == u'octa-jola'):
-            print('jola')
+            #print('jola')
             access_token = 'wFRAZQnB2t8hIol30gkm' #Jola
             mail_message = "Jola in danger"
             self.emergency_messages[0] = self.emergency_messages[0] + 1
@@ -306,7 +255,7 @@ class mainservice:
             if(self.emergency_messages[0] >= 4):
                 self.emergency_messages[0] = 0
         elif(dev_id == u'octa-jan'):
-            print('jan')
+            #print('jan')
             access_token = 'IWjQcWm3Q2PEiY9duRQP' #Jan
             mail_message = "Jan in danger"
             self.emergency_messages[1] = self.emergency_messages[1] + 1
@@ -315,42 +264,36 @@ class mainservice:
                 self.emergency_messages[1] = 0
         broker = "thingsboard.idlab.uantwerpen.be"
         topic = "v1/devices/me/telemetry"
-        #self.client_pub.on_connect = on_connect
-        #self.client_pub.on_publish = on_publish
         self.client_pub.username_pw_set(access_token)
         try:
             self.client_pub.connect(broker, keepalive=20)
-            #time.sleep(2)
         except:
-            print("connection to the things board failed")
-            print(access_token)
+            print("Connection to the things board failed!")
+            #print(access_token)
             try:
                 self.client_pub.connect(broker, keepalive=20)
-                #time.sleep(2)
             except:
-                print("connection to the things board failed")
+                print("Connection to the things board failed!")
                 return(1)
-        print("--------- -> connected to things board")
-        #print("!!!!! is danger",data[4]) #check if it is ok
-        #print("!!!!! is emergency", data[5]) #check if it is ok
+        #print("--------- -> connected to things board")
+        
         if(typeOfMessage == 'DASH7'): 
             if(self.parameters_to_send_with_dash7[4] == 1 and self.parameters_to_send_with_dash7[5] == 0): # danger mode 
                 message_to_send = {"temperature" : data[0], "humidity" : data[1], "CO2" : data[2], "TVOC" : data[3], "is_danger" : data[4], "is_emergency" : data[5], "x" : self.currentPoint[0], "y" : self.currentPoint[1]}
-                print("-------------Dev ID DASH7 = ", dev_id)
+                #print("-------------Dev ID DASH7 = ", dev_id)
             elif(self.parameters_to_send_with_dash7[4] == 1 and self.parameters_to_send_with_dash7[5] == 1): # emergency mode
                 message_to_send = {"x" : self.currentPoint[0], "y" : self.currentPoint[1]}
                 if(number_of_message == 1):
+                    print("*************** EMERGENCY MODE ********************")
                     self.es.send_email(self.all_senders, "EMERGENCY ALERT", mail_message)
                     message_to_send = {"temperature" : data[0], "humidity" : data[1], "CO2" : data[2], "TVOC" : data[3], "is_danger" : data[4], "is_emergency" : data[5], "x" : self.currentPoint[0], "y" : self.currentPoint[1]}
-                    print("*************** EMERGENCY MODE ********************")
         elif(typeOfMessage == 'Lora'):
-            print("-------------Dev ID Lora = ", dev_id)
+            #print("-------------Dev ID Lora = ", dev_id)
             message_to_send = {"temperature" : data[0], "humidity" : data[1], "CO2" : data[2], "TVOC" : data[3], "is_danger" : data[4], "is_emergency" : data[5]}
         result = json.dumps(message_to_send)
         self.client_pub.publish(topic, result)
         print("Data = ", message_to_send)
         print("Data published successfully to ThingsBoard!")
-        #self.client_pub.on_disconnect = on_disconnect
         self.client_pub.disconnect()
         print("Client (ThingsBoard) disconnected")
 
@@ -363,10 +306,11 @@ class mainservice:
         point = self.kn.getpoint([tempMessage])
         self.currentPoint = point[0]
         print(self.currentPoint)
-        #self.kn.plotmap(point)
+        #self.kn.plotmap(point) # displaying matlab map
         print("Fingerprinting done correctly")
 
     def on_message(self,client, userdata, message):
+        print(" ")
         print(" ")
         print("on message")
         topic = message.topic
@@ -376,7 +320,6 @@ class mainservice:
         data = bytearray(hexstring.decode("hex"))
         parser = AlpParser()
         parsed_values = parser.parse(ConstBitStream(data), len(data))
-        #print(parsed_values)
         parameters = parser.getData()
         rxLevel = parser.getRxLevel()
         device_id_dash7 = parser.getDeviceId()
@@ -387,27 +330,27 @@ class mainservice:
             self.tempDevId = 'octa-jola'
             self.times_Jola.append(time_now)
             old_time = self.times_Jola[len(self.times)-1]
-            print("times Jola= ", self.times_Jola)
-            print("old_index Jola", self.old_index_Jola)
+            #print("times Jola= ", self.times_Jola)
+            #print("old_index Jola", self.old_index_Jola)
         elif(device_id_dash7 == '5203408228352000069'):
             self.tempDevId = 'octa-ruben'
             self.times_Ruben.append(time_now)
             old_time = self.times_Ruben[len(self.times)-1]
-            print("times Ruben = ", self.times_Ruben)
-            print("old_index Ruben", self.old_index_Ruben)
+            #print("times Ruben = ", self.times_Ruben)
+            #print("old_index Ruben", self.old_index_Ruben)
         elif(device_id_dash7 == '5203408228351803455'):
             self.tempDevId = 'octa-jan'
             self.times_Jan.append(time_now)
             old_time = self.times_Jan[len(self.times)-1]
-            print("times Jan= ", self.times_Jan)
-            print("old_index Jan", self.old_index_Jan)
+            #print("times Jan= ", self.times_Jan)
+            #print("old_index Jan", self.old_index_Jan)
 
-        print("param[13]", parameters[13])
+        #print("param[13]", parameters[13])
         
         if( ((self.tempDevId == 'octa-jola') and ((self.old_index_Jola < 0) or (parameters[13] != self.old_index_Jola))) or ((self.tempDevId == 'octa-ruben') and ((self.old_index_Ruben < 0) or (parameters[13] != self.old_index_Ruben))) or ((self.tempDevId == 'octa-jan') and ((self.old_index_Jan < 0) or (parameters[13] != self.old_index_Jan))) ):
             
             if((self.tempDevId == 'octa-jola' and len(self.messageOfValues_Jola) > 0) or (self.tempDevId == 'octa-ruben' and len(self.messageOfValues_Ruben) > 0) or (self.tempDevId == 'octa-jan' and len(self.messageOfValues_Jan) > 0)):
-                print("--------------saving message before second thread")
+                #print("--------------saving message before second thread")
                 self.checking_missing_values(self.tempDevId)
                 self.saving_message(self.tempDevId)
                 if(self.tempDevId == 'octa-jola'):
@@ -417,32 +360,31 @@ class mainservice:
                 elif(self.tempDevId == 'octa-ruben'):
                     self.times_Ruben.append(old_time)
             
-            print("before param")
+            #print("before param")
             temp_byte = [parameters[0], parameters[1], parameters[2], parameters[3]]
             humi_byte = [parameters[4], parameters[5], parameters[6], parameters[7]]
             CO2 = parameters[8] + (parameters[9])*256
             TVOC = parameters[10] + (parameters[11])*256
 
-            print("--------!!!!-------- param[12] = ", parameters[12])
+            #print("--------!!!!-------- param[12] = ", parameters[12])
             if(parameters[12] == 0):
-                print("0")
+                #print("0")
                 emergency = 0
                 danger = 0
             elif(parameters[12] == 1):
-                print("1")
+                #print("1")
                 emergency = 0
                 danger = 1
             elif(parameters[12] == 3):
-                print("3")
+                #print("3")
                 emergency = 1
                 danger = 1
             else:
-                print("else")
+                print("Wrong values of 'danger' and 'emergency'")
 
             temperature = struct.unpack('<f', bytearray(temp_byte))[0]
             humidity = struct.unpack('<f', bytearray(humi_byte))[0]
 
-      
             if(self.tempDevId == 'octa-jola'):
                 self.messageOfValues_Jola = {tempGateway : rxLevel}
                 self.old_index_Jola = parameters[13]
@@ -455,8 +397,9 @@ class mainservice:
                 self.dataForMessage_Jola.clear()
                 self.dataForMessage_Jola[message_number] = [my_details]
                 self.dataForMessage_Jola[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-                print("msg number Jola", message_number)
-                print("data Jola = ", self.messageOfValues_Jola)
+                #print("msg number Jola", message_number)
+                print(message_number, my_details)
+                print(message_number, self.messageOfValues_Jola)
             elif(self.tempDevId == 'octa-jan'):
                 self.messageOfValues_Jan = {tempGateway : rxLevel}
                 self.old_index_Jan = parameters[13]
@@ -469,8 +412,9 @@ class mainservice:
                 self.dataForMessage_Jan.clear()
                 self.dataForMessage_Jan[message_number] = [my_details]
                 self.dataForMessage_Jan[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-                print("msg number Jan", message_number)
-                print("data Jan= ", self.messageOfValues_Jan)
+                #print("msg number Jan", message_number)
+                print(message_number, self.my_details)
+                print(message_number, self.messageOfValues_Jan)
             elif(self.tempDevId == 'octa-ruben'):
                 self.messageOfValues_Ruben = {tempGateway : rxLevel}
                 self.old_index_Ruben = parameters[13]
@@ -483,27 +427,28 @@ class mainservice:
                 self.dataForMessage_Ruben.clear()
                 self.dataForMessage_Ruben[message_number] = [my_details]
                 self.dataForMessage_Ruben[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
-                print("msg number Ruben", message_number)
-                print("data Ruben = ", self.messageOfValues_Ruben)
+                #print("msg number Ruben", message_number)
+                print(message_number, my_details)
+                print(message_number, self.messageOfValues_Ruben)
         else:
-            print("----- in else")
+            #print("----- in else")
             if(self.tempDevId == 'octa-jola'):
                 message_number = "Jola's message" + str(self.counter_of_messages_Jola)
                 self.dataForMessage_Jola[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
                 self.messageOfValues_Jola[tempGateway] = rxLevel
-                print("msg number Jola", message_number)
-                print("data Jola = ", self.messageOfValues_Jola)
+                #print("msg number Jola", message_number)
+                print(message_number, self.messageOfValues_Jola)
             elif(self.tempDevId == 'octa-jan'):
                 message_number = "Jan's message" + str(self.counter_of_messages_Jan)
                 self.dataForMessage_Jan[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
                 self.messageOfValues_Jan[tempGateway] = rxLevel
-                print("msg number Jan", message_number)
-                print("data Jan = ", self.messageOfValues_Jan)
+                #print("msg number Jan", message_number)
+                print(message_number, self.messageOfValues_Jan)
             elif(self.tempDevId == 'octa-ruben'):
                 message_number = "Ruben's message" + str(self.counter_of_messages_Ruben)
                 self.dataForMessage_Ruben[message_number].append({ 'gateway' : gateway, 'rxLevel' : rxLevel })
                 self.messageOfValues_Ruben[tempGateway] = rxLevel
-                print("msg number Ruben", message_number)
-                print("data Ruben = ", self.messageOfValues_Ruben)
+                #print("msg number Ruben", message_number)
+                print(message_number, self.messageOfValues_Ruben)
 
 ms = mainservice();
