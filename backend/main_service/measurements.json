@@ -20962,4 +20962,31 @@
       "rxLevel": 120
     }
   ]
+}{
+  "Jola's message1": [
+    {
+      "CO2 level": 456, 
+      "TVOC level": 23, 
+      "danger": 1, 
+      "emergency": 1, 
+      "humidity": 45.12092590332031, 
+      "temperature": 25.43526268005371
+    }, 
+    {
+      "gateway": "463230390032003e", 
+      "rxLevel": 42
+    }, 
+    {
+      "gateway": "42373434002a0049", 
+      "rxLevel": 59
+    }, 
+    {
+      "gateway": "4337313400210032", 
+      "rxLevel": 49
+    }, 
+    {
+      "gateway": "433731340023003d", 
+      "rxLevel": 60
+    }
+  ]
 }
