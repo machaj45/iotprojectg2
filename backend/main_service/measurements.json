@@ -20989,4 +20989,85 @@
       "rxLevel": 60
     }
   ]
+}{
+  "Jola's message1": [
+    {
+      "CO2 level": 400, 
+      "TVOC level": 2, 
+      "danger": 1, 
+      "emergency": 1, 
+      "humidity": 42.29037857055664, 
+      "temperature": 25.39253807067871
+    }, 
+    {
+      "gateway": "42373434002a0049", 
+      "rxLevel": 62
+    }, 
+    {
+      "gateway": "4337313400210032", 
+      "rxLevel": 50
+    }, 
+    {
+      "gateway": "463230390032003e", 
+      "rxLevel": 41
+    }, 
+    {
+      "gateway": "433731340023003d", 
+      "rxLevel": 59
+    }
+  ]
+}{
+  "Jola's message1": [
+    {
+      "CO2 level": 431, 
+      "TVOC level": 10, 
+      "danger": 1, 
+      "emergency": 1, 
+      "humidity": 43.01518249511719, 
+      "temperature": 25.44861602783203
+    }, 
+    {
+      "gateway": "42373434002a0049", 
+      "rxLevel": 54
+    }, 
+    {
+      "gateway": "4337313400210032", 
+      "rxLevel": 50
+    }, 
+    {
+      "gateway": "463230390032003e", 
+      "rxLevel": 40
+    }, 
+    {
+      "gateway": "433731340023003d", 
+      "rxLevel": 64
+    }
+  ]
+}{
+  "Jola's message2": [
+    {
+      "CO2 level": 400, 
+      "TVOC level": 0, 
+      "danger": 1, 
+      "emergency": 1, 
+      "humidity": 42.82139205932617, 
+      "temperature": 25.50469207763672
+    }, 
+    {
+      "gateway": "4337313400210032", 
+      "rxLevel": 51
+    }, 
+    {
+      "gateway": "463230390032003e", 
+      "rxLevel": 44
+    }, 
+    {
+      "gateway": "42373434002a0049", 
+      "rxLevel": 54
+    }, 
+    {
+      "gateway": "433731340023003d", 
+      "rxLevel": 67
+    }
+  ]
 }
