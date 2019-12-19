@@ -6,7 +6,7 @@ class email_sender:
         print(" ")
         #print("Emailer init")
     def send_email(self,alls,subject,message):
-        print("Email start")
+        print("Email service start")
         mail_content =message
 #The mail addresses and password
         sender_addreses = []

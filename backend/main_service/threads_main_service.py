@@ -64,6 +64,7 @@ class mainservice:
         self.running = 0
         self.tempDevId = 'aa'
         self.currentPoint = []
+        self.dataFromLora = {}
         self.stop_threads = False
         self.es = send_email.email_sender() 
         self.emergency_messages = [0, 0, 0] # messages of [Jola, Jan, Ruben]
@@ -214,6 +215,7 @@ class mainservice:
             time.sleep(2)
     
     def uplink_callback(self,msg, client):
+        print(" ")
         print("Uplink started")
         #print("Received uplink from ", msg.dev_id)
         temp_lora = msg.payload_fields.temp
@@ -222,15 +224,24 @@ class mainservice:
         TVOC_lora = msg.payload_fields.TVOC
         danger_lora = msg.payload_fields.Danger
         emergency_lora = msg.payload_fields.Emergency
-        #print("counter: ", msg.counter)  
+        #print("counter: ", msg.counter)
         self.counter_of_messages = self.counter_of_messages + 1
-        message_number = self.counter_of_messages
+        if(msg.dev_id == u'octa-jola'):
+            self.counter_of_messages_Jola = self.counter_of_messages
+            message_number = "Jola's message" + str(self.counter_of_messages_Jola)
+        elif(msg.dev_id == u'octa-jan'):
+            self.counter_of_messages_Jan = self.counter_of_messages
+            message_number = "Jan's message" + str(self.counter_of_messages_Jan)
+        if(msg.dev_id == u'octa-ruben'):
+            self.counter_of_messages_Ruben = self.counter_of_messages
+            message_number = "Ruben's message" + str(self.counter_of_messages_Ruben)
         data_from_lora = [temp_lora, humi_lora, CO2_lora, TVOC_lora, danger_lora, emergency_lora] 
         my_details_lora = {'temperature': temp_lora, 'humidity' : humi_lora, 'CO2 level' : CO2_lora, 'TVOC level' : TVOC_lora, 'danger' : danger_lora, 'emergency' : emergency_lora}
-        dataFromLora[message_number] = [my_details_lora]
-        print("data to save in database from lora", dataFromLora)
+        self.dataFromLora.clear()
+        self.dataFromLora[message_number] = [my_details_lora]
+        print(self.dataFromLora)
         with open('measurements.json', 'a') as json_file:
-            json.dump(dataFromLora, json_file, indent=2, sort_keys=True)
+            json.dump(self.dataFromLora, json_file, indent=2, sort_keys=True)
         print("Data from Lora added to database")
         self.publish_info_to_things_board(data_from_lora, msg.dev_id, 'Lora')
 
@@ -366,7 +377,7 @@ class mainservice:
             CO2 = parameters[8] + (parameters[9])*256
             TVOC = parameters[10] + (parameters[11])*256
 
-            #print("--------!!!!-------- param[12] = ", parameters[12])
+            print("--------!!!!-------- param[12] = ", parameters[12])
             if(parameters[12] == 0):
                 #print("0")
                 emergency = 0
