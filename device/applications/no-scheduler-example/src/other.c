@@ -63,9 +63,9 @@ void setUpDefaultValuesforTresholds() {
   data[15] = 0x00;
   data[14] = 0x32;
   data[17] = 0x00;
-  data[16] = 0x0A;
+  data[16] = 0x02;
   data[19] = 0x00;
-  data[18] = 0x0D;
+  data[18] = 0x05;
   writeInFlash(0, data, sizeof(data));
   while (S25FL256_isWriteInProgress()) {
     HAL_Delay(51);
