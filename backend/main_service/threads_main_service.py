@@ -119,17 +119,17 @@ class mainservice:
         while True:
             time1 = ((datetime.datetime.now().time().minute)*60) + datetime.datetime.now().time().second
             if(len(self.times_Jola) != 0):
-                if(( (time1 - self.times_Jola[len(self.times)-1]) > 8 or len(self.messageOfValues_Jola) == 4) and len(self.times_Jola) != 0): 
+                if(( (time1 - self.times_Jola[len(self.times)-1]) > 10 or len(self.messageOfValues_Jola) == 4) and len(self.times_Jola) != 0): 
                     #print("=================!!!!!!!!!!! second thread Jola", time1)
                     self.checking_missing_values('octa-jola')
                     self.saving_message('octa-jola')                
             if(len(self.times_Jan) != 0):
-                if(( (time1 - self.times_Jan[len(self.times)-1]) > 8 or len(self.messageOfValues_Jan) == 4) and len(self.times_Jan) != 0):
+                if(( (time1 - self.times_Jan[len(self.times)-1]) > 10 or len(self.messageOfValues_Jan) == 4) and len(self.times_Jan) != 0):
                     #print("=================!!!!!!!!!!! second thread Jan", time1)
                     self.checking_missing_values('octa-jan')
                     self.saving_message('octa-jan')                
             if(len(self.times_Ruben) != 0):
-                if( ((time1 - self.times_Ruben[len(self.times)-1]) > 8 or len(self.messageOfValues_Ruben) == 4) and len(self.times_Ruben) != 0):
+                if( ((time1 - self.times_Ruben[len(self.times)-1]) > 10 or len(self.messageOfValues_Ruben) == 4) and len(self.times_Ruben) != 0):
                     #print("=================!!!!!!!!!!! second thread Ruben", time1)
                     self.checking_missing_values('octa-ruben')
                     self.saving_message('octa-ruben')                

@@ -3,6 +3,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 class email_sender:
     def __init__(self): 
+        print(" ")
         #print("Emailer init")
     def send_email(self,alls,subject,message):
         print("Email start")
