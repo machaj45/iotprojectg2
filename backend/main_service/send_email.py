@@ -7,7 +7,7 @@ class email_sender:
         #print("Emailer init")
     def send_email(self,alls,subject,message):
         print("Email service start")
-        mail_content =message
+        mail_content = message + "\n" + "http://thingsboard.idlab.uantwerpen.be:8080/dashboard/fe3f32c0-053d-11ea-9923-152d43a0a50d?publicId=fbdea2d0-06c4-11ea-9923-152d43a0a50d"
 #The mail addresses and password
         sender_addreses = []
         sender_address = 'lampicka92@gmail.com'
@@ -38,7 +38,7 @@ class email_sender:
             
             session.quit()
         else:
-            sender_address = 'jolatadla3@tlen.pl' #'lampicka92@gmail.com'
+            sender_address =  'jolatadla3@tlen.pl' #'lampicka92@gmail.com'#'jolatadla3@tlen.pl'
             session.sendmail(sender_address, sender_address, text)
             session.quit()
             print('*** Mail sent ***')
