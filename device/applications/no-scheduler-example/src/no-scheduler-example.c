@@ -25,7 +25,6 @@ float SHTData[2];
 volatile _Bool interruptFlag=0; 
 volatile uint8_t interruptFlagBle=0; 
 uint16_t LoRaWAN_Counter = 0;
-//uint8_t lora_init = 0;
 uint64_t short_UID;
 volatile uint8_t safeCounter = 0;
 volatile uint8_t DangerCounter = 0;
@@ -40,15 +39,8 @@ static uint8_t maxSafeCounter = 5;
 static uint8_t maxDangerCounter = 5;
 static uint8_t maxEmergencyCounter = 5;
 
-static uint16_t NormalSleepCounter = 0x000A;
 uint16_t NormalSleepTime = 0x000A;
 uint16_t EmergencySleepTime = 0x000A;
-static uint16_t EmergencySleepCounter = 0x0005;
-static uint16_t OneMinute = 0x003C;
-static uint16_t fiveMinute = 0x012C;
-static uint16_t halfMinute = 0x001E;
-static uint16_t tenSeconds = 0x000A;
-static uint16_t fiveSeconds = 0x0005;
 
 volatile uint16_t TemperatureTreshold[2];
 volatile uint16_t HumidityTreshold[2];
@@ -82,7 +74,6 @@ uint8_t charCounter;
 //RTC 
 RTC_HandleTypeDef hrtc;
 
-// static void SystemPower_Config(void);
 static void MX_RTC_Init(void);
 
 
@@ -97,7 +88,6 @@ bool calculateDanger();
 
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
 #if USE_BOOTLOADER
   bootloader_SetVTOR();
 #endif
@@ -105,12 +95,6 @@ int main(void)
   HAL_Init();
  
   SystemClock_Config();
-
-    /* Enable Power Clock */
-//  __HAL_RCC_PWR_CLK_ENABLE();
-  
-  /* Ensure that MSI is wake-up system clock */ 
-//  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
 
   MX_RTC_Init();
 
@@ -125,15 +109,15 @@ int main(void)
 //init for gas sensor
   SPG30_Initialize();
   P3_I2C_Init();
-//LSM303AGR_setI2CInterface(&common_I2C);
-  setI2CInterface_SHT31(&common_I2C);
+  setI2CInterface_SHT31(&common_I2C); 
+
   SHT31_begin(); 
 
   LorawanInit();
 
-  //setUpDefaultValuesforTresholds();
 
-//  LSM303AGR_init();
+ // setUpDefaultValuesforTresholds();
+
 
 if (Print_SERIAL)
   printWelcome();
@@ -143,44 +127,14 @@ UpdateThresholdsFromFlashBLE();
  
 Murata_LoRaWAN_Join(); 
 
-
-//Dash7_send(data , sizeof(data));
-
-SGP_Init();
-
-/*   SGP_Init();
-
-
-  //first do_meas is useless
-  do_measurement(2000); */
-//  sleep(15);
-
-
-
-        ////////////// while test wake up
-
-
-/*         while (1){
-              IWDG_feed(NULL); 
-              sgp_iaq_init();
-            quickBlink();
-
-           // printf("wake\r\n");
-            //printf("going in sleep mode\r\n");
-            HAL_Delay(3000);
-
-            SGP_Sleep();
-
-            HAL_Delay(3000);
-
-            sleep(tenSeconds);
-        } */
-
-
-        /////////////////////////// end while test wake up
 ////////////////////////  small while test loop   //////////////////////////////
-/*
+/* 
   HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
+
+
+  SGP_Init();
+
+
          while (1){
 IWDG_feed(NULL);
 
@@ -188,20 +142,20 @@ IWDG_feed(NULL);
     
 
 NormalMode = !NormalMode;
-  do_measurement();
+  do_measurement(4);
   danger = calculateDanger();
 
   LoadBuffer();
 
-  Murata_toggleResetPin();
+//  Murata_toggleResetPin();
   
-  //LoRaWAN_send(buffer,sizeof(buffer));LoRaWAN_send
+  //LoRaWAN_send(buffer,sizeof(buffer));
   Dash7_send(buffer, sizeof(buffer));
   WaitSend(5000);
 
         
-} */
-
+}
+ */
 
 
 //////////////////////// end small while loop   ////////////////////////////
@@ -213,19 +167,9 @@ NormalMode = !NormalMode;
     
 
       // feed watchdog tmer
-      IWDG_feed(NULL); 
-    /* USER CODE END WHILE */
+      IWDG_feed(NULL);  
 
-/* if(murata_data_ready)
-    {
-      printf("processing murata fifo\r\n");
-      murata_data_ready = !Murata_process_fifo();
-    }
-  } */
-
-    
-
-    //de interrupt zal zorgen dat de flag op 1 staat, dan doen we een measurement van temp
+    //de interrupt will put the flag op 1
     if (interruptFlag==1) {
       if (Print_SERIAL){
           printf("\033[2J");
@@ -237,23 +181,17 @@ NormalMode = !NormalMode;
     }
 
 
-    //wake up SGP-sensor and wait for 15 seconds.
-  //  SGP_Init();
-
- // Flash(); //wake up 
-
-   // do_measurement(0x000F);
 
 ///////////////////////////  NORMAL MODE  ////////////////////////////////////
     if (NormalMode){
+
+
 
      if (Print_SERIAL) 
          quickBlink();
 
 
-      //////////////////  if BLE, commincate  
-      //printf("Testing\n\r");
-      //printf("INter flag is: %d\n\r",interruptFlagBle);
+      //////////////////  if BLE, commincate   /////////////////////
 
       if(interruptFlagBle!=0){
 
@@ -269,14 +207,18 @@ NormalMode = !NormalMode;
 
       }
 
-      ////////////// end BLE
+      ////////////// end BLE  /////////////////////////////////
 
+    //wake up SGP-sensor 
+    SGP_Init();
 
-      do_measurement(0x0002);
+    // wait for 15 s and do calibration message
+    do_measurement(0x000F);
 
-    //  SGP_Sleep();
+      //usefull data 
+    do_measurement(0x0002);
 
-      danger =  calculateDanger();
+      danger =  calculateDanger(); 
 
       if (danger){
 
@@ -299,7 +241,6 @@ NormalMode = !NormalMode;
             printf("enter emergency mode on next wake up\r\n");
         }
         else {
-          // TODO: SEND data only on dash 7.
           if (Print_SERIAL)
             printf("send Dash7 data\r\n");
 
@@ -307,14 +248,13 @@ NormalMode = !NormalMode;
           LoadBuffer();
 
           Dash7_send(buffer,sizeof(buffer));
-         //LoRaWAN_send(buffer, sizeof(buffer));
          WaitSend(5000);
          
         }
       }
 
       else {
-        //if (Print_SERIAL)
+        if (Print_SERIAL)
           printf("clear\r\n");
         safeCounter++;
         DangerCounter = 0;
@@ -337,11 +277,11 @@ NormalMode = !NormalMode;
       sleep(NormalSleepTime);
     }
 
-///////////////////////  EMERfGENCY MODE /////////////////////////////
+///////////////////////  EMERfGENCY MODE  ////////////////////////////
     else{
 
    // if (Print_SERIAL)
-      printf("Emergency");
+      printf("Emergency\r\n");
 
 
       //update emergency counter
@@ -354,29 +294,36 @@ NormalMode = !NormalMode;
         //do measurements & calculate danger.
         //if there is still is danger, remain in emergency mode
 
-        do_measurement(15000);
+
+        // wake up SGP sensor, 15 s and again 2 s
+        SGP_Init();
+
+
+        do_measurement(0x000F);
+
+        do_measurement(0x0002);
+
         danger = calculateDanger();
 
         if (danger){
-          // TODO: send data on lora & DASH7
           if (Print_SERIAL)
             printf("recalculated emergengy data is dangerous DASH7\r\n");
           LoadBuffer();
        } 
         else{
+          //put safe counter back on 
+          safeCounter = 4;
           NormalMode = 1;
         }
 
       }
 
       else{
-        // TODO: send data on lora & dash7
         if (Print_SERIAL)
           printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
 
           buffer[13] = (uint8_t)Message_Counter++;
           Dash7_send(buffer,sizeof(buffer));
-          //LoRaWAN_send(buffer, sizeof(buffer));
           WaitSend(5000);
 
 
@@ -386,10 +333,7 @@ NormalMode = !NormalMode;
     sleep(EmergencySleepTime);
 
     }
-
-    /* USER CODE BEGIN 3 */
   }
-  /* USER CODE END 3 */
 }
 
 
@@ -511,14 +455,10 @@ void printWelcome(void)
  /* RTC init function */
 static void MX_RTC_Init(void)
 {
-  /* USER CODE BEGIN RTC_Init 0 */
-  /* USER CODE END RTC_Init 0 */
+
   RTC_TimeTypeDef sTime;
   RTC_DateTypeDef sDate;
-  /* USER CODE BEGIN RTC_Init 1 */
-  /* USER CODE END RTC_Init 1 */
-    /**Initialize RTC Only 
-    */
+
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
   hrtc.Init.AsynchPrediv = 127;
@@ -580,28 +520,19 @@ void sleep(uint16_t timer)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  /* USER CODE BEGIN Callback 0 */
 
-  /* USER CODE END Callback 0 */
   if (htim->Instance == TIM1)
   {
     HAL_IncTick();
   }
-  /* USER CODE BEGIN Callback 1 */
 
-  /* USER CODE END Callback 1 */
 }
 
-//See platform>octa>stm32l4xx_it.c there we placed exti15_10 function to capture interrupts on one of the pins 10-15 on connector B,C,D
-// (see slides of Mr weyn for the exact function name). In this function we call the "HAL_GPIO_EXTI_IRQHandler" function in the stm32l4xx_hal_gpio.c
-// file. In this function the "HAL_GPIO_EXTI_Callback" is called, which we define below 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   if (GPIO_Pin==GPIO_Pin_13) {
   interruptFlag = 1; 
   printf("interrupt accelerometer! \r\n");
-  // we work with a flag so as to make sure that we don't stay in the callback for too long. This will cause disruption. 
-  // the flag will call the measurement function in de while loop
-  } 
+ } 
 }
 
 void print_data(void){
@@ -614,16 +545,15 @@ void print_data(void){
 
 void do_measurement(uint16_t delay){
 
+if (delay < 5){
   SHT31_get_temp_hum(SHTData);
-
-//SGP_Init();
-
-  //sleep(0x0015);
-
-  //sleep (delay);
+}
 
 
-   err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
+  sleep (delay);
+
+
+  err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
   if ((err == STATUS_OK) && Print_SERIAL){
     print_data();
   }
@@ -632,10 +562,10 @@ void do_measurement(uint16_t delay){
       printf("error while reading data\r\n");
   }
 
- /*  if (delay < 5){
-       // SGP_Sleep();
-       Flash();
-  }  */
+  if (delay < 5){
+       SGP_Sleep();
+      Flash();
+  } 
 
 }
 
@@ -662,14 +592,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void quickBlink(void){
   HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
- //   printf("\33[2K");
     HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
 }
 
 void Flash(void){
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
- //   printf("\33[2K");
     HAL_Delay(100);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
     HAL_Delay(10);
@@ -823,7 +751,9 @@ void SGP_Sleep(void){
 }
 
 void SGP_Init(void){
-    while(sgp_probe() != STATUS_OK)
+
+  //  Flash(); 
+     while(sgp_probe() != STATUS_OK)
     {
       if (Print_SERIAL)
     	  printf("SGP sensor probing faiLed ... check SGP30 I2C connection and power\r\n");
@@ -832,7 +762,7 @@ void SGP_Init(void){
     if (Print_SERIAL)
       printf("SGP sensor probing successful\r\n");
 
-    /* Read gas signals */
+    // * Read gas signals 
     err = sgp_measure_signals_blocking_read(&scaled_ethanol_signal, &scaled_h2_signal);
     if((err == STATUS_OK) && (Print_SERIAL))
     {
@@ -850,6 +780,6 @@ void SGP_Init(void){
     	  printf("error reading Ethanol and H2 signals\r\n");
     }
         err = sgp_iaq_init();
-       // HAL_Delay(700);
-       // SGP_Sleep();
+ 
+        
 }
