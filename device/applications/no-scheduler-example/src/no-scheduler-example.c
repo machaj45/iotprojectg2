@@ -35,9 +35,9 @@ uint8_t murata_init = 0;
 
 volatile activeSending = 0;
 
-static uint8_t maxSafeCounter = 5;
-static uint8_t maxDangerCounter = 5;
-static uint8_t maxEmergencyCounter = 5;
+static uint8_t maxSafeCounter = 3;
+static uint8_t maxDangerCounter = 3;
+static uint8_t maxEmergencyCounter = 3;
 
 uint16_t NormalSleepTime = 0x000A;
 uint16_t EmergencySleepTime = 0x000A;
@@ -116,7 +116,7 @@ int main(void)
   LorawanInit();
 
 
- // setUpDefaultValuesforTresholds();
+  setUpDefaultValuesforTresholds();
 
 
 if (Print_SERIAL)
@@ -128,7 +128,7 @@ UpdateThresholdsFromFlashBLE();
 Murata_LoRaWAN_Join(); 
 
 ////////////////////////  small while test loop   //////////////////////////////
-/* 
+/*
   HAL_UART_Receive_IT(&BLE_UART, data, sizeof(data));
 
 
@@ -145,19 +145,24 @@ NormalMode = !NormalMode;
   do_measurement(4);
   danger = calculateDanger();
 
+  if (!NormalMode){
+    danger = true;
+  }
+
   LoadBuffer();
 
 //  Murata_toggleResetPin();
   
-  //LoRaWAN_send(buffer,sizeof(buffer));
+ // LoRaWAN_send(buffer,sizeof(buffer));
+
+           
+  modem_reinit();
   Dash7_send(buffer, sizeof(buffer));
   WaitSend(5000);
 
         
 }
  */
-
-
 //////////////////////// end small while loop   ////////////////////////////
 
 
@@ -246,7 +251,7 @@ NormalMode = !NormalMode;
 
           //LOAD data in buffer 
           LoadBuffer();
-
+          modem_reinit();
           Dash7_send(buffer,sizeof(buffer));
          WaitSend(5000);
          
@@ -312,7 +317,7 @@ NormalMode = !NormalMode;
        } 
         else{
           //put safe counter back on 
-          safeCounter = 4;
+          safeCounter = maxSafeCounter;
           NormalMode = 1;
         }
 
@@ -323,6 +328,7 @@ NormalMode = !NormalMode;
           printf("SEND STORED DASH7 EMERGENCY DATA\r\n");
 
           buffer[13] = (uint8_t)Message_Counter++;
+          modem_reinit();
           Dash7_send(buffer,sizeof(buffer));
           WaitSend(5000);
 
@@ -432,7 +438,7 @@ void printWelcome(void)
   printf("\033[H");
   printf("\r\n");
   printf("*****************************************\r\n");
-  printf("************ Ultimate Gard **************\r\n");
+  printf("************ Ultimate Guard **************\r\n");
   printf("*****************************************\r\n");
   printf("\r\n");
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
@@ -545,6 +551,10 @@ void print_data(void){
 
 void do_measurement(uint16_t delay){
 
+
+if (delay > 11){
+  printf("CALIBRATION MEASUREMENT START\r\n");
+}
 if (delay < 5){
   SHT31_get_temp_hum(SHTData);
 }
@@ -554,18 +564,25 @@ if (delay < 5){
 
 
   err = sgp_measure_iaq_blocking_read(&tvoc_ppb, &co2_eq_ppm);
-  if ((err == STATUS_OK) && Print_SERIAL){
-    print_data();
+  if ((err == STATUS_OK) && Print_SERIAL ){
+    if (delay < 10){
+      print_data();
+    }
   }
   else{
     if (Print_SERIAL)
       printf("error while reading data\r\n");
   }
 
+
+
   if (delay < 5){
        SGP_Sleep();
       Flash();
   } 
+  else {
+    printf("CALIBRATION MEASUREMENT END\r\n");
+  }
 
 }
 
