@@ -706,6 +706,7 @@ void onBLE() {
   
   uint8_t ack[22];
   ack[0]=0x00;
+
   readInFlash(0,ack+1,sizeof(ack));
   ack[21]=0x0A;
   HAL_UART_Transmit(&BLE_UART, ack, sizeof(ack),0xFF);
