@@ -193,7 +193,7 @@ NormalMode = !NormalMode;
 
 
      if (Print_SERIAL) 
-         quickBlink();
+         quickBlinkBlue();
 
 
       //////////////////  if BLE, commincate   /////////////////////
@@ -220,12 +220,16 @@ NormalMode = !NormalMode;
     // wait for 15 s and do calibration message
     do_measurement(0x000F);
 
+    quickBlinkGreen();
       //usefull data 
     do_measurement(0x0002);
 
       danger =  calculateDanger(); 
 
       if (danger){
+
+              Flash();
+
 
         if (Print_SERIAL)
           printf("DANGER\r\n");
@@ -292,7 +296,7 @@ NormalMode = !NormalMode;
       //update emergency counter
       EmergencyCounter++;
 
-      quickBlink();
+      quickBlinkRed();
       if (EmergencyCounter >= maxEmergencyCounter){
         EmergencyCounter = 0;
 
@@ -306,11 +310,15 @@ NormalMode = !NormalMode;
 
         do_measurement(0x000F);
 
+        quickBlinkGreen();
+
         do_measurement(0x0002);
 
         danger = calculateDanger();
 
         if (danger){
+                Flash();
+
           if (Print_SERIAL)
             printf("recalculated emergengy data is dangerous DASH7\r\n");
           LoadBuffer();
@@ -578,7 +586,6 @@ if (delay < 5){
 
   if (delay < 5){
        SGP_Sleep();
-      Flash();
   } 
   else {
     printf("CALIBRATION MEASUREMENT END\r\n");
@@ -607,16 +614,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   * @retval None
   */
 
-void quickBlink(void){
+void quickBlinkRed(void){
   HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
 }
 
-void Flash(void){
+void quickBlinkBlue(void){
   HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
-    HAL_Delay(100);
+    HAL_Delay(500);
     HAL_GPIO_TogglePin(OCTA_BLED_GPIO_Port, OCTA_BLED_Pin);
+}
+
+void quickBlinkGreen(void){
+  HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+    HAL_Delay(500);
+    HAL_GPIO_TogglePin(OCTA_GLED_GPIO_Port, OCTA_GLED_Pin);
+}
+
+void Flash(void){
+  HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
+    HAL_Delay(100);
+    HAL_GPIO_TogglePin(OCTA_RLED_GPIO_Port, OCTA_RLED_Pin);
     HAL_Delay(10);
 }
 
