@@ -1,8 +1,8 @@
-# EPIC ULTIMATE MOTION SENSORIC BOARD
-This is repo for iotprojecet under supervision of university of antwerpen
+# Enviroment Warner
+This is semestral work for IOT. That can save your live. In this repository you can found code for device it self and code for server side and alos code for android app that helps with seting up the device.
 
 
-# Start clone IT!
+# How to clone this repository!
 
 ```
 git clone git@github.com:machaj45/iotprojectg2.git
@@ -10,11 +10,13 @@ git clone git@github.com:machaj45/iotprojectg2.git
 
 ## This project is configured for working with klaxalk setup.
 
-#ruben
 ```
 git clone https://github.com/klaxalk/linux-setup.git
 ```
 Then read readme.md for how to install the setup
+
+## You can also use Visula studio
+Setup for Visual studio is in repository it self.
 
 ## Also you have to add those lines to you .i3/confige file
 
