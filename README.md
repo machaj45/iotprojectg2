@@ -28,7 +28,7 @@ make
 ```
 jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1
 h
-loadbin /home/machy/git/iotprojectg2/device/applications/no-scheduler-example/build/no-scheduler-example.bin,0x08000000" 
+loadbin {git_repo}/device/applications/no-scheduler-example/build/no-scheduler-example.bin,0x08000000" 
 r 
 g 
 ```
