@@ -27,6 +27,10 @@ make
 ## How to programm the device
 ```
 jlinkexe -device STM32L496ZG -if SWD -speed 4000 -autoconnect 1
+h
+loadbin /home/machy/git/iotprojectg2/device/applications/no-scheduler-example/build/no-scheduler-example.bin,0x08000000" 
+r 
+g 
 ```
 # Backend
 This is server side logic of our application
