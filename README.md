@@ -18,7 +18,7 @@ Then read readme.md for how to install the setup
 ## You can also use Visula studio
 Setup for Visual studio is in repository it self.
 
-## How to compale code 
+## How to compile code 
 Run:
 ```
 cd {git_repo}/device/application/no-schedguler-example
