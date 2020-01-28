@@ -48,3 +48,17 @@ You can see last measurements done with the main_service script
 ```
 cat {git_repo}/backend/main_service/measurements.json
 ```
+
+# More information
+
+## Final presentation
+Go to:
+```
+{git_repo}/presentation/final_presentation.pdf
+```
+
+## Power measurements
+Go to:
+```
+{git_repo}/documentation/power measurements
+```
