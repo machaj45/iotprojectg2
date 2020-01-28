@@ -35,3 +35,10 @@ Run with python:
 ```
 python {git_repo}/backend/main_service/main_service.py
 ```
+
+## Measurements
+
+You can see last measurements done with the main_service script
+```
+cat {git_repo}/backend/main_service/measurements.json
+```
