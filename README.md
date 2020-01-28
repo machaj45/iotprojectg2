@@ -1,5 +1,5 @@
 # Enviroment Warner
-This is semestral work for IOT. That can save your live. In this repository you can found code for device it self and code for server side and alos code for android app that helps with seting up the device.
+This is semestral work for IOT. That can save your live. In this repository you can found code for device it self and code for server side and also code for android app that helps with seting up the device.
 
 
 # How to clone this repository!
