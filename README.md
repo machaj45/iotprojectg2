@@ -27,7 +27,7 @@ bindsym $mod2+f exec ~/iotprojectg2/device/applications/iotproject/tmux/flash.sh
 ```
 
 # Backend
-This is our server side logic of our application
+This is server side logic of our application
 
 ## How to run it?
 
